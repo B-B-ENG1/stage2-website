@@ -68,7 +68,7 @@
                             <tr>
                                 <td>UR_MAP<br>FR_COLLISION<br>FR_MAP_LIMIT</td>
                                 <td>University maze style map + collision system</td>
-                                <td>GameScreen, Player</td>
+                                <td>GameScreen, PiazzaScreen, RonCookeScreen, LangwithScreen, Player</td>
                                 <td>TiledMap with collision layers</td>
                             </tr>
                             <tr>
@@ -78,19 +78,31 @@
                                 <td>WASD/Arrow movement + item interaction and left click</td>
                             </tr>
                             <tr>
-                                <td>UR_GAME_COMPLETION<br>FR_WIN_LOSE<br>FR_WIN_LOSE_SCREEN</td>
-                                <td>Win/lose game completion screens</td>
-                                <td>GameScreen, WinScreen, GameOverScreen</td>
-                                <td>5-minute timer with win/lose screen + bus escape event</td>
+                                <td>UR_WIN</td>
+                                <td>Player wins when condition is met</td>
+                                <td>GameScreen, RonCookeScreen, LangwithScreen, PiazzaScreen, Player</td>
+                                <td>Win condition triggers transition</td>
                             </tr>
                             <tr>
-                                <td>UR_PLAYER_ABILITIES<br>FR_TORCH<br>FR_KEYCARD<br>FR_FOOD</td>
+                                <td>UR_LOSE</td>
+                                <td>Player lose when time expires</td>
+                                <td>GameScreen, RonCookeScreen, LangwithScreen, PiazzaScreen</td>
+                                <td>Timer expiry triggers loss</td>
+                            </tr>
+                            <tr>
+                                <td>UR_END<br>FR_END_SCREEN</td>
+                                <td>System shows end screen after win/loss</td>
+                                <td>WinScreen, GameOverScreen, Main</td>
+                                <td>Main switches screen to Win/GameOver</td>
+                            </tr>
+                            <tr>
+                                <td>UR_PLAYER_ABILITIES<br>FR_TORCH<br>FR_KEYCARD</td>
                                 <td>Player interactions with surroundings/items</td>
-                                <td>Player, Collectable, RonCookeScreen, LangwithScreen</td>
+                                <td>Player, Collectable, EnergyDrink, Torch, RonCookeScreen, LangwithScreen, PiazzaScreen</td>
                                 <td>Torch lighting, keycard access, pizza speed boost</td>
                             </tr>
                             <tr>
-                                <td>UR_CHALLENGE<br>FR_GOOSE<br>FR_HIDDEN_GOOSE_EVENT</td>
+                                <td>UR_ENEMY<br>FR_GOOSE<br>FR_HIDDEN_GOOSE_EVENT</td>
                                 <td>Challenging interactions/events</td>
                                 <td>Goose, GameScreen</td>
                                 <td>Goose steals torch, baby geese hidden event</td>
@@ -102,6 +114,36 @@
                                 <td>LibGDX framework runs on Windows, Mac and Linux</td>
                             </tr>
                             <tr>
+                                <td>UR_HIDDEN</td>
+                                <td>Hidden events occur during gameplay</td>
+                                <td>GameScreen, RonCookeScreen, LangwithScreen, PiazzaScreen</td>
+                                <td>Random/trigered event logic</td>
+                            </tr>
+                            <tr>
+                                <td>UR_HINDRANCE<br>FR_PUDDLE<br>FR_RAIN<br>FR_WORM</td>
+                                <td>Hindering events slow or disrupt player</td>
+                                <td>GameScreen, Player</td>
+                                <td>Speed/controls modified</td>
+                            </tr>
+                            <tr>
+                                <td>UR_BENEFIT<br>FR_ENERGY_DRINK</td>
+                                <td>Beneficial events/items assist player</td>
+                                <td>EnergyDrink, Collectable, Player</td>
+                                <td>Pickup applies boost</td>
+                            </tr>
+                            <tr>
+                                <td>UR_INSTRUCTIONS<br>FR_INSTRUCTIONS_MENU</td>
+                                <td>Instructions accessible from main menu</td>
+                                <td>MainMenuScreen, InstructionsScreen, Main</td>
+                                <td>UI button/menu route</td>
+                            </tr>
+                            <tr>
+                                <td>UR_CHAR<br>FR_CHARACTER_SELECTION</td>
+                                <td>Player can choose character appearance before starting</td>
+                                <td>Main, UsernameScreen, CharacterSelectScreen</td>
+                                <td>Selected sprite path passed to GameScreen</td>
+                            </tr>
+                            <tr>
                                 <td>UR_STYLE<br>FR_VISUALS</td>
                                 <td>Top-down 2D university map</td>
                                 <td>SpriteAnimations, All Screens</td>
@@ -110,19 +152,19 @@
                             <tr>
                                 <td>UR_TIME_LIMIT<br>FR_COUNTDOWN<br>FR_PAUSE_COUNTDOWN</td>
                                 <td>Limited game duration</td>
-                                <td>GameScreen, PauseScreen, Main</td>
+                                <td>GameScreen, PiazzaScreen, RonCookeScreen, LangwithScreen, PauseScreen, Main</td>
                                 <td>5-minute countdown - pause during pause menu</td>
                             </tr>
                             <tr>
                                 <td>UR_MENUS<br>FR_MAIN_MENU<br>FR_SETTINGS<br>FR_PAUSE<br>FR_LOCAL_SCORE</td>
                                 <td>Multiple menu screens</td>
-                                <td>MainMenuScreen, CharacterSelectScreen, PauseScreen, InstrunctionsScreen</td>
+                                <td>MainMenuScreen, UsernameScreen, CharacterSelectScreen, InstructionsScreen, PauseScreen, WinScreen, GameOverScreen, AchievementsScreen</td>
                                 <td>Main menu, character select, pause, and instruction screens</td>
                             </tr>
                             <tr>
-                                <td>UR_UI<br>FR_SCORE<br>FR_ACTIVE_CHALLENGE<br>FR_CLOCK</td>
+                                <td>UR_UI<br>FR_SCORE<br>FR_HOTBAR<br>FR_ACTIVE_CHALLENGE<br>FR_CLOCK</td>
                                 <td>Pleasant and understandable UI</td>
-                                <td>GameScreen, All Menu Screens</td>
+                                <td>GameScreen, PiazzaScreen, RonCookeScreen, LangwithScreen, All Menu Screens</td>
                                 <td>HUD with score, timer, events and inventory</td>
                             </tr>
                             <tr>
@@ -140,8 +182,32 @@
                             <tr>
                                 <td>UR_LEADERBOARD</td>
                                 <td>View past scores</td>
-                                <td>Not implemented</td>
-                                <td>Not implemented</td>
+                                <td>LeaderboardManager, WinScreen, AchievementsScreen</td>
+                                <td>Scores stored and displayed after game completion</td>
+                            </tr>
+                            <tr>
+                                <td>UR_ACHIEVEMENT<br>FR_ACHIEVEMENTS</td>
+                                <td>Display achievements after game completion</td>
+                                <td>AchievementsScreen, WinScreen, Main</td>
+                                <td>WinScreen -> AchievementsScreen</td>
+                            </tr>
+                            <tr>
+                                <td>UR_AUDIO<br>UR_VOLUME<br>FR_MUSIC<br>FR_VOLUME_ADJUST</td>
+                                <td>Mute/unmute and adjust volume via pause/settings</td>
+                                <td>AudioManager, PauseScreen, Main</td>
+                                <td>Volume settings applied globally</td>
+                            </tr>
+                            <tr>
+                                <td>UR_SINGLE</td>
+                                <td>System is single-player only</td>
+                                <td>GameScreen, Main</td>
+                                <td>no multiplayer feature</td>
+                            </tr>
+                            <tr>
+                                <td>UR_FAMILY</td>
+                                <td>Content is age-appropriate</td>
+                                <td>All Screens (system-wide)</td>
+                                <td>design constraint</td>
                             </tr>
                         </tbody>
 
@@ -167,16 +233,40 @@
                                 <td>Optimize map size + move speed</td>
                             </tr>
                             <tr>
+                            <td>NFR_MAP_LOAD</td>
+                            <td>Maps shall load without noticeable delay</td>
+                            <td>Main, GameScreen, RonCookeScreen, LangwithScreen, PiazzaScreen</td>
+                            <td>Preloading tiled maps and assets via LibGDX asset handling</td>
+                             </tr>
+                            <tr>
                                 <td>NFR_PLAYER_RESPONSE</td>
                                 <td>Quick input response (&lt;1ms)</td>
-                                <td>Player, GameScreen</td>
+                                <td>Player, GameScreen, RonCookeScreen, LangwithScreen, PiazzaScreen</td>
                                 <td>Direct input handling in game loop</td>
+                            </tr>
+                            <tr>
+                            <td>NFR_GAMESPEED</td>
+                            <td>Gameplay speed shall remain consistent across devices</td>
+                            <td>GameScreen, Player, Goose, Lighting</td>
+                            <td>Delta-time based updates and frame-rate independent movement</td>
                             </tr>
                             <tr>
                                 <td>NFR_GAME_END</td>
                                 <td>Game finishes within set time</td>
                                 <td>GameScreen, Main</td>
                                 <td>5-minute timer</td>
+                            </tr>
+                            <tr>
+                            <td>NFR_OS_VERSIONS</td>
+                            <td>The game shall run on Windows, macOS and Linux systems</td>
+                            <td>Main</td>
+                            <td>LibGDX cross-platform deployment and JVM compatibility</td>
+                            </tr>
+                            <tr>
+                                <td>NFR_EASE</td>
+                                <td>Learnable within ~2 minutes; playable without frustration</td>
+                                <td>GameScreen, MainMenuScreen, InstructionsScreen</td>
+                                <td>Instructions and simple controls as well as prompts</td>
                             </tr>
                         </tbody>
 

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ENG1 Project - Cohort 4 Team 6</title>
+    <title>ENG1 Project stage 2 - B&B (team 8)</title>
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 
@@ -83,6 +83,24 @@
           <li>Main - provides access to shared assets (batch, menuFont, buttonSkin) and handles screen transitions.</li>
           <li>CharacterSelectScreen - launched when the player selects “Play.”</li>
           <li>LibGDX Stage - used for UI rendering and input event management.</li>
+        </ul>
+      </div>
+
+      <!-- UsernameScreen -->
+      <div class="crc-card">
+        <h3>UsernameScreen</h3>
+        <p><strong>Responsibilities:</strong></p>
+        <ul>
+          <li>Collects and validates the player’s username before gameplay begins.</li>
+          <li>Displays UI elements for name entry using Stage and Skin.</li>
+          <li>Stores the confirmed username for later use (e.g., leaderboard records).</li>
+          <li>Transitions to CharacterSelectScreen once the username is confirmed.</li>
+        </ul>
+        <p><strong>Collaborators:</strong></p>
+        <ul>
+          <li>Main - provides shared UI resources and handles screen transitions.</li>
+          <li>CharacterSelectScreen - next screen once username is confirmed.</li>
+          <li>LibGDX Stage/Skin - UI rendering and input handling.</li>
         </ul>
       </div>
 
@@ -222,6 +240,23 @@
         </ul>
       </div>
 
+      <!-- AchievementsScreen -->
+      <div class="crc-card">
+        <h3>AchievementsScreen</h3>
+        <p><strong>Responsibilities:</strong></p>
+        <ul>
+          <li>Displays unlocked achievements and progress after a completed run.</li>
+          <li>Renders achievement UI elements consistently across screen sizes.</li>
+          <li>Handles user input to return to the WinScreen (or main menu depending on flow).</li>
+        </ul>
+        <p><strong>Collaborators:</strong></p>
+        <ul>
+          <li>Main - manages transitions and shared resources (batch, fonts, viewport).</li>
+          <li>WinScreen - links to achievements after winning.</li>
+          <li>LeaderboardManager (if used) - may provide achievement/score-related data.</li>
+        </ul>
+      </div>
+
       <!-- AudioManager -->
       <div class="crc-card">
         <h3>AudioManager</h3>
@@ -277,6 +312,40 @@
         </ul>
       </div>
 
+            <!-- EnergyDrink -->
+      <div class="crc-card">
+        <h3>EnergyDrink</h3>
+        <p><strong>Responsibilities:</strong></p>
+        <ul>
+          <li>Implements a collectable that applies an energy/speed-related effect when picked up.</li>
+          <li>Defines any effect duration/behaviour specific to the energy drink item.</li>
+        </ul>
+        <p><strong>Collaborators:</strong></p>
+        <ul>
+          <li>Collectable - inherits base collection behaviour/state.</li>
+          <li>Player - receives the item effect (e.g., speed/boost changes).</li>
+          <li>AudioManager - plays the collection sound effect.</li>
+        </ul>
+      </div>
+
+      <!-- Torch -->
+      <div class="crc-card">
+        <h3>Torch</h3>
+        <p><strong>Responsibilities:</strong></p>
+        <ul>
+          <li>Implements a collectable that enables or upgrades player lighting behaviour.</li>
+          <li>Updates any torch-specific state used by Player/Lighting.</li>
+        </ul>
+        <p><strong>Collaborators:</strong></p>
+        <ul>
+          <li>Collectable - inherits base collection behaviour/state.</li>
+          <li>Player - uses torch state for gameplay (e.g., rotation/held item behaviour).</li>
+          <li>Lighting - lighting may react to torch state/position.</li>
+          <li>AudioManager - plays the collection sound effect.</li>
+        </ul>
+      </div>
+
+
       <!-- InstructionsScreen -->
       <div class="crc-card">
         <h3>InstructionsScreen</h3>
@@ -292,7 +361,7 @@
         <ul>
           <li>Main - provides assets and controls screen transitions.</li>
           <li>GameScreen - switches to the game screen when Play is clicked.</li>
-          <li>CharacterSelectScreen - navigated to when the Space key is pressed.</li>
+          <li>MainMenuScreen - returned to when the user exits instructions.</li>
           <li>Stage, Skin - used to render and handle UI elements like buttons.</li>
         </ul>
       </div>
@@ -340,6 +409,26 @@
           <li>Collectable - defines and updates collectable items within the game world.</li>
         </ul>
       </div>
+
+      <!-- PiazzaScreen -->
+    <div class="crc-card">
+      <h3>PiazzaScreen</h3>
+      <p><strong>Responsibilities:</strong></p>
+      <ul>
+        <li>Displays the interior of the Piazza building.</li>
+        <li>Manages local gameplay interactions inside this building (movement, collection, UI elements).</li>
+        <li>Updates timer/event UI where applicable and supports pausing.</li>
+        <li>Transitions back to GameScreen when exiting the building.</li>
+      </ul>
+      <p><strong>Collaborators:</strong></p>
+      <ul>
+        <li>Main - provides assets and manages screen transitions.</li>
+        <li>BuildingManager - coordinates building entry/exit logic.</li>
+        <li>Player - movement and interaction handling.</li>
+        <li>Collectable - building item interactions (if present).</li>
+      </ul>
+    </div>
+
 
       <!-- SpriteAnimations -->
       <div class="crc-card">
