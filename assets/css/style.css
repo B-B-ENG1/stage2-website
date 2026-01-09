@@ -227,7 +227,8 @@ h3 {
     padding-bottom: 0.5rem;
     border-bottom: 2px solid rgba(255, 184, 77, 0.3);
     font-size: 1.3rem;
-    display: inline-block;
+    display: block;
+    text-align: center;
 }
 
 #overview ul {
