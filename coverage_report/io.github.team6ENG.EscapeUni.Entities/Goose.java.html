@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Goose.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Entities</a> &gt; <span class="el_source">Goose.java</span></div><h1>Goose.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Entities;
+
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import io.github.team6ENG.EscapeUni.Managers.*;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.TextureRegionDelegate;
+import io.github.team6ENG.EscapeUni.World;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+
+/**
+ * Represents and controls a goose
+ */
+public class Goose extends SpriteAnimations {
+    public float x;
+    public float y;
+    private World world;
+<span class="fc" id="L19">    private HashMap&lt;String, Integer[]&gt; animationInfo = new HashMap&lt;String, Integer[]&gt;();</span>
+<span class="fc" id="L20">    public boolean isFacingLeft = true;</span>
+
+<span class="fc" id="L22">    private boolean hasStolenTorch = false;</span>
+    private Worm wormTarget;
+<span class="fc" id="L24">    private float eatingTimer = 0;</span>
+<span class="fc" id="L25">    private boolean eating = false;</span>
+
+    public TextureRegionDelegate currentGooseFrame;
+<span class="fc" id="L28">    protected float defaultSpeed = 0.7f;</span>
+    /**
+     * The factor by which speed is multiplied when it is raining.
+     */
+<span class="fc" id="L32">    public static int gooseCount = 0;</span>
+<span class="fc" id="L33">    private static float rainSpeedFactor = 1.5f;</span>
+<span class="fc" id="L34">    private int idleDistanceSquared = 2000;</span>
+    public boolean isFlying;
+    private TiledMapTileLayer.Cell cell;
+<span class="fc" id="L37">    public Goose baby = null;</span>
+<span class="fc" id="L38">    public boolean attackModeActivated = false;</span>
+<span class="fc" id="L39">    public boolean isSleeping = false;</span>
+<span class="fc" id="L40">    private List&lt;int[]&gt; runPath =  Arrays.asList(new int[]{700, 400}, new int[]{340, 300}, new int[]{600, 150}, new int[]{550, 50});</span>
+    /**
+     * Generate goose and its animations
+     */
+    public Goose(GraphicsManager graphicsManager, World world) {
+<span class="fc" id="L45">        super(graphicsManager, AssetManager.gooseAsset, 15, 17);</span>
+<span class="fc" id="L46">        this.world = world;</span>
+        // HashMap&lt;String, Integer[]&gt; animationInfo:
+        //      key - Name of animation
+        //      Value - Array representing row of animation on sprite sheet and index of start and end frames
+<span class="fc" id="L50">        animationInfo.put(&quot;walkLeft&quot;, new Integer[]{5,0,4});</span>
+<span class="fc" id="L51">        animationInfo.put(&quot;walkRight&quot;, new Integer[]{6,0,4});</span>
+<span class="fc" id="L52">        animationInfo.put(&quot;idleLeft&quot;, new Integer[]{16,0,5});</span>
+<span class="fc" id="L53">        animationInfo.put(&quot;idleRight&quot;, new Integer[]{15,0,5});</span>
+<span class="fc" id="L54">        animationInfo.put(&quot;flyRight&quot;, new Integer[]{11,0,10});</span>
+<span class="fc" id="L55">        animationInfo.put(&quot;flyLeft&quot;, new Integer[]{12,0,10});</span>
+<span class="fc" id="L56">        animationInfo.put(&quot;sleep&quot;, new Integer[]{13,5,10});</span>
+
+<span class="fc" id="L58">        gooseCount++;</span>
+<span class="fc" id="L59">        generateAnimation(animationInfo,0.13f);</span>
+
+
+<span class="fc" id="L62">    }</span>
+
+    /**
+     * Check if goose is obstructed
+     * @param tileX y position of tile approaching
+     * @param tileY y position of tile approaching
+     * @return true if goose can move, else false
+     */
+    private boolean isMoveAllowed(int tileX, int tileY) {
+        // check map boundaries
+<span class="pc bpc" id="L72" title="2 of 6 branches missed.">        if (tileX &lt; 0 || tileY &lt; 0 || tileX &gt;= wallsLayer.getWidth() ||</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">                tileY &gt;= wallsLayer.getHeight()) {</span>
+<span class="fc" id="L74">            return false;</span>
+        }
+
+        // check if tile is empty (null) or contains a wall
+<span class="fc" id="L78">        cell = wallsLayer.getCell(tileX, tileY);</span>
+<span class="pc bpc" id="L79" title="3 of 4 branches missed.">        if (cell == null || cell.getTile() == null) {</span>
+<span class="fc" id="L80">            return true;</span>
+        }
+
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        return cell.getTile().getId() != TileManager.mapWallsId;</span>
+    }
+
+    /**
+     * Determines whether the goose is picking up a worm.
+     * @return true if the goose is picking up a worm, and false otherwise.
+     */
+    public boolean isPickingWorm() {
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        return wormTarget != null;</span>
+    }
+
+    /**
+     * Assigns the x and y coordinates of the goose to the provided coordinates.
+     * @param x is the x-coordinate required of the goose.
+     * @param y is the y-coordinate required of the goose.
+     */
+    public void setPosition(float x, float y) {
+<span class="fc" id="L100">        this.x = x;</span>
+<span class="fc" id="L101">        this.y = y;</span>
+<span class="fc" id="L102">    }</span>
+
+    /**
+     * Provided there exists a worm which is targeted, either moves towards the
+     * target worm (if not currently eating it) or remains idle if eating it.
+     * @param delta is the time since the previous frame.
+     * @param stateTime is the current animation time state of the game.
+     * @param wormManager is the worm manager used to create the worms in the game.
+     */
+    private void targetWorm(float delta, float stateTime, WormManager wormManager) {
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">        if (wormTarget == null) return;</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">        if (!eating) {</span>
+<span class="fc" id="L114">            moveGoose(stateTime, wormTarget.x, wormTarget.y, true, false);</span>
+<span class="fc" id="L115">            float dx = Math.abs(x - wormTarget.x);</span>
+<span class="fc" id="L116">            float dy = Math.abs(y - wormTarget.y);</span>
+<span class="pc bpc" id="L117" title="1 of 4 branches missed.">            if (dx &lt; 8 &amp;&amp; dy &lt; 8) {</span>
+<span class="fc" id="L118">                eating = true;</span>
+<span class="fc" id="L119">                eatingTimer = 0;</span>
+            }
+<span class="fc" id="L121">        } else {</span>
+            // idle while eating
+<span class="fc" id="L123">            moveGoose(stateTime, wormTarget.x, wormTarget.y, false, false);</span>
+<span class="fc" id="L124">            eatingTimer += delta;</span>
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">            if (eatingTimer &gt;= 3f) {</span>
+                // remove the worm after goose eats it
+<span class="fc" id="L127">                wormManager.getWorms().remove(wormTarget);</span>
+<span class="fc" id="L128">                wormTarget.collect();</span>
+<span class="fc" id="L129">                wormTarget = null;</span>
+<span class="fc" id="L130">                eating = false;</span>
+            }
+        }
+<span class="fc" id="L133">    }</span>
+
+    /**
+     * Marks that the goose has stolen the torch, adjusting lighting
+     * and items accordingly.
+     */
+    public void stealTorch(Player plr, LightingManager lighting, ItemManager items) {
+<span class="fc" id="L140">        hasStolenTorch = true;</span>
+<span class="fc" id="L141">        world.negativeEventFound();</span>
+<span class="fc" id="L142">        lighting.isVisible(&quot;gooseTorch&quot;, true);</span>
+<span class="fc" id="L143">        lighting.isVisible(&quot;gooseNoTorch&quot;, false);</span>
+<span class="fc" id="L144">        lighting.isVisible(&quot;playerTorch&quot;, false);</span>
+<span class="fc" id="L145">        lighting.isVisible(&quot;playerNoTorch&quot;, true);</span>
+<span class="fc" id="L146">        items.getTorch().playerHas = false;</span>
+<span class="fc" id="L147">    }</span>
+
+    /**
+     * Determines whether the goose has stolen the torch.
+     * @return true if and only if the goose has stolen the torch.
+     */
+    public boolean hasStolenTorch() {
+<span class="fc" id="L154">        return hasStolenTorch;</span>
+    }
+
+    /**
+     * Contains the logic for the Goose targeting on this frame. It first
+     * checks for a worm to target if there isn't one already. If after this
+     * there is a target then {@code targetWorm} is run.
+     *
+     * Otherwise, it either runs to random locations if it has not stolen their
+     * torch yet, or will follow the player until it does.
+     * @param delta is the time since the previous frame.
+     * @param stateTime is the current animation time state of the game.
+     * @param wormManager is the worm manager used to create the worms in the game.
+     * @param player is the player to be followed.
+     */
+    public void target(float delta, float stateTime,
+                             WormManager wormManager,
+                             Player player) {
+        // If there is no current target then check to see if one is requested.
+<span class="fc bfc" id="L173" title="All 2 branches covered.">        if (wormTarget == null) {</span>
+<span class="fc" id="L174">            wormTarget = world.consumeWormPickupRequest();</span>
+        }
+        // If this results in a target being picked, then target the worm.
+<span class="fc bfc" id="L177" title="All 2 branches covered.">        if (wormTarget != null) {</span>
+<span class="fc" id="L178">            wormTarget.target();</span>
+<span class="fc" id="L179">            targetWorm(delta, stateTime, wormManager);</span>
+        }
+<span class="fc bfc" id="L181" title="All 2 branches covered.">        else if (!hasStolenTorch) {</span>
+<span class="fc" id="L182">            moveGoose(stateTime,</span>
+<span class="fc" id="L183">                player.sprite.getX() + (player.sprite.getWidth() / 2) - 20,</span>
+<span class="fc" id="L184">                player.sprite.getY() + (player.sprite.getHeight() / 2),</span>
+<span class="fc" id="L185">                player.isMoving(), false);</span>
+        }
+        else{
+<span class="fc" id="L188">            int[] runCoords = nextRunLocation();</span>
+<span class="fc" id="L189">            moveGoose(stateTime,runCoords[0],runCoords[1],true, false);</span>
+        }
+<span class="fc" id="L191">    }</span>
+
+    /**
+     * Move goose towards target and update animations
+     * @param stateTime time in seconds since last frame
+     * @param followX x of target
+     * @param followY y of target
+     * @param isPlayerMoving is player moving
+     */
+    public void moveGoose(float stateTime, float followX, float followY, boolean isPlayerMoving, boolean followIsSleeping) {
+<span class="fc" id="L201">        float speed = defaultSpeed;</span>
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">        if (world.isRaining()) {</span>
+<span class="nc" id="L203">            speed *= rainSpeedFactor;</span>
+        }
+<span class="fc" id="L205">        int tileX = (int)(x+ getWidth() / 2) / tileDimensions;</span>
+<span class="fc" id="L206">        int tileY = (int)(y+ getHeight() / 2) / tileDimensions;</span>
+<span class="fc" id="L207">        currentGooseFrame = animations.get(&quot;sleep&quot;).getKeyFrame(stateTime, true);</span>
+<span class="pc bpc" id="L208" title="1 of 2 branches missed.">        if (isSleeping){return;}</span>
+<span class="fc" id="L209">        float dx = (x-followX);</span>
+<span class="fc" id="L210">        float dy = (y-followY);</span>
+        // If target is in range, idle
+<span class="fc" id="L212">        boolean idle = false;</span>
+<span class="fc bfc" id="L213" title="All 2 branches covered.">        if (World.withinDistance(dx,dy,idleDistanceSquared)) {</span>
+<span class="fc bfc" id="L214" title="All 4 branches covered.">            if (!isPlayerMoving &amp;&amp; isMoveAllowed(tileX, tileY)) {</span>
+<span class="fc" id="L215">                idle = true;</span>
+<span class="pc bpc" id="L216" title="1 of 2 branches missed.">                if (isFacingLeft) {</span>
+<span class="fc" id="L217">                    currentGooseFrame = animations.get(&quot;idleLeft&quot;).getKeyFrame(stateTime, true);</span>
+                } else {
+<span class="nc" id="L219">                    currentGooseFrame = animations.get(&quot;idleRight&quot;).getKeyFrame(stateTime, true);</span>
+                }
+<span class="pc bpc" id="L221" title="1 of 2 branches missed.">                if (followIsSleeping) {</span>
+<span class="nc" id="L222">                    currentGooseFrame = animations.get(&quot;sleep&quot;).getKeyFrame(stateTime, true);</span>
+
+                }
+            }else{
+<span class="fc" id="L226">                speed *= 0.2f;</span>
+            }
+        }
+<span class="fc bfc" id="L229" title="All 2 branches covered.">        if (!idle) {</span>
+<span class="fc" id="L230">            isFlying = false;</span>
+<span class="fc bfc" id="L231" title="All 2 branches covered.">            if (x &gt; followX) {</span>
+<span class="fc" id="L232">                isFacingLeft = true;</span>
+
+<span class="pc bpc" id="L234" title="2 of 4 branches missed.">                if (!isMoveAllowed(tileX-1,tileY) || !isMoveAllowed(tileX,tileY)) {</span>
+<span class="nc" id="L235">                    isFlying = true;</span>
+<span class="nc" id="L236">                    x -= speed;</span>
+                }
+<span class="pc bpc" id="L238" title="1 of 2 branches missed.">                else if (isMoveAllowed(tileX-1,tileY)){</span>
+
+<span class="fc" id="L240">                    x -= speed;</span>
+                }
+            }
+<span class="pc bpc" id="L243" title="1 of 2 branches missed.">            else if(x &lt;= followX -5) {</span>
+<span class="nc" id="L244">                isFacingLeft = false;</span>
+<span class="nc bnc" id="L245" title="All 4 branches missed.">                if (!isMoveAllowed(tileX+1,tileY) || !isMoveAllowed(tileX,tileY)){</span>
+<span class="nc" id="L246">                    isFlying = true;</span>
+<span class="nc" id="L247">                    x += speed;</span>
+                }
+<span class="nc bnc" id="L249" title="All 2 branches missed.">                else if(isMoveAllowed(tileX+1,tileY)){</span>
+
+<span class="nc" id="L251">                    x += speed;</span>
+                }
+            }
+
+<span class="fc bfc" id="L255" title="All 2 branches covered.">            if(y &gt; followY +5 ) {</span>
+<span class="pc bpc" id="L256" title="2 of 4 branches missed.">                if (!isMoveAllowed(tileX,tileY-1) || !isMoveAllowed(tileX,tileY)) {</span>
+<span class="nc" id="L257">                    isFlying = true;</span>
+<span class="nc" id="L258">                    y -= speed;</span>
+                }
+<span class="pc bpc" id="L260" title="1 of 2 branches missed.">                else if(isMoveAllowed(tileX, tileY-1)){</span>
+<span class="fc" id="L261">                    y-=speed;</span>
+                }
+            }
+<span class="fc bfc" id="L264" title="All 2 branches covered.">            else if (y &lt;= followY -5 ) {</span>
+<span class="pc bpc" id="L265" title="2 of 4 branches missed.">                if(!isMoveAllowed(tileX ,tileY+1) || !isMoveAllowed(tileX,tileY)){</span>
+<span class="nc" id="L266">                    isFlying = true;</span>
+<span class="nc" id="L267">                    y += speed;</span>
+                }
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">                else if (isMoveAllowed(tileX ,tileY+1)){</span>
+
+<span class="fc" id="L271">                    y += speed;</span>
+                }
+            }
+
+<span class="pc bpc" id="L275" title="1 of 2 branches missed.">            if(isFlying){</span>
+<span class="nc bnc" id="L276" title="All 2 branches missed.">                if(isFacingLeft){</span>
+<span class="nc" id="L277">                    currentGooseFrame = animations.get(&quot;flyLeft&quot;).getKeyFrame(stateTime, true);</span>
+
+                }
+                else{
+<span class="nc" id="L281">                    currentGooseFrame = animations.get(&quot;flyRight&quot;).getKeyFrame(stateTime, true);</span>
+                }
+            }
+            else{
+<span class="pc bpc" id="L285" title="1 of 2 branches missed.">                if(isFacingLeft){</span>
+<span class="fc" id="L286">                    currentGooseFrame = animations.get(&quot;walkLeft&quot;).getKeyFrame(stateTime, true);</span>
+
+                }
+                else{
+<span class="nc" id="L290">                    currentGooseFrame = animations.get(&quot;walkRight&quot;).getKeyFrame(stateTime, true);</span>
+                }
+
+            }
+        }
+<span class="fc" id="L295">    }</span>
+
+    /**
+     * get width of goose frame
+     * @return width of goose
+     */
+    public float getWidth() {
+<span class="fc bfc" id="L302" title="All 2 branches covered.">        return currentGooseFrame != null ? currentGooseFrame.getRegionWidth() : 16f; // default value</span>
+    }
+
+    /**
+     * get height of goose frame
+     * @return height of goose
+     */
+    public float getHeight() {
+
+<span class="fc bfc" id="L311" title="All 2 branches covered.">        return currentGooseFrame != null ? currentGooseFrame.getRegionHeight() : 16f;</span>
+    }
+
+    /**
+     * Recursively generate a trail of baby geese
+     * Each goose points to the next baby goose
+     * Base case: Goose index, only generate 5 geese
+     * @param gooseIndex number of current goose in the trail
+     */
+    public void loadBabyGoose(int gooseIndex){
+<span class="fc bfc" id="L321" title="All 2 branches covered.">        if (gooseIndex &lt; 5) {</span>
+<span class="fc" id="L322">            baby = new Goose(graphics, world);</span>
+
+<span class="fc" id="L324">            baby.loadSprite(wallsLayer, tileDimensions);</span>
+<span class="fc" id="L325">            baby.x = x;</span>
+<span class="fc" id="L326">            baby.y = y;</span>
+<span class="fc" id="L327">            baby.defaultSpeed = defaultSpeed * 0.9f;</span>
+
+<span class="fc" id="L329">            baby.loadBabyGoose(gooseIndex + 1);</span>
+
+        }
+<span class="fc" id="L332">    }</span>
+
+    /**
+     * Goose steals torch
+     */
+    public void attackMode(){
+
+<span class="fc" id="L339">        defaultSpeed = 1.3f;</span>
+<span class="fc" id="L340">        idleDistanceSquared = 0;</span>
+<span class="fc" id="L341">        attackModeActivated = true;</span>
+<span class="fc" id="L342">    }</span>
+
+    /**
+     * Path for goose to run with torch
+     * @return destination coordinates
+     */
+    public int[] nextRunLocation(){
+<span class="pc bpc" id="L349" title="5 of 6 branches missed.">        if (Math.abs(x -runPath.get(0)[0]) &lt;=5 &amp;&amp; Math.abs(y - runPath.get(0)[1] ) &lt;= 5&amp;&amp; runPath.size()&gt;1) {</span>
+
+<span class="nc" id="L351">            runPath = runPath.subList(1,runPath.size());</span>
+        }
+<span class="pc bpc" id="L353" title="3 of 4 branches missed.">        else if(Math.abs(x -runPath.get(0)[0]) &lt;=5 &amp;&amp; Math.abs(y - runPath.get(0)[1] ) &lt;= 5){</span>
+<span class="nc" id="L354">            isSleeping = true;</span>
+        }
+<span class="fc" id="L356">        return runPath.get(0);</span>
+    }
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

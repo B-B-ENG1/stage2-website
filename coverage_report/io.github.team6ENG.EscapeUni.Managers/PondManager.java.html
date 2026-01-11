@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PondManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Managers</a> &gt; <span class="el_source">PondManager.java</span></div><h1>PondManager.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Managers;
+
+import java.util.Random;
+
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Rectangle;
+
+import io.github.team6ENG.EscapeUni.Entities.Goose;
+import io.github.team6ENG.EscapeUni.Entities.Player;
+import io.github.team6ENG.EscapeUni.World;
+
+/**
+ * Manages the pond area, spawning geese and creating a peaceful feather lighting effect.
+ * When the player enters the pond, white feather patches light up the area.
+ */
+public class PondManager {
+
+<span class="fc" id="L18">    private boolean inPond = false;</span>
+    private final Player player;
+    private final LightingManager lighting;
+    private final GraphicsManager graphics;
+    private final World world;
+
+    private Rectangle pondTrigger;
+
+<span class="fc" id="L26">    private Goose pondGeese[] = new Goose[10];</span>
+<span class="fc" id="L27">    private final Random random = new Random();</span>
+
+    // These are offsets from camera center so it doesn't be all in center
+    private float featherOffsetX1, featherOffsetY1; private int featherR1;
+    private float featherOffsetX2, featherOffsetY2; private int featherR2;
+    private float featherOffsetX3, featherOffsetY3; private int featherR3;
+
+    /**
+     * Constructs a PondManager with references to game systems.
+     * @param player player instance used to track position.
+     * @param lighting lighting manager for feather patch effects.
+     * @param graphics graphics manager for creating geese entities.
+     * @param world world instance.
+     */
+<span class="fc" id="L41">    public PondManager(Player player, LightingManager lighting, GraphicsManager graphics, World world) {</span>
+<span class="fc" id="L42">        this.player = player;</span>
+<span class="fc" id="L43">        this.lighting = lighting;</span>
+<span class="fc" id="L44">        this.graphics = graphics;</span>
+<span class="fc" id="L45">        this.world = world;</span>
+<span class="fc" id="L46">        this.pondTrigger = new Rectangle(500f,300f, 70f,70f);</span>
+<span class="fc" id="L47">    }</span>
+
+    /**
+     * Initializes pond geese entities.
+     * @param collisionLayer collision layer for pathfinding.
+     * @param tileDimensions tile dimension size.
+     */
+    public void initializePondGeese(com.badlogic.gdx.maps.tiled.TiledMapTileLayer collisionLayer, int tileDimensions) {
+        // Spawn geese at random positions inside the pond trigger rectangle
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        for (int i = 0; i &lt; pondGeese.length; i++) {</span>
+<span class="fc" id="L57">            pondGeese[i] = new Goose(graphics, world);</span>
+<span class="fc" id="L58">            pondGeese[i].loadSprite(collisionLayer, tileDimensions);</span>
+<span class="fc" id="L59">            float spawnX = pondTrigger.x + random.nextFloat() * pondTrigger.width;</span>
+<span class="fc" id="L60">            float spawnY = pondTrigger.y + random.nextFloat() * pondTrigger.height;</span>
+<span class="fc" id="L61">            pondGeese[i].x = spawnX;</span>
+<span class="fc" id="L62">            pondGeese[i].y = spawnY;</span>
+        }
+<span class="fc" id="L64">    }</span>
+
+    /**
+     * Create feather objects that follows player and on top of the night effect.
+     */
+    public void initializeFeatherLighting() {
+        // These are offset from the camera center for the feathers
+<span class="fc" id="L71">        featherOffsetX1 = -80f; featherOffsetY1 = 60f; featherR1 = 60;</span>
+<span class="fc" id="L72">        featherOffsetX2 = 100f; featherOffsetY2 = -30f; featherR2 = 70;</span>
+<span class="fc" id="L73">        featherOffsetX3 = -20f; featherOffsetY3 = -80f; featherR3 = 55;</span>
+        
+        // Create the 3 feather light sources but it get offeseted later
+<span class="fc" id="L76">        float px = player.sprite.getX() + player.sprite.getWidth() / 2f;</span>
+<span class="fc" id="L77">        float py = player.sprite.getY() + player.sprite.getHeight() / 2f;</span>
+        
+<span class="fc" id="L79">        lighting.addLightSource(&quot;featherPatch1&quot;, px + featherOffsetX1, py + featherOffsetY1, new Color(1f, 1f, 1f, 0.6f), featherR1);</span>
+<span class="fc" id="L80">        lighting.addLightSource(&quot;featherPatch2&quot;, px + featherOffsetX2, py + featherOffsetY2, new Color(1f, 1f, 1f, 0.6f), featherR2);</span>
+<span class="fc" id="L81">        lighting.addLightSource(&quot;featherPatch3&quot;, px + featherOffsetX3, py + featherOffsetY3, new Color(1f, 1f, 1f, 0.6f), featherR3);</span>
+
+        // Set the feathers hidden at first
+<span class="fc" id="L84">        lighting.isVisible(&quot;featherPatch1&quot;, false);</span>
+<span class="fc" id="L85">        lighting.isVisible(&quot;featherPatch2&quot;, false);</span>
+<span class="fc" id="L86">        lighting.isVisible(&quot;featherPatch3&quot;, false);</span>
+        // Feather is piority 1 so it get display over the night effect which is 0
+<span class="fc" id="L88">        lighting.setPriority(&quot;featherPatch1&quot;, 1);</span>
+<span class="fc" id="L89">        lighting.setPriority(&quot;featherPatch2&quot;, 1);</span>
+<span class="fc" id="L90">        lighting.setPriority(&quot;featherPatch3&quot;, 1);</span>
+<span class="fc" id="L91">    }</span>
+
+    /**
+     * Updates pond logic each frame.
+     *
+     * @param delta Time elapsed since the last frame (in seconds).
+     * @param stateTime The animation state time.
+     */
+    public void update(float delta, float stateTime) {
+<span class="fc" id="L100">        checkPondTrigger();</span>
+        
+        // Update feather to follow player
+<span class="fc" id="L103">        float px = player.sprite.getX() + player.sprite.getWidth() / 2f;</span>
+<span class="fc" id="L104">        float py = player.sprite.getY() + player.sprite.getHeight() / 2f;</span>
+<span class="fc" id="L105">        lighting.updateLightSource(&quot;featherPatch1&quot;, px + featherOffsetX1, py + featherOffsetY1);</span>
+<span class="fc" id="L106">        lighting.updateLightSource(&quot;featherPatch2&quot;, px + featherOffsetX2, py + featherOffsetY2);</span>
+<span class="fc" id="L107">        lighting.updateLightSource(&quot;featherPatch3&quot;, px + featherOffsetX3, py + featherOffsetY3);</span>
+
+        // Update pond geese positions and animations - they idle peacefully in the pond
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">        if (pondGeese[0] != null) {</span>
+            // Parent goose idles near center of pond
+<span class="fc" id="L112">            pondGeese[0].moveGoose(stateTime, pondGeese[0].x, pondGeese[0].y, false, false);</span>
+        }
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        for (int i = 1; i &lt; pondGeese.length; i++) {</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">            if (pondGeese[i] != null) {</span>
+                // Baby geese idle peacefully near their spawn positions
+<span class="fc" id="L117">                pondGeese[i].moveGoose(stateTime, pondGeese[i].x, pondGeese[i].y, false, false);</span>
+            }
+        }
+<span class="fc" id="L120">    }</span>
+
+    /**
+     * Checks if the player is within the pond trigger area.
+     */
+    private void checkPondTrigger() {
+<span class="fc" id="L126">        Rectangle playerRect = new Rectangle(</span>
+<span class="fc" id="L127">                player.sprite.getX(),</span>
+<span class="fc" id="L128">                player.sprite.getY(),</span>
+<span class="fc" id="L129">                player.sprite.getWidth(),</span>
+<span class="fc" id="L130">                player.sprite.getHeight()</span>
+        );
+
+<span class="fc" id="L133">        boolean wasInPond = inPond;</span>
+<span class="fc" id="L134">        inPond = playerRect.overlaps(pondTrigger);</span>
+
+        // Trigger pond event when entering pond
+<span class="pc bpc" id="L137" title="3 of 4 branches missed.">        if (inPond &amp;&amp; !wasInPond) {</span>
+<span class="nc" id="L138">            world.pondEvent();</span>
+            // Activate feather effect 
+<span class="nc" id="L140">            lighting.isVisible(&quot;featherPatch1&quot;, true);</span>
+<span class="nc" id="L141">            lighting.isVisible(&quot;featherPatch2&quot;, true);</span>
+<span class="nc" id="L142">            lighting.isVisible(&quot;featherPatch3&quot;, true);</span>
+        }
+<span class="fc" id="L144">    }</span>
+
+    /**
+     * Returns whether the player is currently in the pond area.
+     */
+    public boolean isInPond() {
+<span class="nc" id="L150">        return inPond;</span>
+    }
+
+    /**
+     * Gets the pond geese array.
+     */
+    public Goose[] getPondGeese() {
+<span class="fc" id="L157">        return pondGeese;</span>
+    }
+
+    /**
+     * Gets the trigger zone rectangle.
+     */
+    public Rectangle getPondTrigger() {
+<span class="nc" id="L164">        return pondTrigger;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

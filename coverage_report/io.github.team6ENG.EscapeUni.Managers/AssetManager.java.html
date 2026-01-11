@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AssetManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Managers</a> &gt; <span class="el_source">AssetManager.java</span></div><h1>AssetManager.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Managers;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.Random;
+
+<span class="nc" id="L10">public abstract class AssetManager {</span>
+    /**
+     * Values corresponding to each sprite the player can take.
+     */
+<span class="fc" id="L14">    public enum CharacterChoice {</span>
+<span class="fc" id="L15">        MALE,</span>
+<span class="fc" id="L16">        FEMALE;</span>
+        /**
+         * Given a particular player choice, returns the corresponding asset.
+         * @return the sprite sheet for this choice of character.
+         */
+        public String getCharacterAsset() {
+<span class="fc bfc" id="L22" title="All 2 branches covered.">            if (this == MALE) {</span>
+<span class="fc" id="L23">                return maleAsset;</span>
+            }else{
+<span class="fc" id="L25">                return femaleAsset;</span>
+            }
+        }
+
+        /**
+         * Given a particular player choice, returns the corresponding asset for
+         * their ID card.
+         * @return the ID card asset for this choice of character.
+         */
+        public String getIDCardAsset() {
+<span class="fc bfc" id="L35" title="All 2 branches covered.">            if (this == MALE) {</span>
+<span class="fc" id="L36">                return maleIDCardAsset;</span>
+            }else{
+<span class="fc" id="L38">                return femaleIDCardAsset;</span>
+            }
+        }
+    }
+
+    public static final String torchAsset = &quot;items/torch.png&quot;;
+    public static final String pizzaAsset = &quot;items/pizza.png&quot;;
+    public static final String energyDrinkAsset = &quot;items/energyDrink.png&quot;;
+    public static final String phoneAsset = &quot;items/phone.png&quot;;
+    public static final String gogglesAsset = &quot;items/goggles.png&quot;;
+    public static final String potionAsset = &quot;items/potion.png&quot;;
+    public static final String gooseFoodAsset = &quot;items/gooseFood.png&quot;;
+
+    public static final String menuScreenFont = &quot;fonts/menuScreenFont.fnt&quot;;
+    public static final String uiSkin = &quot;skins/uiskin.json&quot;;
+
+    public static final String mapAsset = &quot;tileMap/map.png&quot;;
+    public static final String busAsset = &quot;images/bus.png&quot;;
+
+    public static final String maleAsset =  &quot;sprites/maleSprite.png&quot;;
+    public static final String femaleAsset = &quot;sprites/femaleSprite.png&quot;;
+    public static final String maleImgAsset =  &quot;images/maleSpriteImg.png&quot;;
+    public static final String femaleImgAsset = &quot;images/femaleSpriteImg.png&quot;;
+    public static final String maleIDCardAsset = &quot;items/idMale.png&quot;;
+    public static final String femaleIDCardAsset = &quot;items/idFemale.png&quot;;
+
+    public static final String gooseAsset = &quot;sprites/goose.png&quot;;
+    public static final String receptionistAsset = &quot;sprites/receptionist.png&quot;;
+    public static final String puddleAsset = &quot;sprites/puddle.png&quot;;
+    public static final String wormAsset = &quot;sprites/worm.png&quot;;
+
+<span class="fc" id="L69">    public static final String[] rainAssets = {&quot;rain/rain1.png&quot;,</span>
+        &quot;rain/rain2.png&quot;,
+        &quot;rain/rain3.png&quot;,
+        &quot;rain/rain4.png&quot;
+    };
+    public static final String rainTintAsset = &quot;rain/rainTint.png&quot;;
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

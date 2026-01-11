@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PauseScreen.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Screens</a> &gt; <span class="el_source">PauseScreen.java</span></div><h1>PauseScreen.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Screens;
+
+import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import io.github.team6ENG.EscapeUni.Managers.AudioManager;
+import io.github.team6ENG.EscapeUni.Main;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.TextButtonDelegate;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.SliderDelegate;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.StageDelegate;
+
+/**
+ * screen when game is paused, contains volume settings
+ */
+public class PauseScreen extends AbstractScreen {
+
+    private final Screen playScreen;
+    private final AudioManager audioManager;
+    private final StageDelegate stage;
+
+    private final SliderDelegate musicSlider;
+    private final SliderDelegate volumeSlider;
+    private final TextButtonDelegate continueButton;
+    private final TextButtonDelegate mainMenuButton;
+
+    /**
+     * initialise pause screen
+     * @param game current instance of Main
+     * @param playScreen screen to return to
+     * @param audioManager active audio manager
+     */
+    public PauseScreen(final Main game, final Screen playScreen, AudioManager audioManager) {
+<span class="fc" id="L39">        super(game);</span>
+<span class="fc" id="L40">        this.playScreen = playScreen;</span>
+<span class="fc" id="L41">        this.audioManager = audioManager;</span>
+<span class="fc" id="L42">        this.stage = graphics.createFixedStageDelegate(</span>
+            new FitViewport(960, 540));
+
+<span class="fc" id="L45">        audioManager.pauseMusic();</span>
+<span class="fc" id="L46">        audioManager.stopFootsteps();</span>
+
+<span class="fc" id="L48">        stage.setInputProcessor();</span>
+
+        // title
+<span class="fc" id="L51">        Label titleLabel = new Label(&quot;Paused&quot;, new Label.LabelStyle(graphics.menuFont, Color.WHITE));</span>
+
+        // music slider
+<span class="fc" id="L54">        Label musicLabel = new Label(&quot;Music Volume&quot;, new Label.LabelStyle(graphics.menuFont, Color.WHITE));</span>
+<span class="fc" id="L55">        musicSlider = graphics.createSliderDelegate(0f, 1f, 0.1f, false);</span>
+<span class="fc" id="L56">        musicSlider.setValue(audioManager.getMusicVolume());</span>
+        // volume slider
+<span class="fc" id="L58">        Label volumeLabel = new Label(&quot;Sound Volume&quot;, new Label.LabelStyle(graphics.menuFont, Color.WHITE));</span>
+<span class="fc" id="L59">        volumeSlider = graphics.createSliderDelegate(0f, 1f, 0.01f, false);</span>
+<span class="fc" id="L60">        volumeSlider.setValue(audioManager.getGameVolume());</span>
+
+<span class="fc" id="L62">        continueButton = createButton(&quot;Continue&quot;);</span>
+<span class="fc" id="L63">        mainMenuButton = createButton(&quot;Main Menu&quot;);</span>
+
+<span class="fc" id="L65">        Table table = new Table();</span>
+<span class="fc" id="L66">        table.setFillParent(true);</span>
+<span class="fc" id="L67">        table.center();</span>
+<span class="fc" id="L68">        stage.addActor(table);</span>
+
+<span class="fc" id="L70">        table.add(titleLabel).padBottom(50f).row();</span>
+<span class="fc" id="L71">        table.add(musicLabel).padBottom(10f).row();</span>
+<span class="fc" id="L72">        musicSlider.addToTable(table).width(300).padBottom(40f).row();</span>
+<span class="fc" id="L73">        table.add(volumeLabel).padBottom(10f).row();</span>
+<span class="fc" id="L74">        volumeSlider.addToTable(table).width(300).padBottom(40f).row();</span>
+<span class="fc" id="L75">        continueButton.addToTable(table).width(300).height(60).padBottom(20f).row();</span>
+<span class="fc" id="L76">        mainMenuButton.addToTable(table).width(300).height(60).padBottom(20f).row();</span>
+
+<span class="fc" id="L78">        addListeners();</span>
+<span class="fc" id="L79">    }</span>
+
+    public TextButtonDelegate getContinueButton() {
+<span class="fc" id="L82">        return continueButton;</span>
+    }
+    public TextButtonDelegate getMainMenuButton() {
+<span class="fc" id="L85">        return mainMenuButton;</span>
+    }
+
+    private void addListeners() {
+<span class="fc" id="L89">        Color normalColor = new Color(0.0f, 0.95f, 0.95f, 1f);</span>
+<span class="fc" id="L90">        Color clickColor = new Color(0.4f, 1f, 1f, 1f);</span>
+        // Continue button returns to same paused game
+<span class="fc" id="L92">        continueButton.addListener(new ClickListener() {</span>
+            public void clicked(InputEvent event, float x, float y) {
+<span class="fc" id="L94">                audioManager.setMusicVolume();</span>
+<span class="fc" id="L95">                audioManager.playMusic();</span>
+<span class="fc" id="L96">                playScreen.resume();</span>
+<span class="fc" id="L97">                game.setScreen(playScreen);</span>
+<span class="fc" id="L98">                dispose();</span>
+<span class="fc" id="L99">            }</span>
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+<span class="fc" id="L102">                continueButton.setColor(clickColor);</span>
+<span class="fc" id="L103">            }</span>
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+<span class="fc" id="L106">                continueButton.setColor(normalColor);</span>
+<span class="fc" id="L107">            }</span>
+        });
+        // Main menu button resets the game
+<span class="fc" id="L110">        mainMenuButton.addListener(new ClickListener() {</span>
+            public void clicked(InputEvent event, float x, float y) {;
+<span class="fc" id="L112">                game.elapsedTimeChecker.startTimer(&quot;Pause to Main Menu&quot;);</span>
+<span class="fc" id="L113">                dispose();</span>
+<span class="fc" id="L114">                game.resetGame();</span>
+<span class="fc" id="L115">            }</span>
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+<span class="fc" id="L118">                mainMenuButton.setColor(clickColor);</span>
+<span class="fc" id="L119">            }</span>
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+<span class="fc" id="L122">                mainMenuButton.setColor(normalColor);</span>
+<span class="fc" id="L123">            }</span>
+        });
+<span class="fc" id="L125">        musicSlider.addListener(new ChangeListener() {</span>
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+<span class="fc" id="L128">                audioManager.setMusicVolume(musicSlider.getValue());</span>
+<span class="fc" id="L129">            }</span>
+
+        });
+<span class="fc" id="L132">        volumeSlider.addListener(new ChangeListener() {</span>
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+<span class="fc" id="L135">                audioManager.setGameVolume(volumeSlider.getValue());</span>
+<span class="fc" id="L136">            }</span>
+
+        });
+
+
+<span class="fc" id="L141">    }</span>
+
+    public SliderDelegate getMusicSlider() {
+<span class="fc" id="L144">        return musicSlider;</span>
+    }
+
+    public SliderDelegate getGameVolumeSlider() {
+<span class="fc" id="L148">        return volumeSlider;</span>
+    }
+
+    @Override
+    public void render(float delta) {
+<span class="fc" id="L153">        ScreenUtils.clear(Color.BLACK);</span>
+<span class="fc" id="L154">        stage.act(delta);</span>
+<span class="fc" id="L155">        stage.draw();</span>
+<span class="fc" id="L156">    }</span>
+
+    @Override
+    public void resize(int width, int height) {
+
+<span class="fc" id="L161">        stage.getViewport().update(width, height, true);</span>
+<span class="fc" id="L162">    }</span>
+
+    @Override public void show() {
+<span class="pc bpc" id="L165" title="1 of 2 branches missed.">        if (game.elapsedTimeChecker.timerExists(&quot;Game to pause menu&quot;)) {</span>
+<span class="nc" id="L166">            float elapsed = game.elapsedTimeChecker.endTimer(&quot;Game to pause menu&quot;);</span>
+<span class="nc" id="L167">            System.out.println(&quot;Time taken to get to pause menu after pressing P: &quot;</span>
+                + elapsed + &quot; ms&quot;);
+        }
+<span class="fc" id="L170">    }</span>
+
+    @Override public void hide() {
+
+<span class="fc" id="L174">    }</span>
+    @Override public void pause() {
+
+<span class="nc" id="L177">    }</span>
+    @Override public void resume() {
+
+<span class="nc" id="L180">    }</span>
+    @Override public void dispose() {
+<span class="fc" id="L182">        stage.dispose();</span>
+<span class="fc" id="L183">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

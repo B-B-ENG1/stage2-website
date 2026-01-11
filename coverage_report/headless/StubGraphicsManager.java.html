@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StubGraphicsManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">headless</a> &gt; <span class="el_source">StubGraphicsManager.java</span></div><h1>StubGraphicsManager.java</h1><pre class="source lang-java linenums">package headless;
+
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+
+import headless.DelegateStubs.*;
+import io.github.team6ENG.EscapeUni.Managers.GraphicsManager;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.*;
+
+<span class="fc" id="L14">public class StubGraphicsManager extends GraphicsManager {</span>
+
+    @Override
+<span class="fc" id="L17">    protected void createBatch() {}</span>
+
+    @Override
+<span class="fc" id="L20">    protected void createButtonSkin() {}</span>
+
+    @Override
+    public void initialiseFonts() {
+<span class="fc" id="L24">        menuFont = new BitmapFont();</span>
+<span class="fc" id="L25">        gameFont = new BitmapFont();</span>
+<span class="fc" id="L26">    }</span>
+
+    @Override
+<span class="fc" id="L29">    public void drawText(BitmapFont font, String str, float x, float y) {}</span>
+
+    @Override
+<span class="fc" id="L32">    public void drawImage(ImageDelegate image, float parentAlpha) {}</span>
+
+    @Override
+<span class="nc" id="L35">    public void drawTexture(TextureDelegate texture, float x, float y) {}</span>
+
+    @Override
+    public void drawTexture(TextureDelegate texture, float x,
+<span class="fc" id="L39">                            float y, float width, float height) {}</span>
+
+    @Override
+    public void drawTextureRegion(TextureRegionDelegate texture, float x,
+<span class="nc" id="L43">                                  float y, float width, float height) {}</span>
+
+    public void drawTextureRegion(TextureRegionDelegate texture, float x,
+<span class="fc" id="L46">                                  float y) {}</span>
+
+    @Override
+<span class="fc" id="L49">    public void drawSprite(SpriteDelegate sprite) {}</span>
+
+    @Override
+<span class="fc" id="L52">    public void setBatchColour(Color colour) {}</span>
+
+    @Override
+<span class="fc" id="L55">    public void updateBatchProjectionMatrix(Matrix4 matrix) {}</span>
+
+    @Override
+    public Matrix4 getTransformMatrix() {
+<span class="nc" id="L59">        return new Matrix4();</span>
+    }
+
+    @Override
+<span class="fc" id="L63">    public void beginBatch() {}</span>
+
+    @Override
+<span class="fc" id="L66">    public void endBatch() {}</span>
+
+    @Override
+    public void dispose() {
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        if (menuFont != null) {</span>
+<span class="fc" id="L71">            menuFont.dispose();</span>
+        }
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">        if (gameFont != null) {</span>
+<span class="fc" id="L74">            gameFont.dispose();</span>
+        }
+<span class="fc" id="L76">    }</span>
+
+    @Override
+<span class="nc" id="L79">    public void flush() {}</span>
+
+    @Override
+    public TextBoxDelegate createTextBox(String message, int width, int height,
+                                         Color color) {
+<span class="fc" id="L84">        return new StubTextBoxDelegate(width, height, color);</span>
+    }
+
+    @Override
+    public StageDelegate createStageDelegate(FitViewport viewport) {
+<span class="fc" id="L89">        return new StubStageDelegate();</span>
+    }
+
+    @Override
+    public StageDelegate createFixedStageDelegate(FitViewport viewport) {
+<span class="fc" id="L94">        return new StubStageDelegate();</span>
+    }
+
+    @Override
+    public TextButtonDelegate createTextButtonDelegate(String text) {
+<span class="fc" id="L99">        return new StubTextButtonDelegate();</span>
+    }
+
+    @Override
+    public SpriteDelegate createSpriteDelegate(TextureRegionDelegate texture) {
+<span class="fc" id="L104">        return new StubSpriteDelegate();</span>
+    }
+
+    @Override
+    public SliderDelegate createSliderDelegate(float min,
+                                               float max,
+                                               float stepSize,
+                                               boolean vertical ) {
+<span class="fc" id="L112">        return new StubSliderDelegate();</span>
+    }
+
+    @Override
+    public TextureDelegate createTextureDelegate(String asset) {
+<span class="fc" id="L117">        return new StubTextureDelegate();</span>
+    }
+
+    @Override
+    public TextureDelegate createTextureDelegate(int width, int height,
+                                                 Pixmap.Format format) {
+<span class="fc" id="L123">        return new StubTextureDelegate();</span>
+    }
+
+    @Override
+    public RendererDelegate createRendererDelegate(TiledMap map, float unitScale) {
+<span class="fc" id="L128">        return new StubRendererDelegate();</span>
+    }
+
+    @Override
+    public FrameBufferDelegate createFrameBufferDelegate(Pixmap.Format format,
+                                                         int width,
+                                                         int height,
+                                                         boolean hasDepth) {
+<span class="fc" id="L136">        return new StubFrameBufferDelegate();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

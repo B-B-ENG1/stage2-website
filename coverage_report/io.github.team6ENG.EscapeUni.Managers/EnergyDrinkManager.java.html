@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EnergyDrinkManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Managers</a> &gt; <span class="el_source">EnergyDrinkManager.java</span></div><h1>EnergyDrinkManager.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Managers;
+
+import io.github.team6ENG.EscapeUni.Entities.Collectable;
+import io.github.team6ENG.EscapeUni.Entities.EnergyDrink;
+import io.github.team6ENG.EscapeUni.Screens.GameScreen;
+import io.github.team6ENG.EscapeUni.World;
+
+import java.util.ArrayList;
+import java.util.Random;
+
+/**
+ * Places energy drinks around the map using the same block-based algorithm
+ * as PuddleManager and adds them to ItemManager.
+ */
+public class EnergyDrinkManager {
+
+<span class="fc" id="L17">    private ArrayList&lt;int[]&gt; validBlockPositions = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L18">    private ArrayList&lt;EnergyDrink&gt; energyDrinks = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L19">    private Random random = new Random();</span>
+    private GraphicsManager graphics;
+    private AudioManager audio;
+    private World world;
+    private final int blockSize;
+
+<span class="fc" id="L25">    public EnergyDrinkManager(World world, GraphicsManager graphics, AudioManager audio, int blockSize) {</span>
+<span class="fc" id="L26">        this.blockSize = blockSize;</span>
+<span class="pc bpc" id="L27" title="1 of 2 branches missed.">        if (blockSize &lt;= 0) {</span>
+<span class="nc" id="L28">            throw new IllegalArgumentException(&quot;Block size must be a positive integer&quot;);</span>
+        }
+<span class="fc" id="L30">        this.graphics = graphics;</span>
+<span class="fc" id="L31">        this.audio = audio;</span>
+<span class="fc" id="L32">        validBlockPositions = BlockPositionCache.getValidBlockPositions(blockSize);</span>
+<span class="fc" id="L33">        this.world = world;</span>
+<span class="fc" id="L34">    }</span>
+
+    public void addEnergyDrinks(int number, ItemManager items) {
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">        if (number &lt;= 0) {</span>
+<span class="nc" id="L38">            throw new IllegalArgumentException(&quot;Energy drink number must be a positive integer&quot;);</span>
+        }
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">        if (number &gt; validBlockPositions.size()) {</span>
+<span class="nc" id="L41">            throw new IllegalArgumentException(&quot;This many energy drinks cannot be drawn.&quot;);</span>
+        }
+
+<span class="pc bpc" id="L44" title="1 of 4 branches missed.">        for (int i = 0; i &lt; number &amp;&amp; !validBlockPositions.isEmpty(); i++) {</span>
+<span class="fc" id="L45">            int randomIndex = random.nextInt(validBlockPositions.size());</span>
+<span class="fc" id="L46">            int[] position = validBlockPositions.get(randomIndex);</span>
+<span class="fc" id="L47">            validBlockPositions.remove(randomIndex);</span>
+<span class="fc" id="L48">            int drinkX = position[0];</span>
+<span class="fc" id="L49">            int drinkY = position[1];</span>
+
+<span class="fc" id="L51">            int tileDimensions = GameScreen.defaultTileDimensions;</span>
+<span class="fc" id="L52">            float posX = (drinkX + blockSize / 2.0f) * tileDimensions - tileDimensions / 2.0f;</span>
+<span class="fc" id="L53">            float posY = (drinkY + blockSize / 2.0f) * tileDimensions - tileDimensions / 2.0f;</span>
+
+<span class="fc" id="L55">            EnergyDrink drink = new EnergyDrink(world, posX, posY, graphics, audio);</span>
+<span class="fc" id="L56">            items.addEnergyDrink(drink);</span>
+<span class="fc" id="L57">            energyDrinks.add(drink);</span>
+        }
+<span class="fc" id="L59">    }</span>
+
+    /**
+     * Determines whether there is a drink handled by the manager which is
+     * currently in effect on the player.
+     * @return true if there is a drink in effect and false otherwise.
+     */
+    public boolean isDrinkEffective() {
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        for (EnergyDrink drink : energyDrinks) {</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">           if (drink.isEffective()) return true;</span>
+<span class="fc" id="L69">        }</span>
+<span class="fc" id="L70">        return false;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

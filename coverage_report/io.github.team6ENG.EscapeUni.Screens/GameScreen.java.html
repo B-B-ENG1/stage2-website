@@ -1,0 +1,751 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GameScreen.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Screens</a> &gt; <span class="el_source">GameScreen.java</span></div><h1>GameScreen.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Screens;
+
+import java.util.Random;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack;
+
+import io.github.team6ENG.EscapeUni.Entities.*;
+import io.github.team6ENG.EscapeUni.Main;
+import io.github.team6ENG.EscapeUni.Managers.AssetManager;
+import io.github.team6ENG.EscapeUni.Managers.AudioManager;
+import io.github.team6ENG.EscapeUni.Managers.BuildingManager;
+import io.github.team6ENG.EscapeUni.Managers.EnergyDrinkManager;
+import io.github.team6ENG.EscapeUni.Managers.LightingManager;
+import io.github.team6ENG.EscapeUni.Managers.PondManager;
+import io.github.team6ENG.EscapeUni.Managers.PuddleManager;
+import io.github.team6ENG.EscapeUni.Managers.RainManager;
+import io.github.team6ENG.EscapeUni.Managers.WormManager;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.ImageDelegate;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.RendererDelegate;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.TextureDelegate;
+import io.github.team6ENG.EscapeUni.World;
+
+/**
+ * GameScreen - main gameplay screen
+ *
+ */
+public class GameScreen extends AbstractScreen {
+
+<span class="fc" id="L40">    public static int wallLayer = 0;</span>
+    private Player player;
+    private BuildingManager buildingManager;
+    private PondManager pondManager;
+    public AudioManager audioManager;
+    private PuddleManager puddleManager;
+    protected EnergyDrinkManager energyDrinkManager;
+    private WormManager wormManager;
+    private RainManager rain;
+
+
+    private OrthographicCamera camera;
+    private TiledMapTileLayer collisionLayer;
+    public LightingManager lighting;
+
+<span class="fc" id="L55">    private boolean isPaused = false;</span>
+<span class="fc" id="L56">    private boolean isEPressed = false;</span>
+    RendererDelegate mapRenderer;
+    private TiledMap map;
+    private ImageDelegate mapImg;
+
+    protected Goose goose;
+    float stateTime;
+
+    private Rectangle stealTorchTrigger;
+<span class="fc" id="L65">    public boolean hasGoggles = false;</span>
+<span class="fc" id="L66">    private boolean isTorchOn = false;</span>
+<span class="fc" id="L67">    private boolean areGogglesOn = false;</span>
+<span class="fc" id="L68">    private boolean isCamOnGoose = false;</span>
+<span class="fc" id="L69">    protected boolean gameoverTrigger = false;</span>
+
+    /**
+     * There should be a 1/{@code probabilityOfHonk} chance of a honk.
+     */
+<span class="fc" id="L74">    private final float probabilityOfHonk = 1000;</span>
+
+<span class="fc" id="L76">    public int numOfInventoryItems = 0;</span>
+
+
+    private Bus bus;
+<span class="fc" id="L80">    public float playerSpeedModifier = 1;</span>
+
+    public static final int defaultTileDimensions = 8;
+
+    /**
+     * Initialise the game elements
+     * @param game - Instance of Main
+     */
+    public GameScreen(final Main game) {
+<span class="fc" id="L89">        super(game);</span>
+<span class="fc" id="L90">        tileDimensions = defaultTileDimensions;</span>
+<span class="fc" id="L91">        goose = new Goose(graphics, world);</span>
+<span class="fc" id="L92">        initialiseMap();</span>
+<span class="fc" id="L93">        audioManager = game.audioManager;</span>
+<span class="fc" id="L94">        audioManager.playMusic();</span>
+<span class="fc" id="L95">        initialisePlayer(940,1215);</span>
+<span class="fc" id="L96">        initialiseCamera();</span>
+<span class="fc" id="L97">        initialiseLighting();</span>
+<span class="fc" id="L98">        initialiseGoose(940,1000);</span>
+<span class="fc" id="L99">        initialisePuddles(30, 3);</span>
+<span class="fc" id="L100">        initialiseWorms(10, 4);</span>
+<span class="fc" id="L101">        initialiseEnergyDrinks(10, 3);</span>
+<span class="fc" id="L102">        bus = new Bus(1100, 1545, player, graphics, audioManager, items);</span>
+<span class="fc" id="L103">        rain = new RainManager(world, graphics, audioManager, puddleManager);</span>
+<span class="fc" id="L104">        buildingManager = new BuildingManager(game, this, player, audioManager);</span>
+<span class="fc" id="L105">        pondManager = new PondManager(player, lighting, graphics, world);</span>
+<span class="fc" id="L106">        pondManager.initializePondGeese(collisionLayer, tileDimensions);</span>
+<span class="fc" id="L107">        pondManager.initializeFeatherLighting();</span>
+<span class="fc" id="L108">        stateTime = 0f;</span>
+<span class="fc" id="L109">    }</span>
+
+    /**
+     * Gets the bus from the screen.
+     * @return the bus object used on the game screen.
+     */
+    public Bus getBus() {
+<span class="fc" id="L116">        return bus;</span>
+    }
+
+
+
+    /**
+     * Load map and collision layer
+    */
+   private void initialiseMap() {
+<span class="fc" id="L125">       TextureDelegate mapTex = graphics.createTextureDelegate(AssetManager.mapAsset);</span>
+<span class="fc" id="L126">       mapImg = mapTex.createImage();</span>
+<span class="fc" id="L127">       map = new TmxMapLoader().load(&quot;tileMap/map.tmx&quot;);</span>
+<span class="fc" id="L128">       mapRenderer = graphics.createRendererDelegate(map, 1);</span>
+<span class="fc" id="L129">       collisionLayer = (TiledMapTileLayer)map.getLayers().get(wallLayer);</span>
+<span class="fc" id="L130">    }</span>
+
+    private void initialisePuddles(int puddleNumber, int blockSize) {
+<span class="fc" id="L133">        puddleManager = new PuddleManager(graphics, 3);</span>
+<span class="fc" id="L134">        world.addPuddleManager(puddleManager);</span>
+<span class="fc" id="L135">        puddleManager.addPuddles(puddleNumber);</span>
+<span class="fc" id="L136">    }</span>
+
+    private void initialiseWorms(int wormNumber, int blockSize) {
+<span class="fc" id="L139">        wormManager = new WormManager(graphics, blockSize);</span>
+<span class="fc" id="L140">        world.addWormManager(wormManager);</span>
+<span class="fc" id="L141">        wormManager.addWorms(wormNumber);</span>
+<span class="fc" id="L142">    }</span>
+
+    protected void initialiseEnergyDrinks(int number, int blockSize) {
+<span class="fc" id="L145">        energyDrinkManager = new EnergyDrinkManager(world, graphics, audioManager, blockSize);</span>
+<span class="fc" id="L146">        energyDrinkManager.addEnergyDrinks(number, items);</span>
+<span class="fc" id="L147">    }</span>
+
+    /**
+     * Initialise player and set its position
+     */
+    private void initialisePlayer(int x, int y) {
+<span class="fc" id="L153">        player = new Player(graphics, world, audioManager, items);</span>
+<span class="fc" id="L154">        player.loadSprite(collisionLayer, tileDimensions);</span>
+<span class="fc" id="L155">        player.sprite.setPosition(x, y);</span>
+<span class="fc" id="L156">        player.speed = 1;</span>
+<span class="fc" id="L157">    }</span>
+
+    /**
+     * Initialise camera and set to position of player
+     */
+    private void initialiseCamera() {
+<span class="fc" id="L163">        camera = new OrthographicCamera(400,225);</span>
+<span class="fc" id="L164">        camera.position.set(</span>
+<span class="fc" id="L165">            player.sprite.getX() + player.sprite.getWidth() / 2,</span>
+<span class="fc" id="L166">            player.sprite.getY() + player.sprite.getHeight() / 2,</span>
+            0);
+<span class="fc" id="L168">        camera.update();</span>
+<span class="fc" id="L169">    }</span>
+
+    /**
+     * Initialise goose and set its position
+     */
+    private void initialiseGoose(int x, int y){
+
+<span class="fc" id="L176">        goose.loadSprite(collisionLayer, tileDimensions);</span>
+<span class="fc" id="L177">        goose.x = x;</span>
+<span class="fc" id="L178">        goose.y = y;</span>
+
+<span class="fc" id="L180">        stealTorchTrigger = new com.badlogic.gdx.math.Rectangle(510, 560, 50, 50);</span>
+
+<span class="fc" id="L182">    }</span>
+
+
+    /**
+    * Add and hide light circles for player and goose
+     */
+    private void initialiseLighting() {
+<span class="fc" id="L189">        lighting = game.lightingManager;</span>
+
+<span class="fc" id="L191">        lighting.addLightSource(&quot;playerTorch&quot;,</span>
+<span class="fc" id="L192">            player.sprite.getX() + (player.sprite.getWidth() / 2),</span>
+<span class="fc" id="L193">            player.sprite.getY() + (player.sprite.getHeight() / 2),</span>
+            new Color(0, 0, 0, 0),
+            50);
+<span class="fc" id="L196">        lighting.addLightSource(&quot;playerNoTorch&quot;,</span>
+<span class="fc" id="L197">            player.sprite.getX() + (player.sprite.getWidth() / 2),</span>
+<span class="fc" id="L198">            player.sprite.getY() + (player.sprite.getHeight() / 2),</span>
+            new Color(0, 0, 0, 0.4f),
+            12);
+<span class="fc" id="L201">        lighting.addLightSource(&quot;gooseTorch&quot;,goose.x+ (goose.getWidth() / 2), goose.y + (goose.getHeight() / 2), new Color(1,0.2f,0.1f,0.4f), 30);</span>
+<span class="fc" id="L202">        lighting.addLightSource(&quot;gooseNoTorch&quot;,goose.x+ (goose.getWidth() / 2), goose.y + (goose.getHeight() / 2), new Color(0, 0, 0, 0.4f), 10);</span>
+<span class="fc" id="L203">        lighting.isVisible(&quot;playerTorch&quot;, false);</span>
+<span class="fc" id="L204">        lighting.isVisible(&quot;playerNoTorch&quot;, false);</span>
+<span class="fc" id="L205">        lighting.isVisible(&quot;gooseTorch&quot;, false);</span>
+<span class="fc" id="L206">        lighting.isVisible(&quot;gooseNoTorch&quot;, false);</span>
+<span class="fc" id="L207">    }</span>
+
+    /**
+     * Call every frame to update game state
+     * @param delta - Time since last frame
+     */
+    protected void update(float delta) {
+<span class="fc bfc" id="L214" title="All 2 branches covered.">        if (bus.update(delta)) {</span>
+<span class="fc" id="L215">            Gdx.app.postRunnable(() -&gt; game.setScreen(</span>
+                new WinScreen(game)
+            ));
+        };
+
+<span class="pc bpc" id="L220" title="1 of 2 branches missed.">        if (items.getPotion().playerHas) {</span>
+<span class="nc" id="L221">            player.ignoreCollisions = true;</span>
+        }
+
+<span class="pc bpc" id="L224" title="1 of 2 branches missed.">        if (items.getGoggles().playerHas) {</span>
+<span class="nc" id="L225">            hasGoggles = true;</span>
+        }
+
+<span class="fc" id="L228">        lighting.updateLightSource(&quot;playerTorch&quot;, player.sprite.getX() + (player.sprite.getWidth() / 2), player.sprite.getY() + (player.sprite.getHeight() / 2));</span>
+
+<span class="pc bpc" id="L230" title="1 of 4 branches missed.">        if(!isPaused &amp;&amp; !bus.isLeaving()) {</span>
+<span class="fc" id="L231">            updateCamera();</span>
+<span class="fc" id="L232">            world.decrementTimer(delta);</span>
+<span class="fc" id="L233">            world.incrementScore(-delta);</span>
+<span class="fc" id="L234">            handleInput(delta);</span>
+            // freeze player while goose eats worm
+<span class="fc bfc" id="L236" title="All 2 branches covered.">            if (energyDrinkManager.isDrinkEffective()) {</span>
+<span class="fc" id="L237">                playerSpeedModifier = EnergyDrink.speedModifier;</span>
+            } else {
+<span class="fc" id="L239">                playerSpeedModifier = 1f;</span>
+            }
+<span class="fc bfc" id="L241" title="All 2 branches covered.">            float effectiveSpeedModifier = goose.isPickingWorm() ? 0 : playerSpeedModifier;</span>
+            // Handle active energy drink speed buff
+<span class="fc" id="L243">            player.handleInput(delta, effectiveSpeedModifier);</span>
+<span class="fc" id="L244">            float mapWidth = collisionLayer.getWidth() * collisionLayer.getTileWidth();</span>
+<span class="fc" id="L245">            float mapHeight = collisionLayer.getHeight() * collisionLayer.getTileHeight();</span>
+            // Update light positions
+<span class="fc" id="L247">            lighting.updateLightSource(&quot;playerTorch&quot;, player.sprite.getX() + (player.sprite.getWidth() / 2), player.sprite.getY() + (player.sprite.getHeight() / 2));</span>
+<span class="fc" id="L248">            lighting.updateLightSource(&quot;playerNoTorch&quot;, player.sprite.getX() + (player.sprite.getWidth() / 2), player.sprite.getY() + (player.sprite.getHeight() / 2));</span>
+<span class="fc" id="L249">            lighting.updateLightSource(&quot;gooseNoTorch&quot;, goose.x+ (goose.getWidth() / 2), goose.y + (goose.getHeight() / 2));</span>
+
+<span class="fc bfc" id="L251" title="All 2 branches covered.">            if (goose.hasStolenTorch()){</span>
+<span class="fc" id="L252">                lighting.updateLightSource(&quot;gooseTorch&quot;, goose.x+ (goose.getWidth() / 2), goose.y + (goose.getHeight() / 2));</span>
+
+            }
+
+<span class="fc" id="L256">            player.updatePlayer(stateTime);</span>
+<span class="pc bpc" id="L257" title="1 of 4 branches missed.">            if(player.isMoving() &amp;&amp; !player.isFootsteps){</span>
+<span class="nc" id="L258">                audioManager.loopFootsteps();</span>
+<span class="nc" id="L259">                player.isFootsteps = true;</span>
+            }
+<span class="fc bfc" id="L261" title="All 2 branches covered.">            else if (!player.isMoving()){</span>
+<span class="fc" id="L262">                player.isFootsteps = false;</span>
+<span class="fc" id="L263">                audioManager.stopFootsteps();</span>
+            }
+
+<span class="fc" id="L266">            goose.target(delta, stateTime, wormManager, player);</span>
+
+            // If there are baby geese, they follow the goose directly in front of them
+<span class="fc" id="L269">            Goose trail = goose;</span>
+<span class="fc" id="L270">            float stateOffset = 0.075f;</span>
+<span class="pc bpc" id="L271" title="1 of 2 branches missed.">            while (trail.baby != null) {</span>
+<span class="nc" id="L272">                trail.baby.moveGoose(stateTime - stateOffset,</span>
+                    trail.x,
+                    trail.y,
+<span class="nc" id="L275">                    player.isMoving(), trail.isSleeping);</span>
+<span class="nc" id="L276">                stateOffset += 0.075f;</span>
+<span class="nc" id="L277">                trail = trail.baby;</span>
+            }
+
+            // Check if player can pick up items and update items.
+<span class="fc bfc" id="L281" title="All 2 branches covered.">            for (Collectable item : items.getItems()){</span>
+<span class="fc" id="L282">                item.update(delta);</span>
+<span class="fc bfc" id="L283" title="All 6 branches covered.">                if (!item.playerHas &amp;&amp; item.isVisible &amp;&amp; item.originScreen.equals(&quot;GameScreen&quot;)){</span>
+<span class="pc bpc" id="L284" title="1 of 4 branches missed.">                    if (item.checkInRange(player.sprite.getX(), player.sprite.getY()) &amp;&amp; isEPressed){</span>
+<span class="nc bnc" id="L285" title="All 2 branches missed.">                        if (!item.toString().equals(&quot;energy drink&quot;)) {</span>
+<span class="nc" id="L286">                            numOfInventoryItems += 1;</span>
+                        }
+<span class="nc" id="L288">                        item.collect();</span>
+<span class="nc" id="L289">                        isEPressed = false;</span>
+                    }
+                }
+<span class="fc" id="L292">            }</span>
+
+            // Feed goose if player has food and in range
+<span class="fc" id="L295">            float dx = (goose.x + (goose.getWidth())/2) - (player.sprite.getX()+ (player.sprite.getWidth()/2));</span>
+<span class="fc" id="L296">            float dy = (goose.y + (goose.getHeight()/2)) - (player.sprite.getY() + (player.sprite.getHeight()/2));</span>
+<span class="fc bfc" id="L297" title="All 2 branches covered.">            if (World.withinDistance(dx, dy, 900)</span>
+<span class="pc bpc" id="L298" title="1 of 4 branches missed.">                    &amp;&amp; player.has(items.getGooseFood())</span>
+                    &amp;&amp; isEPressed) {
+<span class="fc" id="L300">                items.getGooseFood().playSound();</span>
+                //items.removeGooseFood();
+<span class="fc" id="L302">                goose.loadBabyGoose(0);</span>
+<span class="fc" id="L303">                world.incrementScore(100);</span>
+<span class="fc" id="L304">                items.getGooseFood().playerHas = false;</span>
+<span class="fc" id="L305">                items.getGooseFood().isVisible = false;</span>
+<span class="fc" id="L306">                world.hiddenEventFound();</span>
+            }
+<span class="fc" id="L308">            isEPressed = false;</span>
+
+
+<span class="pc bpc" id="L311" title="1 of 4 branches missed.">            if(player.has(items.getTorch()) || goose.hasStolenTorch()){</span>
+<span class="fc" id="L312">                Rectangle playerRect = new Rectangle(</span>
+<span class="fc" id="L313">                    player.sprite.getX(),</span>
+<span class="fc" id="L314">                    player.sprite.getY(),</span>
+<span class="fc" id="L315">                    player.sprite.getWidth(),</span>
+<span class="fc" id="L316">                    player.sprite.getHeight()</span>
+                );
+
+<span class="pc bpc" id="L319" title="3 of 4 branches missed.">                if(playerRect.overlaps(stealTorchTrigger) &amp;&amp; !goose.attackModeActivated){</span>
+<span class="nc" id="L320">                    goose.attackMode();</span>
+<span class="nc" id="L321">                    audioManager.playHonk();</span>
+
+                }
+<span class="pc bpc" id="L324" title="1 of 2 branches missed.">                else if (goose.attackModeActivated){</span>
+<span class="fc" id="L325">                    Rectangle gooseRect = new Rectangle( goose.x,goose.y,goose.getWidth(),goose.getHeight());</span>
+<span class="pc bpc" id="L326" title="1 of 4 branches missed.">                    if (playerRect.overlaps(gooseRect) &amp;&amp; !goose.hasStolenTorch()){</span>
+<span class="nc" id="L327">                        goose.stealTorch(player, lighting, items);</span>
+<span class="nc" id="L328">                        isCamOnGoose = true;</span>
+<span class="nc" id="L329">                        audioManager.playHonk();</span>
+                    }
+<span class="pc bpc" id="L331" title="1 of 4 branches missed.">                    else if (!playerRect.overlaps(stealTorchTrigger) &amp;&amp;playerRect.overlaps(gooseRect)</span>
+<span class="pc bpc" id="L332" title="1 of 2 branches missed.">                             &amp;&amp; goose.hasStolenTorch()) {</span>
+
+<span class="fc" id="L334">                        isCamOnGoose = false;</span>
+<span class="fc" id="L335">                        lighting.isVisible(&quot;gooseTorch&quot;, false);</span>
+<span class="fc" id="L336">                        lighting.isVisible(&quot;gooseNoTorch&quot;, true);</span>
+<span class="fc" id="L337">                        lighting.isVisible(&quot;playerTorch&quot;, true);</span>
+<span class="fc" id="L338">                        lighting.isVisible(&quot;playerNoTorch&quot;, false);</span>
+
+
+<span class="pc bpc" id="L341" title="2 of 4 branches missed.">                        if (!goose.isSleeping &amp;&amp; !player.has(items.getTorch())){</span>
+<span class="fc" id="L342">                            world.incrementScore(100);</span>
+                        }
+
+<span class="fc" id="L345">                        items.getTorch().playerHas = true;</span>
+                    }
+                }
+
+            }
+
+            // Keep sprites in map boundary
+<span class="fc" id="L352">            player.sprite.setX(Math.max(0, Math.min(player.sprite.getX(), mapWidth - player.sprite.getWidth())));</span>
+<span class="fc" id="L353">            player.sprite.setY(Math.max(0, Math.min(player.sprite.getY(), mapHeight - player.sprite.getHeight())));</span>
+<span class="fc" id="L354">            goose.x = Math.max(0, Math.min(goose.x, mapWidth - goose.getWidth()));</span>
+<span class="fc" id="L355">            goose.y = Math.max(0, Math.min(goose.y, mapHeight - goose.getHeight()));</span>
+
+        } // End isPaused
+
+        // If time up
+<span class="pc bpc" id="L360" title="1 of 4 branches missed.">        if (!gameoverTrigger &amp;&amp; world.getTimer() &lt;= 0) {</span>
+<span class="fc" id="L361">           gameOver();</span>
+<span class="fc" id="L362">           return;</span>
+        }
+
+<span class="pc bpc" id="L365" title="1 of 2 branches missed.">        if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {</span>
+<span class="nc" id="L366">            game.elapsedTimeChecker.startTimer(&quot;Game to pause menu&quot;);</span>
+<span class="nc" id="L367">            audioManager.pauseMusic();</span>
+<span class="nc" id="L368">            pauseMenu();</span>
+        }
+
+<span class="fc" id="L371">        buildingManager.update(delta);</span>
+<span class="fc" id="L372">        pondManager.update(delta, stateTime);</span>
+
+<span class="fc" id="L374">        playAudio();</span>
+
+<span class="fc" id="L376">    }</span>
+
+    /**
+     * Switches to the pause menu.
+     */
+    public PauseScreen pauseMenu() {
+<span class="fc" id="L382">        audioManager.stopFootsteps();</span>
+<span class="fc" id="L383">        PauseScreen screen = new PauseScreen(game, GameScreen.this, audioManager);</span>
+<span class="fc" id="L384">        game.setScreen(screen);</span>
+<span class="fc" id="L385">        return screen;</span>
+    }
+
+    /**
+     * Make camera follow player
+     */
+    private void updateCamera() {
+
+<span class="fc" id="L393">        float mapWidth = collisionLayer.getWidth() * collisionLayer.getTileWidth();</span>
+<span class="fc" id="L394">        float mapHeight = collisionLayer.getHeight() * collisionLayer.getTileHeight();</span>
+
+<span class="fc" id="L396">        float playerCenterX = player.sprite.getX() + player.sprite.getWidth() / 2f;</span>
+<span class="fc" id="L397">        float playerCenterY = player.sprite.getY() + player.sprite.getHeight() / 2f;</span>
+
+<span class="fc" id="L399">        float gooseCenterX = goose.x + goose.getWidth() / 2f;</span>
+<span class="fc" id="L400">        float gooseCenterY = goose.y + goose.getHeight() / 2f;</span>
+
+<span class="fc" id="L402">        float finalX = (playerCenterX + gooseCenterX) / 2f;</span>
+<span class="fc" id="L403">        float finalY = (playerCenterY + gooseCenterY) / 2f;</span>
+
+        // camera follows player
+<span class="fc" id="L406">        float slope = 0.1f;</span>
+
+<span class="pc bpc" id="L408" title="5 of 6 branches missed.">        if(isCamOnGoose &amp;&amp; Math.abs(finalX-playerCenterX)&lt;100 &amp;&amp; Math.abs(finalY-playerCenterY)&lt;100){</span>
+
+<span class="nc" id="L410">            camera.position.x += (finalX - camera.position.x) * slope;</span>
+<span class="nc" id="L411">            camera.position.y += (finalY - camera.position.y) * slope;</span>
+        }
+        else {
+<span class="fc" id="L414">            camera.position.x += (playerCenterX - camera.position.x) * slope;</span>
+<span class="fc" id="L415">            camera.position.y += (playerCenterY - camera.position.y) * slope;</span>
+        }
+
+
+<span class="fc" id="L419">        float halfWidth = camera.viewportWidth / 2f;</span>
+<span class="fc" id="L420">        float halfHeight = camera.viewportHeight / 2f;</span>
+
+<span class="pc bpc" id="L422" title="1 of 2 branches missed.">        if (mapWidth &gt; camera.viewportWidth) {</span>
+<span class="fc" id="L423">            camera.position.x = Math.max(halfWidth, Math.min(camera.position.x, mapWidth - halfWidth));</span>
+        } else {
+
+<span class="nc" id="L426">            camera.position.x = mapWidth / 2f;</span>
+        }
+
+<span class="pc bpc" id="L429" title="1 of 2 branches missed.">        if (mapHeight &gt; camera.viewportHeight) {</span>
+<span class="fc" id="L430">            camera.position.y = Math.max(halfHeight, Math.min(camera.position.y, mapHeight - halfHeight));</span>
+        } else {
+<span class="nc" id="L432">            camera.position.y = mapHeight / 2f;</span>
+        }
+
+<span class="fc" id="L435">        bus.leavingCamera(camera);</span>
+<span class="fc" id="L436">        camera.update();</span>
+<span class="fc" id="L437">}</span>
+
+
+    @Override
+    public void show() {
+<span class="fc bfc" id="L442" title="All 2 branches covered.">        if (game.elapsedTimeChecker.timerExists(&quot;Main menu to game&quot;)) {</span>
+<span class="fc" id="L443">            float elapsed = game.elapsedTimeChecker.endTimer(&quot;Main menu to game&quot;);</span>
+<span class="fc" id="L444">            System.out.println(&quot;Time taken to get from main menu to game: &quot; + elapsed + &quot; ms&quot;);</span>
+        }
+<span class="fc" id="L446">    }</span>
+
+    /**
+     * Calls every frame to draw game screen
+     *
+     * @param delta The time in seconds since the last render.
+     */
+    @Override
+    public void render(float delta) {
+<span class="fc" id="L455">        super.render(delta);</span>
+<span class="fc" id="L456">        update(delta);</span>
+<span class="fc" id="L457">        Gdx.gl.glClearColor(0, 0, 0, 1);</span>
+<span class="fc" id="L458">        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);</span>
+<span class="pc bpc" id="L459" title="1 of 2 branches missed.">        if (mapRenderer != null) {</span>
+<span class="fc" id="L460">            game.viewport.apply();</span>
+<span class="fc" id="L461">            mapRenderer.setView(camera);</span>
+<span class="fc" id="L462">            mapRenderer.render();</span>
+<span class="fc" id="L463">            Gdx.gl.glFlush();</span>
+        }
+<span class="fc" id="L465">        buildingManager.renderBuildingMap(camera);</span>
+
+<span class="fc" id="L467">        game.graphicsManager.updateBatchProjectionMatrix(camera.combined);</span>
+<span class="fc" id="L468">        game.graphicsManager.beginBatch();</span>
+<span class="fc" id="L469">        graphics.drawImage(mapImg, 1);</span>
+<span class="fc bfc" id="L470" title="All 2 branches covered.">        for (Puddle puddle : puddleManager.getPuddles()) {</span>
+<span class="fc" id="L471">            graphics.drawImage(puddle.getImage(), 1);</span>
+<span class="fc" id="L472">        }</span>
+<span class="fc bfc" id="L473" title="All 2 branches covered.">        for (Worm worm : wormManager.getWorms()) {</span>
+<span class="pc bpc" id="L474" title="1 of 2 branches missed.">            if (!worm.isCollected()) {</span>
+<span class="fc" id="L475">                graphics.drawImage(worm.getImage(), 1);</span>
+            }
+<span class="fc" id="L477">        }</span>
+
+<span class="fc" id="L479">        stateTime += delta;</span>
+<span class="fc" id="L480">        game.graphicsManager.drawTextureRegion(goose.currentGooseFrame,</span>
+            goose.x, goose.y);
+        //Draw yellow baby geese
+<span class="fc" id="L483">        game.graphicsManager.setBatchColour(Color.YELLOW);</span>
+<span class="fc" id="L484">        Goose trail = goose;</span>
+<span class="fc bfc" id="L485" title="All 2 branches covered.">        while (trail.baby != null){</span>
+<span class="fc" id="L486">            trail = trail.baby;</span>
+<span class="pc bpc" id="L487" title="1 of 2 branches missed.">            if (trail.currentGooseFrame != null) {</span>
+<span class="nc" id="L488">                graphics.drawTextureRegion(trail.currentGooseFrame, trail.x, trail.y,</span>
+                    16f, 16f);
+
+            }
+        }
+
+        // draws pond geese
+<span class="fc" id="L495">        game.graphicsManager.setBatchColour(Color.WHITE);</span>
+<span class="fc" id="L496">        Goose[] pondGeese = pondManager.getPondGeese();</span>
+<span class="fc bfc" id="L497" title="All 2 branches covered.">        for (Goose pondGoose : pondGeese) {</span>
+<span class="pc bpc" id="L498" title="1 of 4 branches missed.">            if (pondGoose != null &amp;&amp; pondGoose.currentGooseFrame != null) {</span>
+<span class="fc" id="L499">                graphics.drawTextureRegion(pondGoose.currentGooseFrame, pondGoose.x, pondGoose.y);</span>
+            }
+        }
+<span class="fc" id="L502">        game.graphicsManager.setBatchColour(Color.WHITE);</span>
+
+        // Draw uncollected items in game
+<span class="fc bfc" id="L505" title="All 2 branches covered.">        for (Collectable item : items.getItems()){</span>
+<span class="fc bfc" id="L506" title="All 6 branches covered.">            if(item.isVisible &amp;&amp; !item.playerHas &amp;&amp; item.originScreen.equals(&quot;GameScreen&quot;)){</span>
+<span class="fc" id="L507">                graphics.drawImage(item.img, 1);</span>
+            }
+<span class="fc" id="L509">        }</span>
+<span class="pc bpc" id="L510" title="1 of 2 branches missed.">        if (!player.sprite.nullTexture()) {</span>
+            // This adds the ghost effect
+<span class="pc bpc" id="L512" title="1 of 2 branches missed.">            if (items.getPotion().playerHas) {</span>
+<span class="nc" id="L513">                player.sprite.setColor(1f, 1f, 1f, 0.5f);</span>
+            }
+<span class="pc bpc" id="L515" title="1 of 2 branches missed.">            if (player.isInWater()) {</span>
+<span class="nc" id="L516">                Rectangle scissors = new Rectangle();</span>
+<span class="nc" id="L517">                Rectangle clipBounds = new Rectangle(player.sprite.getX(), player.sprite.getY() + (player.sprite.getHeight() * 0.4f), player.sprite.getWidth(), player.sprite.getHeight());</span>
+<span class="nc" id="L518">                ScissorStack.calculateScissors(camera, graphics.getTransformMatrix(), clipBounds, scissors);</span>
+<span class="nc bnc" id="L519" title="All 2 branches missed.">                if (ScissorStack.pushScissors(scissors)) {</span>
+<span class="nc" id="L520">                    graphics.drawSprite(player.sprite);</span>
+<span class="nc" id="L521">                    graphics.flush();</span>
+<span class="nc" id="L522">                    ScissorStack.popScissors();</span>
+                }
+<span class="nc" id="L524">            }</span>
+            else{
+<span class="fc" id="L526">                graphics.drawSprite(player.sprite);</span>
+            }
+            // Reset color after drawing so other stuff in the same sprite batch doesn't be a ghost
+<span class="fc" id="L529">            player.sprite.setColor(1f, 1f, 1f, 1f);</span>
+        }
+<span class="fc bfc" id="L531" title="All 2 branches covered.">        if (player.has(items.getTorch())){</span>
+<span class="fc" id="L532">            player.torch.draw();</span>
+        }
+
+<span class="fc" id="L535">        bus.draw();</span>
+<span class="fc" id="L536">        int mapWidth = collisionLayer.getWidth() * collisionLayer.getTileWidth();</span>
+<span class="fc" id="L537">        int mapHeight = collisionLayer.getHeight() * collisionLayer.getTileHeight();</span>
+<span class="pc bpc" id="L538" title="1 of 2 branches missed.">        if (world.isDark()) {</span>
+<span class="nc" id="L539">            graphics.drawTexture(lighting.render(camera, mapWidth, mapHeight), 0, 0);</span>
+        }
+        // Feathers always render on top  of the night effect + the steal torch effect
+<span class="fc" id="L542">        TextureDelegate featherTexture = lighting.renderFeathersOnly(camera, mapWidth, mapHeight);</span>
+<span class="pc bpc" id="L543" title="1 of 2 branches missed.">        if (featherTexture != null) {</span>
+<span class="nc" id="L544">            graphics.drawTexture(featherTexture, 0, 0);</span>
+        }
+<span class="fc" id="L546">        rain.update(delta);</span>
+<span class="fc" id="L547">        game.graphicsManager.endBatch();</span>
+
+
+<span class="fc" id="L550">        renderUI();</span>
+
+<span class="pc bpc" id="L552" title="1 of 2 branches missed.">        if (game.elapsedTimeChecker.timerExists(&quot;Exit building&quot;)) {</span>
+<span class="nc" id="L553">            float elapsed = game.elapsedTimeChecker.endTimer(&quot;Exit building&quot;);</span>
+<span class="nc" id="L554">            System.out.println(&quot;Time taken to exit building and load map: &quot; + elapsed + &quot; ms&quot;);</span>
+        }
+<span class="pc bpc" id="L556" title="1 of 2 branches missed.">        if (game.elapsedTimeChecker.timerExists(&quot;First load map&quot;)) {</span>
+<span class="nc" id="L557">            float elapsed = game.elapsedTimeChecker.endTimer(&quot;First load map&quot;);</span>
+<span class="nc" id="L558">            System.out.println(&quot;Time taken to first load map: &quot; + elapsed + &quot; ms&quot;);</span>
+        }
+<span class="fc" id="L560">    }</span>
+<span class="fc" id="L561">    Random random = new Random();</span>
+    private void playAudio(){
+<span class="fc" id="L563">        int doHonk = random.nextInt((int) probabilityOfHonk);</span>
+<span class="pc bpc" id="L564" title="5 of 6 branches missed.">        if (doHonk == 0 &amp;&amp; !isPaused &amp;&amp; !bus.isLeaving()) {</span>
+<span class="nc" id="L565">            audioManager.playHonk();</span>
+        }
+<span class="fc" id="L567">    }</span>
+
+    /**
+     * Check for keyboard input
+     * @param delta time in seconds since last frame
+     */
+    private void handleInput(float delta) {
+<span class="fc bfc" id="L574" title="All 2 branches covered.">        if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {</span>
+<span class="fc" id="L575">            isEPressed = true;</span>
+        }
+
+        // Toggle the torch with click
+<span class="pc bpc" id="L579" title="3 of 4 branches missed.">        if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) &amp;&amp; player.has(items.getTorch())){</span>
+<span class="nc bnc" id="L580" title="All 2 branches missed.">            isTorchOn = !isTorchOn;</span>
+<span class="nc" id="L581">            lighting.isVisible(&quot;playerTorch&quot;, isTorchOn);</span>
+            // Show ambient light when torch is off
+<span class="nc bnc" id="L583" title="All 2 branches missed.">            lighting.isVisible(&quot;playerNoTorch&quot;, !isTorchOn);</span>
+<span class="nc" id="L584">            audioManager.playTorch();</span>
+        }
+
+<span class="pc bpc" id="L587" title="5 of 6 branches missed.">        if(Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT) &amp;&amp; hasGoggles &amp;&amp; world.isDark()){</span>
+<span class="nc bnc" id="L588" title="All 2 branches missed.">            areGogglesOn = !areGogglesOn;</span>
+<span class="nc" id="L589">            lighting.setGogglesOn(areGogglesOn);</span>
+<span class="nc" id="L590">            audioManager.playTorch();</span>
+        }
+<span class="fc" id="L592">    }</span>
+
+    /*
+     * Draw UI on screen
+     */
+    private void renderUI() {
+<span class="fc bfc" id="L598" title="All 2 branches covered.">        if (bus.isLeaving()) return;</span>
+
+<span class="fc" id="L600">        BitmapFont smallFont = graphics.gameFont;</span>
+<span class="fc" id="L601">        BitmapFont bigFont = graphics.menuFont;</span>
+<span class="fc" id="L602">        float worldHeight = game.viewport.getWorldHeight();</span>
+<span class="fc" id="L603">        float worldWidth = game.viewport.getWorldWidth();</span>
+<span class="fc" id="L604">        graphics.updateBatchProjectionMatrix(game.viewport.getCamera().combined);</span>
+<span class="fc" id="L605">        game.graphicsManager.beginBatch();</span>
+
+        // Draw collected items in inventory bar
+        // Display instructions if an item can be used or collected
+<span class="fc" id="L609">        float itemXPos = (worldWidth - ((numOfInventoryItems) * 32))/2;</span>
+<span class="fc" id="L610">        String instructions= &quot;&quot;;</span>
+<span class="fc bfc" id="L611" title="All 2 branches covered.">        for (Collectable item : items.getItems()) {</span>
+<span class="fc bfc" id="L612" title="All 2 branches covered.">            if (item.playerHas){</span>
+<span class="fc" id="L613">                item.img.setPosition(itemXPos, worldHeight * 0.8f);</span>
+<span class="fc" id="L614">                graphics.drawImage(item.img, 1);</span>
+<span class="fc" id="L615">                itemXPos += 32;</span>
+<span class="fc" id="L616">                instructions = getInstructions(item.toString());</span>
+
+            }
+<span class="fc bfc" id="L619" title="All 6 branches covered.">            else if (item.originScreen.equals(&quot;GameScreen&quot;) &amp;&amp; item.isVisible &amp;&amp; item.checkInRange(player.sprite.getX(), player.sprite.getY())) {</span>
+<span class="fc" id="L620">                instructions = &quot;Press 'e' to collect &quot; + item.toString();</span>
+
+            }
+<span class="fc" id="L623">        }</span>
+        //Draw instructions
+<span class="fc" id="L625">        GlyphLayout layout = new GlyphLayout(graphics.menuFont, instructions);</span>
+<span class="fc" id="L626">        float textX = (worldWidth - layout.width) / 2;</span>
+<span class="pc bpc" id="L627" title="1 of 2 branches missed.">        if (world.isDark()){</span>
+<span class="nc" id="L628">            graphics.drawText(bigFont, instructions,Color.WHITE, textX, worldHeight* 0.75f);</span>
+        }else {
+<span class="fc" id="L630">            graphics.drawText(bigFont, instructions, Color.BLACK, textX, worldHeight * 0.75f);</span>
+        }
+<span class="fc" id="L632">        drawEventTracker(smallFont);</span>
+<span class="fc" id="L633">        drawTimerAndScore(bigFont);</span>
+
+<span class="fc bfc" id="L635" title="All 4 branches covered.">        if (goose.hasStolenTorch() &amp;&amp; !player.has(items.getTorch())){</span>
+<span class="fc" id="L636">            layout = new GlyphLayout(graphics.menuFont, &quot;THE GOOSE STOLE YOUR TORCH\nCATCH IT QUICK!!!&quot;);</span>
+<span class="fc" id="L637">            graphics.drawText(bigFont, &quot;THE GOOSE STOLE YOUR TORCH\nCATCH IT QUICK!!!&quot;, Color.RED, (worldWidth -layout.width)/2, worldHeight-80f);</span>
+        }
+        // Game instructions
+<span class="fc bfc" id="L640" title="All 2 branches covered.">        if (player.has(items.getTorch())) {</span>
+<span class="fc" id="L641">            String instruction = &quot;Left click to for torch&quot;;</span>
+<span class="pc bpc" id="L642" title="3 of 4 branches missed.">            if (hasGoggles &amp;&amp; world.isDark()) {</span>
+<span class="nc" id="L643">                instruction += &quot;, right click for goggles&quot;;</span>
+            }
+<span class="fc" id="L645">            graphics.drawText(bigFont, instruction, Color.ORANGE, 20, 80);</span>
+        }
+<span class="fc" id="L647">        graphics.drawText(bigFont, &quot;Press 'p' to pause&quot;, Color.WHITE, 20, 55);</span>
+<span class="fc" id="L648">        graphics.drawText(bigFont, &quot;Use Arrow Keys or WASD to move&quot;, Color.WHITE, 20, 30);</span>
+
+<span class="pc bpc" id="L650" title="1 of 2 branches missed.">        if(isPaused) {</span>
+<span class="nc" id="L651">            game.graphicsManager.drawText(smallFont, &quot;PAUSED&quot;,</span>
+                (float) worldWidth / 2, worldHeight - 100);
+        }
+
+<span class="fc" id="L655">        buildingManager.renderUI(smallFont, bigFont, worldWidth, worldHeight);</span>
+<span class="fc" id="L656">        game.graphicsManager.endBatch();</span>
+
+<span class="fc" id="L658">    }</span>
+
+    /**
+     * Checks if inventory item can be used
+     * @param key item being checked
+     * @return String of instructions to display
+     */
+    private String getInstructions(String key) {
+<span class="fc bfc" id="L666" title="All 2 branches covered.">        if (key.equals(&quot;goose food&quot;)) {</span>
+
+<span class="fc" id="L668">            float dx = (goose.x + (goose.getWidth())/2) - (player.sprite.getX()+ (player.sprite.getWidth()/2));</span>
+<span class="fc" id="L669">            float dy = (goose.y + (goose.getHeight()/2)) - (player.sprite.getY() + (player.sprite.getHeight()/2));</span>
+
+<span class="pc bpc" id="L671" title="1 of 2 branches missed.">            if (World.withinDistance(dx, dy, 900)) {</span>
+<span class="nc" id="L672">                return &quot;Press 'e' to feed seeds to goose&quot;;</span>
+            }
+        }
+<span class="fc" id="L675">        return &quot;&quot;;</span>
+    }
+
+    public void gameOver(){
+<span class="fc" id="L679">        gameoverTrigger = true;</span>
+<span class="fc" id="L680">        audioManager.stopMusic();</span>
+<span class="fc" id="L681">        audioManager.stopFootsteps();</span>
+<span class="fc" id="L682">        Gdx.app.postRunnable(() -&gt; game.setScreen(</span>
+            new GameOverScreen(game, &quot;Sorry you missed the bus, better luck next time&quot;)
+        ));
+<span class="fc" id="L685">    }</span>
+
+    /**
+     * Getter for the puddle manager of this game screen.
+     * @return the puddle manager.
+     */
+    public PuddleManager getPuddleManager() {
+<span class="fc" id="L692">        return puddleManager;</span>
+    }
+
+    /**
+     * Getter for the player associated with this game.
+     * @return the player object.
+     */
+    public Player getPlayer() {
+<span class="fc" id="L700">        return player;</span>
+    }
+
+    @Override
+    public void resize(int width, int height) {
+<span class="fc" id="L705">        game.viewport.update(width, height);</span>
+<span class="fc" id="L706">    }</span>
+
+    @Override
+    public void pause() {
+<span class="nc" id="L710">    }</span>
+
+    @Override
+    public void resume() {
+
+<span class="fc" id="L715">        isPaused = false;</span>
+<span class="fc" id="L716">    }</span>
+
+    @Override
+    public void hide() {
+
+<span class="fc" id="L721">    }</span>
+
+    @Override
+    public void dispose() {
+        // release texture memory
+<span class="nc" id="L726">        player.sprite.dispose();</span>
+
+<span class="nc bnc" id="L728" title="All 2 branches missed.">        if (goose != null) {</span>
+<span class="nc" id="L729">            goose.currentGooseFrame.dispose();</span>
+        }
+
+<span class="nc bnc" id="L732" title="All 2 branches missed.">        if (map != null) {</span>
+<span class="nc" id="L733">            map.dispose();</span>
+        }
+<span class="nc bnc" id="L735" title="All 2 branches missed.">        if (lighting != null) {</span>
+<span class="nc" id="L736">            lighting.dispose();</span>
+        }
+
+<span class="nc bnc" id="L739" title="All 2 branches missed.">        if (mapRenderer != null) {</span>
+<span class="nc" id="L740">            mapRenderer.dispose();</span>
+        }
+
+<span class="nc bnc" id="L743" title="All 2 branches missed.">        if (buildingManager != null) {</span>
+<span class="nc" id="L744">            buildingManager.dispose();</span>
+        }
+
+<span class="nc" id="L747">        bus.dispose();</span>
+
+<span class="nc" id="L749">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

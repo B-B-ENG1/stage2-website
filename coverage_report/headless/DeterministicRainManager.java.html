@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DeterministicRainManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">headless</a> &gt; <span class="el_source">DeterministicRainManager.java</span></div><h1>DeterministicRainManager.java</h1><pre class="source lang-java linenums">package headless;
+
+import io.github.team6ENG.EscapeUni.Managers.*;
+import io.github.team6ENG.EscapeUni.World;
+
+/**
+ * A rain manager which places puddles deterministically, i.e. it always
+ * places a puddle rather than having a random chance to.
+ */
+public class DeterministicRainManager extends RainManager {
+
+<span class="fc" id="L12">    boolean canRain = false;</span>
+
+    public DeterministicRainManager(World world, GraphicsManager graphics, AudioManager audio,
+                                    PuddleManager puddleManager) {
+<span class="fc" id="L16">        super(world, graphics, audio, puddleManager);</span>
+<span class="fc" id="L17">    }</span>
+
+    /**
+     * Allows rain to happen: in this case, it will be guaranteed to rain when
+     * tryRain is called.
+     */
+    public void allowRain() {
+<span class="nc" id="L24">        canRain = true;</span>
+<span class="nc" id="L25">    }</span>
+
+
+    /**
+     * Always attempts to add exactly one puddle this frame.
+     * @param delta is the time since the previous frame.
+     */
+    @Override
+    protected void placePuddle(float delta) {
+<span class="fc" id="L34">        puddleManager.addPuddles(1);</span>
+<span class="fc" id="L35">    }</span>
+
+    /**
+     * If allowed to rain, guarantees that rain will occur. Otherwise,
+     * rain will not occur.
+     * @param delta is the time since the previous frame.
+     */
+    @Override
+    protected void tryRain(float delta) {
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">        if (canRain) {</span>
+<span class="nc" id="L45">            world.rainEvent();</span>
+<span class="nc" id="L46">            audio.playRain();</span>
+        }
+<span class="fc" id="L48">    }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

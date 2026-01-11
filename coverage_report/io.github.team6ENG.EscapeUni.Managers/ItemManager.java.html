@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ItemManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Managers</a> &gt; <span class="el_source">ItemManager.java</span></div><h1>ItemManager.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Managers;
+
+import java.util.ArrayList;
+
+import io.github.team6ENG.EscapeUni.Entities.Collectable;
+import io.github.team6ENG.EscapeUni.Entities.Torch;
+import io.github.team6ENG.EscapeUni.Main;
+
+public class ItemManager {
+    private GraphicsManager graphics;
+    private AudioManager audio;
+    private LightingManager lighting;
+
+    private Collectable torch;
+    private Collectable gooseFood;
+    private Collectable idCard;
+    private Collectable pizza;
+    private Collectable phone;
+    private Collectable goggles;
+    private Collectable potion;
+<span class="fc" id="L21">    private ArrayList&lt;Collectable&gt; energyDrinks = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L23">    public ItemManager(Main main) {</span>
+<span class="fc" id="L24">        graphics = main.graphicsManager;</span>
+<span class="fc" id="L25">        audio = main.audioManager;</span>
+<span class="fc" id="L26">        lighting = main.lightingManager;</span>
+
+<span class="fc" id="L28">        gooseFood = new Collectable(&quot;goose food&quot;, graphics, 500, 1500, 0.03f, true,</span>
+            AssetManager.gooseFoodAsset, &quot;GameScreen&quot;, audio);
+<span class="fc" id="L30">        idCard = new Collectable(&quot;ID card&quot;, graphics, 300, 200, 0.05f,</span>
+<span class="fc" id="L31">            false, main.getWorld().getIDCardAsset(), &quot;RonCookeScreen&quot;, audio);</span>
+<span class="fc" id="L32">        pizza = new Collectable(&quot;pizza&quot;, graphics, 600, 100, 0.4f, true,</span>
+            AssetManager.pizzaAsset, &quot;LangwithScreen&quot;, audio);
+<span class="fc" id="L34">        phone = new Collectable(&quot;phone&quot;, graphics, 100, 100, 0.05f, true,</span>
+            AssetManager.phoneAsset, &quot;LangwithScreen&quot;, audio);
+<span class="fc" id="L36">        torch = new Collectable(&quot;torch&quot;, graphics, 300, 220, 0.1f, false,</span>
+            AssetManager.torchAsset, &quot;RonCookeScreen&quot;, audio);
+<span class="fc" id="L38">        goggles = new Collectable(&quot;goggles&quot;, graphics, 300, 200, 0.1f, false,</span>
+            AssetManager.gogglesAsset, &quot;PiazzaScreen&quot;, audio);
+<span class="fc" id="L40">        potion = new Collectable(&quot;potion&quot;, graphics, 300, 220, 0.1f, false,</span>
+            AssetManager.potionAsset, &quot;PiazzaScreen&quot;, audio);
+<span class="fc" id="L42">    }</span>
+
+    /**
+     * Create a torch object as a tool that the player carries. This is different to
+     * the Collectable torch, which represents the same entity before it has been
+     * collected by the player.
+     * @return the new torch object.
+     */
+    public Torch createTorch() {
+<span class="fc" id="L51">        return new Torch(lighting, audio, graphics);</span>
+    }
+
+    /**
+     * Returns the torch in this item manager if it exists, or null otherwise.
+     * @return the torch in this manager, if it exists.
+     */
+    public Collectable getTorch() {
+<span class="fc" id="L59">        return torch;</span>
+    }
+
+    public Collectable getGooseFood() {
+<span class="fc" id="L63">        return gooseFood;</span>
+    }
+
+    public Collectable getIdCard() {
+<span class="fc" id="L67">        return idCard;</span>
+    }
+
+    public Collectable getPizza() {
+<span class="nc" id="L71">        return pizza;</span>
+    }
+
+    public Collectable getPhone() {
+<span class="fc" id="L75">        return phone;</span>
+    }
+
+    public Collectable getGoggles() {
+<span class="fc" id="L79">        return goggles;</span>
+    }
+
+    public Collectable getPotion() {
+<span class="fc" id="L83">        return potion;</span>
+    }
+
+    /**
+     * Adds a dynamically-placed energy drink collectable to this manager.
+     * @param drink the collectable to add
+     */
+    public void addEnergyDrink(Collectable drink) {
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">        if (drink == null) return;</span>
+<span class="fc" id="L92">        energyDrinks.add(drink);</span>
+<span class="fc" id="L93">    }</span>
+
+    public ArrayList&lt;Collectable&gt; getItems() {
+<span class="fc" id="L96">        ArrayList&lt;Collectable&gt; items = new ArrayList&lt;&gt;();</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">        if (torch != null) {</span>
+<span class="fc" id="L98">            items.add(torch);</span>
+        }
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">        if (gooseFood != null) {</span>
+<span class="fc" id="L101">            items.add(gooseFood);</span>
+        }
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">        if (idCard != null) {</span>
+<span class="fc" id="L104">            items.add(idCard);</span>
+        }
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">        if (pizza != null) {</span>
+<span class="fc" id="L107">            items.add(pizza);</span>
+        }
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">        if (phone != null) {</span>
+<span class="fc" id="L110">            items.add(phone);</span>
+        }
+<span class="fc bfc" id="L112" title="All 2 branches covered.">        if (!energyDrinks.isEmpty()) {</span>
+<span class="fc" id="L113">            items.addAll(energyDrinks);</span>
+        }
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">        if (goggles != null) {</span>
+<span class="fc" id="L116">            items.add(goggles);</span>
+        }
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">        if (potion != null) {</span>
+<span class="fc" id="L119">            items.add(potion);</span>
+        }
+<span class="fc" id="L121">        return items;</span>
+    }
+
+    public void dispose() {
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (torch != null) {</span>
+<span class="nc" id="L126">            torch.dispose();</span>
+        }
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        if (gooseFood != null) {</span>
+<span class="nc" id="L129">            gooseFood.dispose();</span>
+        }
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        if (idCard != null) {</span>
+<span class="nc" id="L132">            idCard.dispose();</span>
+        }
+<span class="nc bnc" id="L134" title="All 2 branches missed.">        if (pizza != null) {</span>
+<span class="nc" id="L135">            pizza.dispose();</span>
+        }
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        if (phone != null) {</span>
+<span class="nc" id="L138">            phone.dispose();</span>
+        }
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        if (!energyDrinks.isEmpty()) {</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">            for (Collectable item : energyDrinks) item.dispose();</span>
+        }
+<span class="nc" id="L143">    }</span>
+
+    /**
+     * Reset all the items to initial states
+     */
+    public void reset() {
+<span class="nc bnc" id="L149" title="All 2 branches missed.">        if (torch != null) torch.playerHas = false;</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">        if (gooseFood != null) gooseFood.playerHas = false;</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">        if (idCard != null) idCard.playerHas = false;</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">        if (pizza != null) pizza.playerHas = false;</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        if (phone != null) phone.playerHas = false;</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">        if (goggles != null) goggles.playerHas = false;</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">        if (potion != null) potion.playerHas = false;</span>
+<span class="nc" id="L156">        energyDrinks.clear();</span>
+<span class="nc" id="L157">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

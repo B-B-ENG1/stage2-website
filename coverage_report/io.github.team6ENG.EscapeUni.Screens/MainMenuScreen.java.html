@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MainMenuScreen.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Screens</a> &gt; <span class="el_source">MainMenuScreen.java</span></div><h1>MainMenuScreen.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Screens;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.TimeUtils;
+import io.github.team6ENG.EscapeUni.Main;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.TextButtonDelegate;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.StageDelegate;
+
+/**
+ * first screen to display when game loads
+*/
+public class MainMenuScreen extends AbstractScreen {
+    // stage and resources created in show() and disposed in dispose()
+    private StageDelegate stage;
+<span class="fc" id="L22">    private final GlyphLayout layout = new GlyphLayout();</span>
+
+    private TextButtonDelegate playButton;
+    private TextButtonDelegate exitButton;
+
+    private com.badlogic.gdx.InputProcessor previousInputProcessor; // used to restore on hide()
+
+    private static final String TITLE_TEXT = &quot;Escape University Of York&quot;;
+
+    /**
+     * Initialise menu screen
+     * @param game current instance of Main
+     */
+    public MainMenuScreen(final Main game) {
+<span class="fc" id="L36">        super(game);</span>
+<span class="fc" id="L37">        graphics = game.graphicsManager;</span>
+<span class="fc" id="L38">        game.elapsedTimeChecker.startTimer(&quot;Main menu to game&quot;);</span>
+        // DO NOT initialize stage/input here — do it in show()
+<span class="fc" id="L40">    }</span>
+
+    @Override
+    public void show() {
+        // create stage with a fixed virtual size (you used 800x450)
+<span class="fc" id="L45">        stage = graphics.createFixedStageDelegate(game.viewport);</span>
+
+        // remember previous input processor so we can restore it later
+<span class="fc" id="L48">        previousInputProcessor = Gdx.input.getInputProcessor();</span>
+<span class="fc" id="L49">        stage.setInputProcessor();</span>
+
+
+        // build UI
+<span class="fc" id="L53">        setupUI();</span>
+
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        if (game.elapsedTimeChecker.timerExists(&quot;Pause to Main Menu&quot;)) {</span>
+<span class="fc" id="L56">            float elapsed = game.elapsedTimeChecker.endTimer(&quot;Pause to Main Menu&quot;);</span>
+<span class="fc" id="L57">            System.out.println(&quot;Time taken to get from pause screen to &quot; +</span>
+                &quot;main menu screen: &quot; + elapsed + &quot; ms&quot;);
+        }
+<span class="fc" id="L60">    }</span>
+    /**
+     *Add required UI elements to stage
+     */
+    private void setupUI() {
+<span class="fc" id="L65">        playButton = createButton(&quot;Play&quot;);</span>
+<span class="fc" id="L66">        exitButton = createButton(&quot;Exit&quot;);</span>
+
+<span class="fc" id="L68">        playButton.addToStage(stage);</span>
+<span class="fc" id="L69">        playButton.addToStage(stage);</span>
+
+<span class="fc" id="L71">        positionButtons();</span>
+<span class="fc" id="L72">        addListeners();</span>
+<span class="fc" id="L73">    }</span>
+
+
+    /**
+     * Place buttons on screen
+     */
+    private void positionButtons() {
+<span class="fc" id="L80">        float w = stage.getViewport().getWorldWidth();</span>
+<span class="fc" id="L81">        float h = stage.getViewport().getWorldHeight();</span>
+
+<span class="fc" id="L83">        playButton.setPosition((w - playButton.getWidth()) / 2f, h / 2f );</span>
+<span class="fc" id="L84">        exitButton.setPosition((w - exitButton.getWidth()) / 2f, h / 2f - 120);</span>
+<span class="fc" id="L85">    }</span>
+
+    /**
+     * Getters for the play button's delegate, available for
+     * testing purposes.
+     * @return the play/exit button delegates associated with the screen.
+     */
+    public TextButtonDelegate getPlayButton() {
+<span class="fc" id="L93">        return playButton;</span>
+    }
+    public TextButtonDelegate getExitButton() {
+<span class="fc" id="L96">        return exitButton;</span>
+    }
+
+
+    /**
+     * Add listeners for button functionality
+     */
+    private void addListeners() {
+<span class="fc" id="L104">        Color normalColor = new Color(0.0f, 0.95f, 0.95f, 1f);</span>
+<span class="fc" id="L105">        Color clickColor = new Color(0.4f, 1f, 1f, 1f);</span>
+
+<span class="fc" id="L107">        playButton.addListener(new ClickListener() {</span>
+<span class="fc" id="L108">            private boolean clicked = false;</span>
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+<span class="fc bfc" id="L111" title="All 2 branches covered.">                if (clicked) return;</span>
+<span class="fc" id="L112">                game.elapsedTimeChecker.startTimer(&quot;Main Menu to Username&quot;);</span>
+<span class="fc" id="L113">                clicked = true;</span>
+<span class="fc" id="L114">                playButton.setColor(clickColor);</span>
+<span class="pc" id="L115">                Gdx.app.postRunnable(() -&gt; game.setScreen(new UsernameScreen(game)));</span>
+<span class="fc" id="L116">            }</span>
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+<span class="fc" id="L119">                playButton.setColor(clickColor);</span>
+<span class="fc" id="L120">            }</span>
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+<span class="fc" id="L123">                playButton.setColor(normalColor);</span>
+<span class="fc" id="L124">            }</span>
+        });
+
+<span class="fc" id="L127">        exitButton.addListener(new ClickListener() {</span>
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+<span class="fc" id="L130">                exitButton.setColor(clickColor);</span>
+<span class="fc" id="L131">                Gdx.app.postRunnable(Gdx.app::exit);</span>
+<span class="fc" id="L132">            }</span>
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+<span class="fc" id="L135">                exitButton.setColor(clickColor);</span>
+<span class="fc" id="L136">            }</span>
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+<span class="fc" id="L139">                exitButton.setColor(normalColor);</span>
+<span class="fc" id="L140">            }</span>
+        });
+<span class="fc" id="L142">    }</span>
+
+    @Override
+    public void render(float delta) {
+<span class="nc" id="L146">        ScreenUtils.clear(Color.BLACK);</span>
+
+        // update stage
+<span class="nc bnc" id="L149" title="All 2 branches missed.">        if (stage != null) {</span>
+<span class="nc" id="L150">            stage.act(delta);</span>
+        }
+
+        // Draw background + title using game's batch (aligned to stage camera)
+<span class="nc bnc" id="L154" title="All 2 branches missed.">        if (stage != null) {</span>
+<span class="nc" id="L155">            graphics.updateBatchProjectionMatrix(stage.getCameraCombinedProjection());</span>
+        } else {
+<span class="nc" id="L157">            graphics.updateBatchProjectionMatrix(game.viewport.getCamera().combined);</span>
+        }
+
+<span class="nc" id="L160">        graphics.beginBatch();</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">        float w = (stage != null) ? stage.getViewport().getWorldWidth() : game.viewport.getWorldWidth();</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        float h = (stage != null) ? stage.getViewport().getWorldHeight() : game.viewport.getWorldHeight();</span>
+
+<span class="nc" id="L164">        float brightness = 0.85f + 0.15f * (float) Math.sin(TimeUtils.millis() / 500f);</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">        if (graphics.menuFont != null) {</span>
+<span class="nc" id="L166">            graphics.menuFont.setColor(brightness, brightness, brightness, 1f);</span>
+<span class="nc" id="L167">            layout.setText(graphics.menuFont, TITLE_TEXT);</span>
+<span class="nc" id="L168">            graphics.drawText(graphics.menuFont, TITLE_TEXT, (w - layout.width) / 2f, h * 0.82f);</span>
+<span class="nc" id="L169">            graphics.menuFont.setColor(Color.WHITE);</span>
+        }
+
+<span class="nc" id="L172">        graphics.endBatch();</span>
+
+<span class="nc bnc" id="L174" title="All 2 branches missed.">        if (stage != null) stage.draw();</span>
+
+        // allow quick keyboard start (space)
+<span class="nc bnc" id="L177" title="All 2 branches missed.">        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {</span>
+<span class="nc" id="L178">            Gdx.app.postRunnable(() -&gt; game.setScreen(new CharacterSelectScreen(game)));</span>
+        }
+<span class="nc" id="L180">    }</span>
+
+    @Override
+    public void resize(int width, int height) {
+<span class="pc bpc" id="L184" title="1 of 2 branches missed.">        if (stage != null) stage.getViewport().update(width, height, true);</span>
+<span class="fc" id="L185">        positionButtons();</span>
+<span class="fc" id="L186">    }</span>
+
+    @Override
+<span class="fc" id="L189">    public void pause() { }</span>
+
+    @Override
+<span class="nc" id="L192">    public void resume() { }</span>
+
+    @Override
+    public void hide() {
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">        if (stage.isInputProcessor()) {</span>
+<span class="nc" id="L197">            Gdx.input.setInputProcessor(null);</span>
+        }
+
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">        if (previousInputProcessor != null) {</span>
+<span class="fc" id="L201">            Gdx.input.setInputProcessor(previousInputProcessor);</span>
+<span class="fc" id="L202">            previousInputProcessor = null;</span>
+        }
+<span class="fc" id="L204">    }</span>
+
+    @Override
+    public void dispose() {
+<span class="nc" id="L208">        stage.dispose();</span>
+<span class="nc" id="L209">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

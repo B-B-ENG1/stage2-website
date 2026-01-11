@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StubImageButtonDelegate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">headless.DelegateStubs</a> &gt; <span class="el_source">StubImageButtonDelegate.java</span></div><h1>StubImageButtonDelegate.java</h1><pre class="source lang-java linenums">package headless.DelegateStubs;
+
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.Cell;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.ButtonDelegate;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.ImageButtonDelegate;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.StageDelegate;
+
+public class StubImageButtonDelegate extends ImageButtonDelegate {
+
+<span class="fc" id="L16">    protected float width = 0;</span>
+<span class="fc" id="L17">    protected float height = 0;</span>
+<span class="fc" id="L18">    protected float posX = 0;</span>
+<span class="fc" id="L19">    protected float posY = 0;</span>
+    protected Color color;
+    protected ClickListener clickListener;
+
+<span class="fc" id="L23">    public StubImageButtonDelegate() {}</span>
+
+    @Override
+<span class="nc" id="L26">    public void pad(float pad) {}</span>
+
+    @Override
+    public void setSize(float width, float height) {
+<span class="nc" id="L30">        this.width = width;</span>
+<span class="nc" id="L31">        this.height = height;</span>
+<span class="nc" id="L32">    }</span>
+
+    @Override
+<span class="nc" id="L35">    public float getWidth() {return width;}</span>
+
+    @Override
+    public float getHeight() {
+<span class="nc" id="L39">        return height;</span>
+    }
+
+    @Override
+    public void setPosition(float x, float y) {
+<span class="nc" id="L44">        posX = x;</span>
+<span class="nc" id="L45">        posY = y;</span>
+<span class="nc" id="L46">    }</span>
+
+    @Override
+<span class="nc" id="L49">    public void setColor(Color color) {this.color = color;}</span>
+
+    @Override
+    public void addToStage(StageDelegate stage) {
+        // Note: We may want to make this a spy method in the future, which
+        // allows the stage delegate to keep track of which button delegates etc.
+        // it contains.
+<span class="nc" id="L56">    }</span>
+
+    @Override
+    public Cell addToTable(Table table) {
+<span class="fc" id="L60">        return table.add();</span>
+    }
+
+    @Override
+    public void addListener(ClickListener listener) {
+<span class="fc" id="L65">        clickListener = listener;</span>
+<span class="fc" id="L66">    }</span>
+
+    @Override
+    public void click(float x, float y) {
+        // For testing purposes.
+<span class="fc" id="L71">        InputEvent event = new InputEvent();</span>
+<span class="fc" id="L72">        event.setType(InputEvent.Type.touchDown);</span>
+<span class="fc" id="L73">        clickListener.clicked(event, x, y);</span>
+<span class="fc" id="L74">        event.setType(InputEvent.Type.touchUp);</span>
+<span class="fc" id="L75">        clickListener.clicked(event, x, y);</span>
+<span class="fc" id="L76">    }</span>
+
+    @Override
+    public void enter(float x, float y) {
+        // For testing purposes.
+<span class="nc" id="L81">        InputEvent event = new InputEvent();</span>
+<span class="nc" id="L82">        event.setType(InputEvent.Type.touchUp);</span>
+<span class="nc" id="L83">        clickListener.enter(event, x, y, 1, new Actor());</span>
+<span class="nc" id="L84">    }</span>
+
+    @Override
+    public void exit(float x, float y) {
+        // For testing purposes.
+<span class="nc" id="L89">        InputEvent event = new InputEvent();</span>
+<span class="nc" id="L90">        event.setType(InputEvent.Type.exit);</span>
+<span class="nc" id="L91">        clickListener.exit(event, x, y, 1, new Actor());</span>
+<span class="nc" id="L92">    }</span>
+
+    @Override
+    public Color getColor() {
+<span class="nc" id="L96">        return color;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

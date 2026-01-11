@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GraphicsManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Managers</a> &gt; <span class="el_source">GraphicsManager.java</span></div><h1>GraphicsManager.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Managers;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+
+import io.github.team6ENG.EscapeUni.Screens.Delegates.*;
+
+public class GraphicsManager {
+
+    protected SpriteBatch batch;
+    public BitmapFont menuFont;
+    public BitmapFont gameFont;
+    public Skin buttonSkin;
+
+<span class="fc" id="L29">    public GraphicsManager() {</span>
+<span class="fc" id="L30">        createBatch();</span>
+<span class="fc" id="L31">        initialiseFonts();</span>
+<span class="fc" id="L32">        createButtonSkin();</span>
+<span class="fc" id="L33">    }</span>
+
+    protected void createBatch() {
+<span class="nc" id="L36">        batch = new SpriteBatch();</span>
+<span class="nc" id="L37">    }</span>
+
+    protected void createButtonSkin() {
+<span class="nc" id="L40">        buttonSkin = new Skin(Gdx.files.internal(AssetManager.uiSkin));</span>
+<span class="nc" id="L41">    }</span>
+
+    public TextBoxDelegate createTextBox(String message, int width, int height,
+                                         Color color) {
+<span class="nc" id="L45">        TextField box = new TextField(&quot;&quot;, buttonSkin);</span>
+<span class="nc" id="L46">        box.setWidth(width);</span>
+<span class="nc" id="L47">        box.setHeight(height);</span>
+<span class="nc" id="L48">        box.setColor(color);</span>
+<span class="nc" id="L49">        box.setMessageText(message);</span>
+<span class="nc" id="L50">        return new TextBoxDelegate(box);</span>
+    }
+
+    public TextButtonDelegate createTextButtonDelegate(String text) {
+<span class="nc" id="L54">        return new TextButtonDelegate(new TextButton(text, buttonSkin));</span>
+    }
+
+    public SliderDelegate createSliderDelegate(float min,
+                                               float max,
+                                               float stepSize,
+                                               boolean vertical) {
+<span class="nc" id="L61">        return new SliderDelegate(new Slider(min, max, stepSize, vertical, buttonSkin));</span>
+    }
+
+    public TextureDelegate createTextureDelegate(String asset) {
+<span class="nc" id="L65">        return new TextureDelegate(new Texture(Gdx.files.internal(asset)));</span>
+    }
+
+    public TextureDelegate createTextureDelegate(int width, int height,
+                                                 Pixmap.Format format) {
+<span class="nc" id="L70">        return new TextureDelegate(new Texture(width, height, format));</span>
+    }
+
+
+
+    public StageDelegate createStageDelegate(FitViewport viewport) {
+<span class="nc" id="L76">        return new StageDelegate(viewport, batch);</span>
+    }
+
+    public SpriteDelegate createSpriteDelegate(TextureRegionDelegate texture) {
+<span class="nc" id="L80">        return texture.createSpriteDelegate();</span>
+    }
+
+    public StageDelegate createFixedStageDelegate(FitViewport viewport) {
+<span class="nc" id="L84">        return new StageDelegate(viewport);</span>
+    }
+
+    /**
+     * Create a delegate for an OrthogonalTiledMapRenderer.
+     * @param map is the map for creation of the OrthogonalTiledMapRenderer.
+     * @param unitScale is the unitScale of the OrthogonalTiledMapRenderer.
+     * @return the delegate of the OrthogonalTiledMapRenderer.
+     */
+    public RendererDelegate createRendererDelegate(TiledMap map, float unitScale) {
+<span class="nc" id="L94">        return new RendererDelegate(new OrthogonalTiledMapRenderer(map, unitScale));</span>
+    }
+
+    public FrameBufferDelegate createFrameBufferDelegate(Pixmap.Format format,
+                                                         int width,
+                                                         int height,
+                                                         boolean hasDepth) {
+<span class="nc" id="L101">        return new FrameBufferDelegate(new FrameBuffer(format, width, height, hasDepth));</span>
+    }
+
+    public void initialiseFonts() {
+        //Scale font to our viewport by ratio of viewport height to screen height
+<span class="nc" id="L106">        menuFont = new BitmapFont(Gdx.files.internal(AssetManager.menuScreenFont));</span>
+<span class="nc" id="L107">        menuFont.setUseIntegerPositions(false);</span>
+<span class="nc" id="L108">        menuFont.getData().setScale(0.8f);</span>
+<span class="nc" id="L109">        menuFont.setColor(Color.valueOf(&quot;4287f5FF&quot;));</span>
+
+<span class="nc" id="L111">        gameFont = new BitmapFont(Gdx.files.internal(AssetManager.menuScreenFont));</span>
+<span class="nc" id="L112">        gameFont.getData().setScale(0.4f);</span>
+<span class="nc" id="L113">        gameFont.setColor(Color.valueOf(&quot;4287f5FF&quot;));</span>
+<span class="nc" id="L114">    }</span>
+
+    /**
+     * Draws text on the screen with a given font at a given posititon.
+     * @param font is the font to be used.
+     * @param str is the text to be written.
+     * @param x is the x-position of the text.
+     * @param y is the y-position of the text.
+     */
+    public void drawText(BitmapFont font, String str, float x, float y) {
+<span class="nc" id="L124">        font.draw(batch, str, x, y);</span>
+<span class="nc" id="L125">    }</span>
+
+    /**
+     * Helper method: text rendering logic to avoid repeated setColor() calls
+     * @param font  The BitmapFont to use for rendering
+     * @param text  The text string to display
+     * @param colour The colour of the text
+     * @param x     The x-coordinate for text position
+     * @param y     The y-coordinate for text position
+     */
+    public void drawText(BitmapFont font, String text, Color colour, float x, float y) {
+<span class="fc" id="L136">        font.setColor(colour);</span>
+<span class="fc" id="L137">        drawText(font, text, x, y);</span>
+<span class="fc" id="L138">    }</span>
+
+    public void drawImage(ImageDelegate image, float parentAlpha) {
+<span class="nc" id="L141">        image.draw(batch, parentAlpha);</span>
+<span class="nc" id="L142">    }</span>
+
+    public void drawSprite(SpriteDelegate sprite) {
+<span class="nc" id="L145">        sprite.draw(batch);</span>
+<span class="nc" id="L146">    }</span>
+
+    public void drawTexture(TextureDelegate texture, float x, float y) {
+
+<span class="nc" id="L150">        texture.draw(batch, x, y);</span>
+<span class="nc" id="L151">    }</span>
+
+    public void drawTexture(TextureDelegate texture, float x,
+                                  float y, float width, float height) {
+<span class="nc" id="L155">        texture.draw(batch, x, y, width, height);</span>
+<span class="nc" id="L156">    }</span>
+
+    public void drawTextureRegion(TextureRegionDelegate texture, float x,
+                                  float y) {
+<span class="nc" id="L160">        texture.draw(batch, x, y);</span>
+<span class="nc" id="L161">    }</span>
+
+    public void drawTextureRegion(TextureRegionDelegate texture, float x,
+                                  float y, float width, float height) {
+<span class="nc" id="L165">        texture.draw(batch, x, y, width, height);</span>
+<span class="nc" id="L166">    }</span>
+
+    /**
+     * Sets the colour of the sprite batch to the given colour.
+     * @param colour is the colour to be given.
+     */
+    public void setBatchColour(Color colour) {
+<span class="nc" id="L173">        batch.setColor(colour);</span>
+<span class="nc" id="L174">    }</span>
+
+    /**
+     * Sets up the projection matrix for the sprite batch. This is set up
+     * so that it can be faked during testing.
+     * @param matrix is the matrix to be set.
+     */
+    public void updateBatchProjectionMatrix(Matrix4 matrix) {
+<span class="nc" id="L182">        batch.setProjectionMatrix(matrix);</span>
+<span class="nc" id="L183">    }</span>
+
+    /**
+     * Begins the batch.
+     */
+    public void beginBatch() {
+<span class="nc" id="L189">        batch.begin();</span>
+<span class="nc" id="L190">    }</span>
+
+    /**
+     * Ends the batch.
+     */
+    public void endBatch() {
+<span class="nc" id="L196">        batch.end();</span>
+<span class="nc" id="L197">    }</span>
+
+    /**
+     * Disposes of graphical elements such as fonts and skins.
+     */
+    public void dispose() {
+<span class="nc" id="L203">        batch.dispose();</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">        if (menuFont != null) {</span>
+<span class="nc" id="L205">            menuFont.dispose();</span>
+        }
+<span class="nc bnc" id="L207" title="All 2 branches missed.">        if (gameFont != null) {</span>
+<span class="nc" id="L208">            gameFont.dispose();</span>
+        }
+<span class="nc bnc" id="L210" title="All 2 branches missed.">        if (buttonSkin != null) {</span>
+<span class="nc" id="L211">            buttonSkin.dispose();</span>
+        }
+<span class="nc" id="L213">    }</span>
+
+    /**
+     * Flushes the batch.
+     */
+    public void flush() {
+<span class="nc" id="L219">        batch.flush();</span>
+<span class="nc" id="L220">    }</span>
+
+    public Matrix4 getTransformMatrix() {
+<span class="nc" id="L223">        return batch.getTransformMatrix();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

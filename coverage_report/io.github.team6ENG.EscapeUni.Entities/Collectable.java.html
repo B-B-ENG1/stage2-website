@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Collectable.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Entities</a> &gt; <span class="el_source">Collectable.java</span></div><h1>Collectable.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Entities;
+import io.github.team6ENG.EscapeUni.Managers.AudioManager;
+import io.github.team6ENG.EscapeUni.Managers.GraphicsManager;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.ImageDelegate;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.TextureDelegate;
+import io.github.team6ENG.EscapeUni.World;
+
+/**
+ * Represents collectable game items.
+ */
+public class Collectable {
+<span class="fc" id="L12">    public boolean playerHas = false;</span>
+    private GraphicsManager graphics;
+    private TextureDelegate tex;
+    public ImageDelegate img;
+    public float x, y;
+<span class="fc" id="L17">    public boolean isVisible = false;</span>
+<span class="fc" id="L18">    public String originScreen = &quot;&quot;;</span>
+    private AudioManager audioManager;
+    public static final float pickupDistanceSquared = 900f;
+    public static final float pickupOffsetX = 8;
+    public static final float pickupOffsetY = 16;
+    private boolean isTesting;
+    private String name;
+
+    /**
+     * A constructor for when graphics and audio is present, that is, when
+     * not in testing mode.
+     * @param posX is the x-position of the collectable.
+     * @param posY is the y-position of the collectable.
+     * @param scale is the scale of the image to be used.
+     * @param isVisible is true if and only if the collectable is to be visible.
+     * @param texturePath is the string from which the texture of the collectable
+     *                    may be constructed.
+     * @param originScreen is the screen on which the collectable should be put.
+     * @param audioManager is the audio manager through which the collectable
+     *                     will make sound.
+     */
+    public Collectable(String name, GraphicsManager graphics, float posX, float posY, float scale,
+                       boolean isVisible, String texturePath, String originScreen,
+                       AudioManager audioManager) {
+<span class="fc" id="L42">        this(posX, posY);</span>
+<span class="fc" id="L43">        this.name = name;</span>
+<span class="fc" id="L44">        this.graphics = graphics;</span>
+<span class="fc" id="L45">        tex = graphics.createTextureDelegate(texturePath);</span>
+<span class="fc" id="L46">        img = tex.createImage();</span>
+<span class="fc" id="L47">        img.setPosition(x, y);</span>
+<span class="fc" id="L48">        img.setScale(scale);</span>
+<span class="fc" id="L49">        this.isVisible = isVisible;</span>
+<span class="fc" id="L50">        this.originScreen = originScreen;</span>
+<span class="fc" id="L51">        this.audioManager = audioManager;</span>
+<span class="fc" id="L52">    }</span>
+
+    /**
+     * A constructor for the collectable regardless of mode: fundamentally
+     * this depends only on the position of the collectable.
+     * @param posX is the x-position of the collectable.
+     * @param posY is the y-position of the collectable.
+     */
+<span class="fc" id="L60">    public Collectable(float posX, float posY) {</span>
+<span class="fc" id="L61">        this.x = posX;</span>
+<span class="fc" id="L62">        this.y = posY;</span>
+<span class="fc" id="L63">    }</span>
+
+    /**
+     * Check if the player is in range. This is done by comparing the point
+     * (playerX + 8, playerY + 16) to the position of the collectable via
+     * Euclidean distance.
+     * @param playerX is the x-position of the player.
+     * @param playerY is the y-position of the player.
+     * @return true if in range
+     */
+    public boolean checkInRange(float playerX, float playerY){
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        if (!playerHas) {</span>
+<span class="fc" id="L75">            float dx = x - pickupOffsetX -playerX;</span>
+<span class="fc" id="L76">            float dy = y - pickupOffsetY - playerY;</span>
+<span class="fc" id="L77">            return World.withinDistance(dx, dy, pickupDistanceSquared);</span>
+        }
+
+<span class="nc" id="L80">        return false;</span>
+    }
+
+    /**
+     * The logic to update this item's behaviour on each frame.
+     * @param delta is the time since the previous frame.
+     */
+<span class="fc" id="L87">    public void update(float delta) {}</span>
+
+    /**
+     * Mark as collected and scale to inventory bar size
+     */
+    public void collect() {
+<span class="fc" id="L93">        playerHas = true;</span>
+<span class="fc" id="L94">        img.setScale(1f, 1f);</span>
+<span class="fc" id="L95">        float multiplier = img.getHeight() / img.getWidth();</span>
+<span class="fc" id="L96">        img.setWidth(24);</span>
+<span class="fc" id="L97">        img.setHeight(24 * multiplier);</span>
+<span class="fc" id="L98">        audioManager.playCollect();</span>
+<span class="fc" id="L99">    }</span>
+
+    /**
+     * Tells the audio manager to play the collection sound.
+     */
+    public void playSound(){
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        if (!isTesting) audioManager.playCollect();</span>
+<span class="fc" id="L106">    }</span>
+
+    @Override
+    public String toString() {
+<span class="fc" id="L110">        return name;</span>
+    }
+
+    public void dispose() {
+<span class="nc" id="L114">        tex.dispose();</span>
+<span class="nc" id="L115">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

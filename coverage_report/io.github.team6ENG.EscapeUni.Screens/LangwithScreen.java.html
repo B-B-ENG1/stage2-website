@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LangwithScreen.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Screens</a> &gt; <span class="el_source">LangwithScreen.java</span></div><h1>LangwithScreen.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Screens;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import io.github.team6ENG.EscapeUni.*;
+import io.github.team6ENG.EscapeUni.Entities.Collectable;
+import io.github.team6ENG.EscapeUni.Entities.Player;
+import io.github.team6ENG.EscapeUni.Managers.BuildingManager;
+import io.github.team6ENG.EscapeUni.Performance.FPSTracker;
+
+/**
+ * Represents the interior of the Ron Cooke building.
+ * Displays a black background with a welcome message.
+ */
+public class LangwithScreen extends AbstractScreen {
+
+    private final BuildingManager buildingManager;
+    private final GameScreen gameScreen;  // keep reference to return
+    private Player player;
+    private float stateTime;
+<span class="fc" id="L25">    private float pizzaText = 0;</span>
+
+    float worldWidth;
+    float worldHeight ;
+
+<span class="fc" id="L30">    private boolean isEPressed = false;</span>
+<span class="fc" id="L31">    private boolean isPaused = false;</span>
+
+    public LangwithScreen(Main game, BuildingManager buildingManager, GameScreen gameScreen) {
+<span class="fc" id="L34">        super(game);</span>
+<span class="fc" id="L35">        tileDimensions = 16;</span>
+<span class="fc" id="L36">        this.buildingManager = buildingManager;</span>
+<span class="fc" id="L37">        this.gameScreen = gameScreen;</span>
+<span class="fc" id="L38">        this.font = graphics.menuFont;</span>
+<span class="fc" id="L39">        this.smallFont = graphics.gameFont;</span>
+<span class="fc" id="L40">        initialisePlayer((int) 60,(int) game.viewport.getWorldHeight()/2);</span>
+<span class="fc" id="L41">        stateTime = 0;</span>
+<span class="fc" id="L42">    }</span>
+
+    /**
+     * Initialise player and set its position
+     */
+    private void initialisePlayer(int x, int y) {
+<span class="fc" id="L48">        int height = (int)(game.viewport.getWorldHeight() / 16);</span>
+<span class="fc" id="L49">        int width = (int)(game.viewport.getWorldWidth() / 16);</span>
+<span class="fc" id="L50">        player = new Player(graphics, world, buildingManager.audioManager, items);</span>
+<span class="fc" id="L51">        player.loadSprite(new TiledMapTileLayer( width, height, 16,16), tileDimensions);</span>
+<span class="fc" id="L52">        player.sprite.setPosition(x, y);</span>
+<span class="fc" id="L53">        player.sprite.setScale(4);</span>
+<span class="fc" id="L54">        player.speed  = 2;</span>
+
+<span class="fc" id="L56">    }</span>
+
+
+    @Override
+    public void render(float delta) {
+<span class="fc" id="L61">        super.render(delta);</span>
+        // Clear to black
+<span class="fc" id="L63">        Gdx.gl.glClearColor(0, 0, 0, 1);</span>
+<span class="fc" id="L64">        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);</span>
+
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if(!isPaused) {</span>
+<span class="fc" id="L67">            player.handleInput(delta, gameScreen.playerSpeedModifier);</span>
+<span class="fc" id="L68">            player.updatePlayer(stateTime);</span>
+        }
+<span class="fc" id="L70">        graphics.beginBatch();</span>
+
+<span class="fc" id="L72">        graphics.drawSprite(player.sprite);</span>
+
+<span class="fc" id="L74">        worldWidth = game.viewport.getWorldWidth();</span>
+<span class="fc" id="L75">        worldHeight = game.viewport.getWorldHeight();</span>
+
+
+<span class="fc bfc" id="L78" title="All 2 branches covered.">        for (Collectable item : items.getItems()){</span>
+<span class="pc bpc" id="L79" title="1 of 6 branches missed.">            if(item.isVisible &amp;&amp; !item.playerHas &amp;&amp; item.originScreen.equals(&quot;LangwithScreen&quot;)){</span>
+<span class="fc" id="L80">                graphics.drawImage(item.img, 1);</span>
+<span class="pc bpc" id="L81" title="3 of 4 branches missed.">                if (item.checkInRange(player.sprite.getX()- (player.sprite.getHeight()/2) , player.sprite.getY() - (player.sprite.getHeight()/2)) &amp;&amp; isEPressed){</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">                    if (item.toString().equals(&quot;pizza&quot;)){</span>
+<span class="nc" id="L83">                        isEPressed = false;</span>
+<span class="nc" id="L84">                        pizzaText = 5;</span>
+<span class="nc" id="L85">                        gameScreen.playerSpeedModifier = 2;</span>
+<span class="nc" id="L86">                        item.isVisible = false;</span>
+<span class="nc" id="L87">                        world.positiveEventFound();</span>
+                    }
+                    else {
+
+<span class="nc" id="L91">                        item.collect();</span>
+<span class="nc" id="L92">                        isEPressed = false;</span>
+                    }
+                }
+            }
+<span class="fc" id="L96">        }</span>
+<span class="fc" id="L97">        graphics.endBatch();</span>
+<span class="fc" id="L98">        renderUI();</span>
+<span class="fc" id="L99">        world.decrementTimer(delta);</span>
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">        if (world.getTimer() &lt; 0){</span>
+<span class="nc" id="L101">            gameScreen.gameOver();</span>
+<span class="nc" id="L102">            return;</span>
+        }
+<span class="fc" id="L104">        pizzaText -= delta;</span>
+<span class="fc" id="L105">        buildingManager.update(delta);</span>
+<span class="fc" id="L106">        stateTime += delta;</span>
+<span class="fc" id="L107">        isEPressed = Gdx.input.isKeyJustPressed(Input.Keys.E);</span>
+
+
+
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">        if(Gdx.input.isKeyJustPressed(Input.Keys.P)) {</span>
+<span class="nc" id="L112">            isPaused = true;</span>
+<span class="nc" id="L113">            game.setScreen(new PauseScreen(game, this, buildingManager.audioManager));</span>
+
+        }
+
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">        if (game.elapsedTimeChecker.timerExists(&quot;Enter Langwith&quot;)) {</span>
+<span class="nc" id="L118">            float elapsed = game.elapsedTimeChecker.endTimer(&quot;Enter Langwith&quot;);</span>
+<span class="nc" id="L119">            System.out.println(&quot;Time taken to enter Langwith: &quot; + elapsed + &quot; ms&quot;);</span>
+        }
+
+<span class="fc" id="L122">    }</span>
+
+    private void renderUI(){
+
+<span class="fc" id="L126">        graphics.updateBatchProjectionMatrix(game.viewport.getCamera().combined);</span>
+<span class="fc" id="L127">        graphics.beginBatch();</span>
+<span class="fc" id="L128">        float itemXPos = (worldWidth - (gameScreen.numOfInventoryItems * 32))/2;</span>
+<span class="fc" id="L129">        String instructions = &quot;&quot;;</span>
+
+        // draw items either in inventory or on screen
+<span class="fc bfc" id="L132" title="All 2 branches covered.">        for (Collectable item : items.getItems()) {</span>
+
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">            if (item.playerHas){</span>
+<span class="nc" id="L135">                item.img.setPosition(itemXPos, worldHeight - 50);</span>
+<span class="nc" id="L136">                graphics.drawImage(item.img, 1);</span>
+<span class="nc" id="L137">                itemXPos += 32;</span>
+            }
+<span class="pc bpc" id="L139" title="2 of 6 branches missed.">            else if (item.originScreen.equals(&quot;LangwithScreen&quot;) &amp;&amp; item.isVisible &amp;&amp; item.checkInRange(player.sprite.getX()- 32, player.sprite.getY() - (player.sprite.getHeight()/2))){</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">                if (instructions.isEmpty()) {</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">                    if (item.toString().equals(&quot;pizza&quot;)) {</span>
+<span class="nc" id="L142">                        instructions = &quot;Press 'e' to eat pizza&quot;;</span>
+                    }
+                    else {
+
+<span class="nc" id="L146">                        instructions = &quot;Press 'e' to collect &quot; + item.toString();</span>
+                    }
+
+
+                }
+            }
+<span class="fc" id="L152">        }</span>
+<span class="fc" id="L153">        drawEventTracker(smallFont);</span>
+
+<span class="fc" id="L155">        GlyphLayout layout = new GlyphLayout(graphics.menuFont, instructions);</span>
+<span class="fc" id="L156">        float textX = (worldWidth - layout.width) / 2;</span>
+<span class="fc" id="L157">        graphics.drawText(font, instructions, Color.WHITE, textX, worldHeight -120);</span>
+<span class="fc" id="L158">        drawTimerAndScore(font);</span>
+
+<span class="fc" id="L160">        font.setColor(Color.GRAY);</span>
+<span class="fc" id="L161">        String exitText = &quot;Press G to leave&quot;;</span>
+<span class="fc" id="L162">        GlyphLayout exitLayout = new GlyphLayout(font, exitText);</span>
+<span class="fc" id="L163">        graphics.drawText(font, exitText,</span>
+            (worldWidth - exitLayout.width) / 2, worldHeight - 80);
+
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">        if(pizzaText &gt; 0) {</span>
+<span class="nc" id="L167">            font.setColor(Color.PURPLE);</span>
+<span class="nc" id="L168">            String text = &quot;PIZZA ENERGY, x2 SPEED&quot;;</span>
+<span class="nc" id="L169">            layout = new GlyphLayout(font, text);</span>
+<span class="nc" id="L170">            graphics.drawText(font, text, (worldWidth - layout.width) / 2,</span>
+                worldHeight - 150);
+        }
+
+<span class="fc" id="L174">        graphics.endBatch();</span>
+<span class="fc" id="L175">    }</span>
+
+<span class="fc" id="L177">    @Override public void show() {}</span>
+<span class="fc" id="L178">    @Override public void resize(int width, int height) { game.viewport.update(width, height); }</span>
+<span class="nc" id="L179">    @Override public void pause() {}</span>
+    @Override public void resume() {
+<span class="nc" id="L181">        isPaused = false;</span>
+<span class="nc" id="L182">    }</span>
+<span class="nc" id="L183">    @Override public void hide() {}</span>
+<span class="nc" id="L184">    @Override public void dispose() {}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

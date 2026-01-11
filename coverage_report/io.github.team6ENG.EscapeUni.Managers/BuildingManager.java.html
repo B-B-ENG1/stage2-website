@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BuildingManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Managers</a> &gt; <span class="el_source">BuildingManager.java</span></div><h1>BuildingManager.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Managers;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.math.Rectangle;
+
+import io.github.team6ENG.EscapeUni.Entities.Player;
+import io.github.team6ENG.EscapeUni.Main;
+import io.github.team6ENG.EscapeUni.Screens.GameScreen;
+import io.github.team6ENG.EscapeUni.Screens.LangwithScreen;
+import io.github.team6ENG.EscapeUni.Screens.PiazzaScreen;
+import io.github.team6ENG.EscapeUni.Screens.RonCookeScreen;
+
+/**
+ * Manages building-related interactions and rendering in the game world.
+ *
+ * Features:
+ *
+ *   Detects when the player approaches the Ron Cooke building trigger zone.
+ *   Allows entering/exiting the building with specific key inputs.
+ *   Displays prompts and simple UI transitions.
+ *
+ */
+public class BuildingManager {
+
+    // ====== Building State ======
+    private final Main game;
+    private final GraphicsManager graphics;
+    private final GameScreen gameScreen;
+<span class="fc" id="L34">    private boolean inRonCooke = false;</span>
+<span class="fc" id="L35">    private boolean inLangwith = false;</span>
+<span class="fc" id="L36">    private boolean inPiazza = false;</span>
+<span class="fc" id="L37">    private boolean showEnterPrompt = false;</span>
+<span class="fc" id="L38">    private String currentBuilding = &quot;&quot;;</span>
+<span class="fc" id="L39">    private float lockedOutTime = 0;</span>
+
+    public final AudioManager audioManager;
+    // ====== Building Trigger Zones ======
+    private final Rectangle ronCookeTrigger;
+    private final Rectangle langwithTrigger;
+    private final Rectangle piazzaTrigger;
+
+    // ====== References ======
+    private final Player player;
+
+    // ====== UI Constants ======
+    private static final float PROMPT_OFFSET_Y = 50f;
+
+    /**
+     * Constructs a BuildingManager with a reference to the player.
+     *
+     * @param player The player instance used to track position and interaction.
+     */
+<span class="fc" id="L58">    public BuildingManager(Main game, GameScreen gameScreen, Player player, AudioManager audioManager) {</span>
+<span class="fc" id="L59">        this.game = game;</span>
+<span class="fc" id="L60">        graphics = game.graphicsManager;</span>
+<span class="fc" id="L61">        this.gameScreen = gameScreen;</span>
+<span class="fc" id="L62">        this.player = player;</span>
+<span class="fc" id="L63">        this.ronCookeTrigger = new Rectangle(350, 455, 50, 50);</span>
+<span class="fc" id="L64">        this.langwithTrigger = new Rectangle(1078, 1215, 50, 50);</span>
+<span class="fc" id="L65">        this.piazzaTrigger = new Rectangle(865, 210, 50, 50);</span>
+<span class="fc" id="L66">        this.audioManager = audioManager;</span>
+<span class="fc" id="L67">    }</span>
+
+    /**
+     * Updates building logic each frame.
+     *
+     * @param delta Time elapsed since the last frame (in seconds).
+     */
+    public void update(float delta) {
+<span class="pc bpc" id="L75" title="3 of 6 branches missed.">        if (inRonCooke || inLangwith || inPiazza) {</span>
+            // Inside Ron Cooke: allow exit with I key
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            if (Gdx.input.isKeyJustPressed(Input.Keys.G)) {</span>
+<span class="nc" id="L78">                exitBuilding();</span>
+            }
+        }
+        else {
+            // Outside: check if player is near the building
+<span class="fc" id="L83">            checkBuildingTrigger();</span>
+<span class="pc bpc" id="L84" title="5 of 6 branches missed.">            if (showEnterPrompt &amp;&amp; currentBuilding.equals(&quot;Ron Cooke&quot;) &amp;&amp; Gdx.input.isKeyJustPressed(Input.Keys.G)) {</span>
+<span class="nc" id="L85">                enterRonCooke();</span>
+            }
+<span class="pc bpc" id="L87" title="5 of 6 branches missed.">            else if (showEnterPrompt &amp;&amp; currentBuilding.equals(&quot;Piazza&quot;) &amp;&amp; Gdx.input.isKeyJustPressed(Input.Keys.G)) {</span>
+<span class="nc" id="L88">                enterPiazza();</span>
+            }
+<span class="pc bpc" id="L90" title="5 of 6 branches missed.">            else if(showEnterPrompt &amp;&amp; currentBuilding.equals(&quot;Langwith&quot;) &amp;&amp; Gdx.input.isKeyJustPressed(Input.Keys.G)) {</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">                if (player.has(game.itemManager.getIdCard())) {</span>
+
+<span class="nc" id="L93">                    game.itemManager.getIdCard().playSound();</span>
+<span class="nc" id="L94">                    enterLangwith();</span>
+                }
+                else{
+<span class="nc" id="L97">                    lockedOutTime = 5;</span>
+<span class="nc" id="L98">                    audioManager.playNoAccess();</span>
+                }
+            }
+        }
+<span class="fc" id="L102">    }</span>
+
+    /**
+     * Checks if the player is near the Ron Cooke building trigger area.
+     */
+    private void checkBuildingTrigger() {
+<span class="fc" id="L108">        Rectangle playerRect = new Rectangle(</span>
+<span class="fc" id="L109">                player.sprite.getX(),</span>
+<span class="fc" id="L110">                player.sprite.getY(),</span>
+<span class="fc" id="L111">                player.sprite.getWidth(),</span>
+<span class="fc" id="L112">                player.sprite.getHeight()</span>
+        );
+<span class="fc" id="L114">        currentBuilding = &quot;&quot;;</span>
+<span class="fc" id="L115">        showEnterPrompt = false;</span>
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">        if(playerRect.overlaps(ronCookeTrigger)) {</span>
+<span class="nc" id="L117">            showEnterPrompt = true;</span>
+<span class="nc" id="L118">            currentBuilding = &quot;Ron Cooke&quot;;</span>
+        }
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">        else if (playerRect.overlaps(langwithTrigger)) {</span>
+
+<span class="nc" id="L122">            showEnterPrompt = true;</span>
+<span class="nc" id="L123">            currentBuilding = &quot;Langwith&quot;;</span>
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">        }else if (playerRect.overlaps(piazzaTrigger)) {</span>
+
+<span class="nc" id="L126">            showEnterPrompt = true;</span>
+<span class="nc" id="L127">            currentBuilding = &quot;Piazza&quot;;</span>
+        }
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">        else if (playerRect.overlaps(piazzaTrigger)) {</span>
+
+<span class="nc" id="L131">            showEnterPrompt = true;</span>
+<span class="nc" id="L132">            currentBuilding = &quot;Piazza&quot;;</span>
+        }
+
+<span class="fc" id="L135">    }</span>
+
+    /**
+     * Enters the Ron Cooke building.
+     * Switches to an indoor view.
+     */
+    private void enterRonCooke() {
+<span class="nc" id="L142">        inRonCooke = true;</span>
+<span class="nc" id="L143">        gameScreen.audioManager.stopFootsteps();</span>
+<span class="nc" id="L144">        game.setScreen(new RonCookeScreen(game, this, gameScreen));</span>
+<span class="nc" id="L145">        game.getWorld().toggleDark(true);</span>
+<span class="nc" id="L146">        gameScreen.lighting.isVisible(&quot;playerNoTorch&quot;, true);</span>
+<span class="nc" id="L147">        gameScreen.lighting.isVisible(&quot;gooseNoTorch&quot;, true);</span>
+
+<span class="nc" id="L149">    }</span>
+    /**
+     * Enters the Langwith College.
+     * Switches to an indoor view.
+     */
+    private void enterLangwith() {
+<span class="nc" id="L155">        inLangwith = true;</span>
+<span class="nc" id="L156">        gameScreen.audioManager.stopFootsteps();</span>
+<span class="nc" id="L157">        game.setScreen(new LangwithScreen(game, this, gameScreen));</span>
+<span class="nc" id="L158">    }</span>
+
+    private void enterPiazza() {
+<span class="nc" id="L161">        inPiazza = true;</span>
+<span class="nc" id="L162">        game.getWorld().piazzaEvent();</span>
+<span class="nc" id="L163">        gameScreen.audioManager.stopFootsteps();</span>
+<span class="nc" id="L164">        game.setScreen(new PiazzaScreen(game, this, gameScreen));</span>
+<span class="nc" id="L165">    }</span>
+
+    /**
+     * Exits the Ron Cooke building and returns to the main world.
+     */
+    private void exitBuilding() {
+<span class="nc" id="L171">        inRonCooke = false;</span>
+<span class="nc" id="L172">        inLangwith = false;</span>
+<span class="nc" id="L173">        inPiazza = false;</span>
+<span class="nc" id="L174">        game.setScreen(gameScreen);</span>
+
+<span class="nc" id="L176">    }</span>
+
+    /**
+     * Renders the building-related visuals.
+     *
+     * @param font        The font used to render messages.
+     * @param worldWidth  The width of the game world (used for centering text).
+     * @param worldHeight The height of the game world.
+     */
+    public void render(BitmapFont font, float worldWidth, float worldHeight) {
+<span class="fc" id="L186">        renderWorldPrompts(font, worldWidth, worldHeight);</span>
+<span class="fc" id="L187">        lockedOutTime -= Gdx.graphics.getDeltaTime();</span>
+<span class="fc" id="L188">    }</span>
+
+    /**
+     * Renders prompts while the player is outside the building.
+     */
+<span class="fc" id="L193">    GlyphLayout layout = new GlyphLayout();</span>
+    private void renderWorldPrompts(BitmapFont font, float worldWidth, float worldHeight) {
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">        if (showEnterPrompt) {</span>
+<span class="nc" id="L196">            font.setColor(Color.YELLOW);</span>
+<span class="nc" id="L197">            String text = &quot;Press G to enter &quot; + currentBuilding;</span>
+
+<span class="nc" id="L199">            layout = new GlyphLayout(font, text);</span>
+<span class="nc" id="L200">            float textWidth = layout.width;</span>
+<span class="nc" id="L201">            graphics.drawText(font, text, (worldWidth - textWidth) / 2,</span>
+                worldHeight - PROMPT_OFFSET_Y);
+        }
+
+<span class="pc bpc" id="L205" title="1 of 2 branches missed.">        if(lockedOutTime &gt; 0){</span>
+<span class="nc" id="L206">            String lockedOutText = &quot;Looks like you've lost your keycard\nhead over to Ron Cooke for a new one&quot;;</span>
+<span class="nc" id="L207">            layout = new GlyphLayout(font, lockedOutText);</span>
+<span class="nc" id="L208">            float textWidth = layout.width;</span>
+<span class="nc" id="L209">            font.setColor(Color.RED);</span>
+<span class="nc" id="L210">            graphics.drawText(font, lockedOutText, (worldWidth - textWidth) / 2,</span>
+                worldHeight - PROMPT_OFFSET_Y - 30);
+        }
+<span class="fc" id="L213">    }</span>
+
+
+    /**
+     * Renders the building map (placeholder for future map logic).
+     *
+     * @param camera The game camera used for view rendering.
+     */
+    public void renderBuildingMap(OrthographicCamera camera) {
+        // Placeholder for map rendering logic
+<span class="fc" id="L223">    }</span>
+
+    /**
+     * Renders building-related UI.
+     *
+     * @param smallFont   A smaller font for hints or labels.
+     * @param bigFont     A larger font for titles or messages.
+     * @param worldWidth  The game world width.
+     * @param worldHeight The game world height.
+     */
+    public void renderUI(BitmapFont smallFont, BitmapFont bigFont, float worldWidth, float worldHeight) {
+<span class="fc" id="L234">        render(bigFont, worldWidth, worldHeight);</span>
+<span class="fc" id="L235">    }</span>
+
+    /**
+     * Disposes building-related assets.
+     * (Currently a placeholder since no disposable resources are loaded here.)
+     */
+    public void dispose() {
+        // Nothing to dispose yet — reserved for future textures/maps
+<span class="nc" id="L243">    }</span>
+
+    /**
+     * Returns whether the player is currently inside the Ron Cooke building.
+     *
+     * @return true if the player is inside, false otherwise.
+     */
+    public boolean isInRonCooke() {
+<span class="nc" id="L251">        return inRonCooke;</span>
+    }
+    /**
+     * Returns whether the player is currently inside Langwith.
+     *
+     * @return true if the player is inside, false otherwise.
+     */
+    public boolean isInLangwith() {
+<span class="nc" id="L259">        return inLangwith;</span>
+    }
+
+    public boolean isInPiazza() {
+<span class="nc" id="L263">        return inPiazza;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

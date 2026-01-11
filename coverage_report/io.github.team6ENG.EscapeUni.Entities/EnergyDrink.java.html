@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EnergyDrink.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Entities</a> &gt; <span class="el_source">EnergyDrink.java</span></div><h1>EnergyDrink.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Entities;
+
+import io.github.team6ENG.EscapeUni.Managers.AssetManager;
+import io.github.team6ENG.EscapeUni.Managers.AudioManager;
+import io.github.team6ENG.EscapeUni.Managers.GraphicsManager;
+import io.github.team6ENG.EscapeUni.World;
+
+public class EnergyDrink extends Collectable {
+
+<span class="fc" id="L10">    private float timer = 0f;</span>
+    public static final float speedModifier = 2f;
+    public static final float duration = 10f;
+    private final World world;
+
+    public EnergyDrink(World world, float posX, float posY, GraphicsManager graphics, AudioManager audio) {
+<span class="fc" id="L16">        super(&quot;energy drink&quot;, graphics, posX, posY, 0.03f, true,</span>
+            AssetManager.energyDrinkAsset, &quot;GameScreen&quot;, audio);
+<span class="fc" id="L18">        this.world = world;</span>
+<span class="fc" id="L19">    }</span>
+
+    /**
+     * Determines whether the drink is in effect, that is, if the timer for the
+     * drink is positive.
+     * @return true if the drink is in effect and false otherwise,
+     */
+    public boolean isEffective() {
+<span class="fc bfc" id="L27" title="All 2 branches covered.">        return timer &gt; 0;</span>
+    }
+
+    @Override
+    public void update(float delta) {
+<span class="fc" id="L32">        timer = Math.max(0, timer - delta);</span>
+<span class="fc" id="L33">    }</span>
+
+    @Override
+    public void collect() {
+<span class="fc" id="L37">        playSound();</span>
+<span class="fc" id="L38">        isVisible = false;</span>
+<span class="fc" id="L39">        timer = duration;</span>
+<span class="fc" id="L40">        world.drinkEvent();</span>
+<span class="fc" id="L41">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

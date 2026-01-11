@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RonCookeScreen.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Screens</a> &gt; <span class="el_source">RonCookeScreen.java</span></div><h1>RonCookeScreen.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Screens;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import io.github.team6ENG.EscapeUni.*;
+import io.github.team6ENG.EscapeUni.Entities.Collectable;
+import io.github.team6ENG.EscapeUni.Entities.Player;
+import io.github.team6ENG.EscapeUni.Managers.AssetManager;
+import io.github.team6ENG.EscapeUni.Managers.BuildingManager;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.ImageDelegate;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.TextureDelegate;
+
+import java.util.ArrayList;
+
+/**
+ * Represents the interior of the Ron Cooke building.
+ * Displays a black background with a welcome message.
+ */
+public class RonCookeScreen extends AbstractScreen {
+
+    private final BuildingManager buildingManager;
+    private final GameScreen gameScreen;  // keep reference to return
+    private Player player;
+    private ImageDelegate receptionist;
+    private float stateTime;
+
+    float worldWidth;
+    float worldHeight ;
+
+<span class="fc" id="L34">    float speechTimer = 0;</span>
+<span class="fc" id="L35">    ArrayList&lt;String&gt; speech = new ArrayList&lt;String&gt;();</span>
+
+<span class="fc" id="L37">    private boolean isEPressed = false;</span>
+<span class="fc" id="L38">    private boolean isPaused = false;</span>
+
+    public RonCookeScreen(Main game, BuildingManager buildingManager, GameScreen gameScreen) {
+<span class="fc" id="L41">        super(game);</span>
+<span class="fc" id="L42">        tileDimensions = 16;</span>
+<span class="fc" id="L43">        this.buildingManager = buildingManager;</span>
+<span class="fc" id="L44">        this.gameScreen = gameScreen;</span>
+<span class="fc" id="L45">        this.font = graphics.menuFont;</span>
+<span class="fc" id="L46">        this.smallFont = graphics.gameFont;</span>
+
+<span class="fc" id="L48">        initialisePlayer((int) game.viewport.getWorldWidth()/2,(int) game.viewport.getWorldHeight()/2);</span>
+<span class="fc" id="L49">        initialiseReceptionist();</span>
+<span class="fc" id="L50">        stateTime = 0;</span>
+<span class="fc" id="L51">        speech.add(&quot;Locked yourself out huh?&quot;);</span>
+<span class="fc" id="L52">        speech.add(&quot;Take this key card&quot;);</span>
+<span class="fc" id="L53">        speech.add(&quot;     Wait&quot;);</span>
+<span class="fc" id="L54">        speech.add(&quot;It's gotten quite dark out there&quot;);</span>
+<span class="fc" id="L55">        speech.add(&quot;Take this torch.&quot;);</span>
+<span class="fc" id="L56">    }</span>
+
+    /**
+     * Initialise player and set its position
+     */
+    private void initialisePlayer(int x, int y) {
+<span class="fc" id="L62">        int height = (int)(game.viewport.getWorldHeight() / 16);</span>
+<span class="fc" id="L63">        int width = (int)(game.viewport.getWorldWidth() / 16);</span>
+<span class="fc" id="L64">        player = new Player(graphics, world, buildingManager.audioManager, items);</span>
+<span class="fc" id="L65">        player.loadSprite(new TiledMapTileLayer( width, height, 16,16), tileDimensions);</span>
+<span class="fc" id="L66">        player.sprite.setPosition(x, y);</span>
+<span class="fc" id="L67">        player.sprite.setScale(4);</span>
+<span class="fc" id="L68">        player.speed = 2;</span>
+
+<span class="fc" id="L70">    }</span>
+    private void initialiseReceptionist(){
+<span class="fc" id="L72">        TextureDelegate tex = graphics.createTextureDelegate(AssetManager.receptionistAsset);</span>
+<span class="fc" id="L73">        receptionist = tex.createImage();</span>
+<span class="fc" id="L74">        receptionist.setPosition((float) (game.viewport.getWorldWidth() * 0.2),</span>
+<span class="fc" id="L75">            (game.viewport.getWorldHeight() - receptionist.getHeight()) /2.5f);</span>
+<span class="fc" id="L76">        receptionist.setScale(5);</span>
+<span class="fc" id="L77">    }</span>
+
+    @Override
+    public void render(float delta) {
+<span class="fc" id="L81">        super.render(delta);</span>
+        // Clear to black
+<span class="fc" id="L83">        Gdx.gl.glClearColor(0, 0, 0, 1);</span>
+<span class="fc" id="L84">        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        if(!isPaused) {</span>
+<span class="fc" id="L86">            player.handleInput(delta, gameScreen.playerSpeedModifier);</span>
+<span class="fc" id="L87">            player.updatePlayer(stateTime);</span>
+        }
+<span class="fc" id="L89">        graphics.beginBatch();</span>
+
+<span class="fc" id="L91">        graphics.drawSprite(player.sprite);</span>
+<span class="fc" id="L92">        graphics.drawImage(receptionist, 1);</span>
+
+<span class="fc" id="L94">        worldWidth = game.viewport.getWorldWidth();</span>
+<span class="fc" id="L95">        worldHeight = game.viewport.getWorldHeight();</span>
+
+
+<span class="fc bfc" id="L98" title="All 2 branches covered.">        for (Collectable item : items.getItems()){</span>
+<span class="pc bpc" id="L99" title="2 of 6 branches missed.">            if (item.isVisible &amp;&amp; !item.playerHas &amp;&amp; item.originScreen.equals(&quot;RonCookeScreen&quot;)){</span>
+<span class="nc" id="L100">                graphics.drawImage(item.img, 1);</span>
+<span class="nc bnc" id="L101" title="All 4 branches missed.">                if (item.checkInRange(player.sprite.getX()- (player.sprite.getHeight()/2) , player.sprite.getY() - (player.sprite.getHeight()/2)) &amp;&amp; isEPressed){</span>
+<span class="nc" id="L102">                    item.collect();</span>
+<span class="nc" id="L103">                    isEPressed = false;</span>
+
+                }
+            }
+<span class="fc" id="L107">        }</span>
+<span class="fc" id="L108">        graphics.endBatch();</span>
+<span class="fc" id="L109">        renderUI();</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">        if(!isPaused) {</span>
+<span class="fc" id="L111">            world.decrementTimer(delta);</span>
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">            if (world.getTimer() &lt; 0){</span>
+<span class="nc" id="L113">                gameScreen.gameOver();</span>
+<span class="nc" id="L114">                return;</span>
+            }
+<span class="fc" id="L116">            speechTimer += delta;</span>
+<span class="pc bpc" id="L117" title="3 of 4 branches missed.">            if (player.has(items.getIdCard()) &amp;&amp; player.has(items.getTorch())) {</span>
+<span class="nc" id="L118">                buildingManager.update(delta);</span>
+            }
+<span class="fc" id="L120">            stateTime += delta;</span>
+<span class="fc" id="L121">            isEPressed = Gdx.input.isKeyJustPressed(Input.Keys.E);</span>
+
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">            if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {</span>
+<span class="nc" id="L124">                isPaused = true;</span>
+<span class="nc" id="L125">                game.setScreen(new PauseScreen(game, this, buildingManager.audioManager));</span>
+
+            }
+        }
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">        if (game.elapsedTimeChecker.timerExists(&quot;Enter Ron Cooke&quot;)) {</span>
+<span class="nc" id="L130">            float elapsed = game.elapsedTimeChecker.endTimer(&quot;Enter Ron Cooke&quot;);</span>
+<span class="nc" id="L131">            System.out.println(&quot;Time taken to enter Ron Cooke: &quot; + elapsed + &quot; ms&quot;);</span>
+        }
+<span class="fc" id="L133">    }</span>
+
+<span class="fc" id="L135">    private GlyphLayout layout = new GlyphLayout();</span>
+    private void renderUI(){
+
+<span class="fc" id="L138">        graphics.updateBatchProjectionMatrix(game.viewport.getCamera().combined);</span>
+<span class="fc" id="L139">        graphics.beginBatch();</span>
+<span class="fc" id="L140">        float itemXPos = (worldWidth - (gameScreen.numOfInventoryItems * 32))/2;</span>
+<span class="fc" id="L141">        String instructions = &quot;&quot;;</span>
+
+        // draw items either in inventory or on screen
+<span class="fc bfc" id="L144" title="All 2 branches covered.">        for(Collectable item : items.getItems()) {</span>
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">            if (item.playerHas){</span>
+<span class="nc" id="L146">                item.img.setPosition(itemXPos, worldHeight * 0.8f);</span>
+<span class="nc" id="L147">                graphics.drawImage(item.img, 1);</span>
+<span class="nc" id="L148">                itemXPos += 32;</span>
+            }
+<span class="pc bpc" id="L150" title="3 of 6 branches missed.">            else if (item.originScreen.equals(&quot;RonCookeScreen&quot;) &amp;&amp; item.isVisible &amp;&amp; item.checkInRange(player.sprite.getX()- 32, player.sprite.getY() - (player.sprite.getHeight()/2))){</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">                if (instructions.isEmpty()) {</span>
+<span class="nc" id="L152">                    instructions = &quot;Press 'e' to collect &quot; + item.toString();</span>
+                }
+            }
+<span class="fc" id="L155">        }</span>
+<span class="fc" id="L156">        float y = worldHeight - 20f;</span>
+<span class="fc" id="L157">        float lineSpacing = 15f;</span>
+
+<span class="fc" id="L159">        drawEventTracker(smallFont);</span>
+<span class="fc" id="L160">        layout.setText(graphics.menuFont, instructions);</span>
+<span class="fc" id="L161">        float textX = (worldWidth - layout.width) / 2;</span>
+<span class="fc" id="L162">        graphics.drawText(font, instructions, Color.WHITE, textX, worldHeight * 0.75f);</span>
+<span class="fc" id="L163">        drawTimerAndScore(font);</span>
+
+<span class="pc bpc" id="L165" title="1 of 2 branches missed.">        if (player.has(items.getIdCard())) {</span>
+<span class="nc" id="L166">            speech.clear();</span>
+        }
+
+        //If not yet received card
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">        if(!speech.isEmpty()){</span>
+<span class="fc" id="L171">            graphics.drawText(font, speech.get(0), worldWidth * 0.1f , worldHeight * 0.8f);</span>
+
+<span class="pc bpc" id="L173" title="1 of 2 branches missed.">            if (speechTimer &gt;= 3){</span>
+<span class="nc" id="L174">                speechTimer = 0;</span>
+<span class="nc" id="L175">                speech.remove(0);</span>
+            }
+        } //else second time vising Ron Cooke
+        else{
+<span class="nc" id="L179">            items.getIdCard().isVisible = true;</span>
+<span class="nc" id="L180">            items.getIdCard().x = (float) (game.viewport.getWorldWidth() * 0.3);</span>
+<span class="nc" id="L181">            items.getIdCard().y = (float) (game.viewport.getWorldHeight() *0.4);</span>
+
+<span class="nc" id="L183">            items.getTorch().isVisible = true;</span>
+<span class="nc" id="L184">            items.getTorch().x = (float) (game.viewport.getWorldWidth() * 0.3);</span>
+<span class="nc" id="L185">            items.getTorch().y = (float) (game.viewport.getWorldHeight() *0.45);</span>
+
+<span class="nc bnc" id="L187" title="All 2 branches missed.">            if (items.getTorch().playerHas) {</span>
+<span class="nc" id="L188">                font.setColor(Color.GRAY);</span>
+<span class="nc" id="L189">                String exitText = &quot;Press G to leave&quot;;</span>
+<span class="nc" id="L190">                GlyphLayout exitLayout = new GlyphLayout(font, exitText);</span>
+<span class="nc" id="L191">                graphics.drawText(font, exitText, (worldWidth - exitLayout.width) / 2,</span>
+                    worldHeight - 50);
+            }
+        }
+<span class="fc" id="L195">        graphics.endBatch();</span>
+<span class="fc" id="L196">    }</span>
+
+<span class="fc" id="L198">    @Override public void show() {}</span>
+<span class="fc" id="L199">    @Override public void resize(int width, int height) { game.viewport.update(width, height); }</span>
+<span class="nc" id="L200">    @Override public void pause() {}</span>
+    @Override public void resume() {
+<span class="nc" id="L202">        isPaused = false;</span>
+<span class="nc" id="L203">    }</span>
+<span class="nc" id="L204">    @Override public void hide() {}</span>
+    @Override public void dispose() {
+
+<span class="nc" id="L207">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

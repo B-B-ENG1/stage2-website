@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ImageDelegate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Screens.Delegates</a> &gt; <span class="el_source">ImageDelegate.java</span></div><h1>ImageDelegate.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Screens.Delegates;
+
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+
+public class ImageDelegate {
+
+    private Image image;
+
+<span class="fc" id="L10">    public ImageDelegate() {}</span>
+
+<span class="nc" id="L12">    public ImageDelegate(Image image) {</span>
+<span class="nc" id="L13">        this.image = image;</span>
+<span class="nc" id="L14">    }</span>
+
+    public void setPosition(float x, float y) {
+<span class="nc" id="L17">        image.setPosition(x, y);</span>
+<span class="nc" id="L18">    }</span>
+
+    public void setScale(float scale) {
+<span class="nc" id="L21">        image.setScale(scale);</span>
+<span class="nc" id="L22">    }</span>
+
+    public void setScale(float scaleX, float scaleY) {
+<span class="nc" id="L25">        image.setScale(scaleX, scaleY);</span>
+<span class="nc" id="L26">    }</span>
+
+    public void setRotation(float rotation) {
+<span class="nc" id="L29">        image.setRotation(rotation);</span>
+<span class="nc" id="L30">    }</span>
+
+    public void draw(SpriteBatch batch, float parentAlpha) {
+<span class="nc" id="L33">        image.draw(batch, parentAlpha);</span>
+<span class="nc" id="L34">    }</span>
+
+    public float getHeight() {
+<span class="nc" id="L37">        return image.getHeight();</span>
+    }
+
+    public float getWidth() {
+<span class="nc" id="L41">        return image.getWidth();</span>
+    }
+
+    public void setWidth(float width) {
+<span class="nc" id="L45">        image.setWidth(width);</span>
+<span class="nc" id="L46">    }</span>
+
+    public void setHeight(float height) {
+<span class="nc" id="L49">        image.setHeight(height);</span>
+<span class="nc" id="L50">    }</span>
+
+    public void dispose() {
+<span class="nc" id="L53">        image.remove();</span>
+<span class="nc" id="L54">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

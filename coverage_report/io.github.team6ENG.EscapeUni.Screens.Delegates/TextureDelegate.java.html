@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TextureDelegate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Screens.Delegates</a> &gt; <span class="el_source">TextureDelegate.java</span></div><h1>TextureDelegate.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Screens.Delegates;
+
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+
+public class TextureDelegate {
+
+    private Texture texture;
+
+<span class="fc" id="L15">    public TextureDelegate() {}</span>
+
+<span class="nc" id="L17">    public TextureDelegate(Texture texture) {</span>
+<span class="nc" id="L18">        this.texture = texture;</span>
+<span class="nc" id="L19">    }</span>
+
+    public void draw(SpriteBatch batch, float x, float y) {
+<span class="nc" id="L22">        batch.draw(texture, x, y);</span>
+<span class="nc" id="L23">    }</span>
+
+    public void draw(SpriteBatch batch, float x, float y,
+                     float width, float height) {
+<span class="nc" id="L27">        batch.draw(texture, x, y, width, height);</span>
+<span class="nc" id="L28">    }</span>
+
+    public void dispose() {
+<span class="nc" id="L31">        texture.dispose();</span>
+<span class="nc" id="L32">    }</span>
+
+    public void draw(Pixmap pixmap, int x, int y) {
+<span class="nc" id="L35">        texture.draw(pixmap, x, y);</span>
+<span class="nc" id="L36">    }</span>
+
+    public float getWidth() {
+<span class="nc" id="L39">        return texture.getWidth();</span>
+    }
+
+    public float getHeight() {
+<span class="nc" id="L43">        return texture.getHeight();</span>
+    }
+
+    public TextureRegionDelegate[][] split(int tileWidth, int tileHeight) {
+<span class="nc" id="L47">        TextureRegion[][] mySplit = TextureRegion.split(texture, tileWidth, tileHeight);</span>
+<span class="nc" id="L48">        TextureRegionDelegate[][] delegates =</span>
+            new TextureRegionDelegate[mySplit.length][mySplit[0].length];
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        for (int i = 0; i &lt; mySplit.length; i++) {</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">            for (int j = 0; j &lt; mySplit[0].length; j++) {</span>
+<span class="nc" id="L52">                delegates[i][j] = new TextureRegionDelegate(mySplit[i][j]);</span>
+            }
+        }
+<span class="nc" id="L55">        return delegates;</span>
+
+    }
+
+    public ImageDelegate createImage() {
+<span class="nc" id="L60">        return new ImageDelegate(new Image(texture));</span>
+    }
+
+    public TextureRegionDrawableDelegate createDrawable() {
+<span class="nc" id="L64">        return new TextureRegionDrawableDelegate(</span>
+            new TextureRegionDrawable(texture));
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

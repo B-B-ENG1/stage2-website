@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BlockPositionCache.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Managers</a> &gt; <span class="el_source">BlockPositionCache.java</span></div><h1>BlockPositionCache.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Managers;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+
+/**
+ * Caches valid block positions for different block sizes so no need to ever recompute them.
+ * As long as the block size is the same, the cords can be reused.
+ */
+<span class="nc" id="L15">public class BlockPositionCache {</span>
+<span class="fc" id="L16">    private static final Map&lt;Integer, ArrayList&lt;int[]&gt;&gt; cache = new HashMap&lt;&gt;();</span>
+
+    /**
+     * Gets a copy of valid block positions for the specified block size, if it exist in the cache.
+     * If it doesn't, it will compute it and store in the cache.
+     * 
+     * @param blockSize the size of blocks to get cords for
+     * @return a array list with valid block cords
+     */
+    public static ArrayList&lt;int[]&gt; getValidBlockPositions(int blockSize) {
+<span class="fc bfc" id="L26" title="All 2 branches covered.">        if (!cache.containsKey(blockSize)) {</span>
+<span class="fc" id="L27">            cache.put(blockSize, computeValidBlockPositions(blockSize));</span>
+        }
+
+<span class="fc" id="L30">        return new ArrayList&lt;&gt;(cache.get(blockSize));</span>
+    }
+
+    
+    /**
+     * Computes valid top left positions for placing a block on walkable areas of the map.
+     * Valid as in given N*N size block, all tiles within that block is still walkable.
+     *
+     * @param blockSize the width and height of the block to check for valid top left posisition.
+     * @return an ArrayList of int arrays, where each int array contains the x y coordinates of the top left position
+     */
+    private static ArrayList&lt;int[]&gt; computeValidBlockPositions(int blockSize) {
+<span class="fc" id="L42">        ArrayList&lt;int[]&gt; validBlockPositions = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L43">        TiledMap map = new TmxMapLoader().load(&quot;tileMap/map.tmx&quot;);</span>
+<span class="fc" id="L44">        TiledMapTileLayer collisionLayer = (TiledMapTileLayer)map.getLayers().get(TileManager.mapPathId);</span>
+
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        for (int x = 0; x &lt; collisionLayer.getWidth() - (blockSize - 1); x++) {</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">            for (int y = 0; y &lt; collisionLayer.getHeight() - (blockSize - 1); y++) {</span>
+<span class="fc" id="L48">                boolean isValidBlock = true;</span>
+<span class="fc bfc" id="L49" title="All 4 branches covered.">                for (int dx = 0; dx &lt; blockSize &amp;&amp; isValidBlock; dx++) {</span>
+<span class="fc bfc" id="L50" title="All 4 branches covered.">                    for (int dy = 0; dy &lt; blockSize &amp;&amp; isValidBlock; dy++) {</span>
+<span class="fc" id="L51">                        TiledMapTileLayer.Cell cell = collisionLayer.getCell(x + dx, y + dy);</span>
+<span class="pc bpc" id="L52" title="1 of 4 branches missed.">                        if (!(cell == null || cell.getTile() == null)) {</span>
+<span class="fc" id="L53">                            isValidBlock = false;</span>
+                        }
+                    }
+                }
+<span class="fc bfc" id="L57" title="All 2 branches covered.">                if (isValidBlock) {</span>
+<span class="fc" id="L58">                    validBlockPositions.add(new int[]{x, y});</span>
+                }
+            }
+        }
+        
+<span class="fc" id="L63">        return validBlockPositions;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

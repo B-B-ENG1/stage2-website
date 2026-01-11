@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AchievementsScreen.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Screens</a> &gt; <span class="el_source">AchievementsScreen.java</span></div><h1>AchievementsScreen.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Screens;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.ScreenUtils;
+
+import io.github.team6ENG.EscapeUni.Managers.LeaderboardManager;
+import io.github.team6ENG.EscapeUni.Main;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.ButtonDelegate;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.ImageButtonDelegate;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.StageDelegate;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.TextButtonDelegate;
+import io.github.team6ENG.EscapeUni.World;
+
+/**
+ * Screen displayed at the end of the game showing unlocked achievements.
+ */
+public class AchievementsScreen extends AbstractScreen {
+
+	private StageDelegate stage;
+<span class="fc" id="L29">	private final GlyphLayout layout = new GlyphLayout();</span>
+	private ButtonDelegate mainMenuButton;
+	private TextButtonDelegate backButton;
+	private com.badlogic.gdx.InputProcessor previousInputProcessor;
+
+<span class="fc" id="L34">	private List&lt;String&gt; names = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L35">	private List&lt;Boolean&gt; unlocked = new ArrayList&lt;&gt;();</span>
+	private final LeaderboardManager leaderboard;
+	private java.util.List&lt;LeaderboardManager.ScoreEntry&gt; topScores;
+	private static final int TOP_LIMIT = 10;
+    /**
+     * This is the proportional lower bound on the fast completion achievement.
+     * That is, the achievement is given if and only if the game is completed
+     * with at least FAST_REMAINING times the maximum time remaining.
+     */
+    public static final float FAST_REMAINING = 0.5f;
+
+	private static final String TITLE_TEXT = &quot;Achievements&quot;;
+
+	public AchievementsScreen(final Main game) {
+<span class="fc" id="L49">		super(game);</span>
+<span class="fc" id="L50">		this.leaderboard = game.createLeaderboard();</span>
+<span class="fc" id="L51">	}</span>
+
+	@Override
+	public void show() {
+<span class="fc" id="L55">		stage = graphics.createFixedStageDelegate(game.viewport);</span>
+<span class="fc" id="L56">		previousInputProcessor = Gdx.input.getInputProcessor();</span>
+<span class="fc" id="L57">		stage.setInputProcessor();</span>
+
+<span class="fc" id="L59">		setupAchievements();</span>
+<span class="fc" id="L60">		setupUI();</span>
+<span class="fc" id="L61">		positionButtons();</span>
+<span class="fc" id="L62">	}</span>
+
+	private void setupAchievements() {
+<span class="fc" id="L65">		names.clear(); unlocked.clear();</span>
+
+		// completed any event
+<span class="fc" id="L68">		int totalFound = world.getFoundNegativeEvents() + world.getFoundPositiveEvents() + world.getFoundHiddenEvents();</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">		boolean anyEvent = totalFound &gt; 0;</span>
+
+		// finishing fast
+<span class="fc bfc" id="L72" title="All 2 branches covered.">		boolean finishingFast = world.getTimer() &gt;= (World.initialTimer * FAST_REMAINING);</span>
+
+		// unlocking every event
+<span class="fc bfc" id="L75" title="All 2 branches covered.">		boolean allEvents = world.getFoundNegativeEvents() &gt;= World.totalNegativeEvents</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">			&amp;&amp; world.getFoundPositiveEvents() &gt;= World.totalPositiveEvents</span>
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">			&amp;&amp; world.getFoundHiddenEvents() &gt;= World.totalHiddenEvents;</span>
+
+		// being on leaderboard
+		try {
+<span class="fc" id="L81">			topScores = leaderboard.getTopScores(TOP_LIMIT);</span>
+<span class="fc" id="L82">		} catch (Exception e) {</span>
+<span class="fc" id="L83">			topScores = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L84">		}</span>
+<span class="fc" id="L85">		boolean onLeaderboard = false;</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">		if (topScores != null) {</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">			for (LeaderboardManager.ScoreEntry s : topScores) {</span>
+<span class="pc bpc" id="L88" title="1 of 4 branches missed.">				if (s.username != null &amp;&amp; s.username.equals(game.username)) {</span>
+<span class="fc" id="L89">					onLeaderboard = true;</span>
+<span class="fc" id="L90">					break;</span>
+				}
+<span class="fc" id="L92">			}</span>
+		}
+
+<span class="fc" id="L95">		names.add(&quot;Completed an event&quot;); unlocked.add(anyEvent);</span>
+<span class="fc" id="L96">		names.add(&quot;Finishing fast&quot;); unlocked.add(finishingFast);</span>
+<span class="fc" id="L97">		names.add(&quot;All events in one run&quot;); unlocked.add(allEvents);</span>
+<span class="fc" id="L98">		names.add(&quot;On the leaderboard&quot;); unlocked.add(onLeaderboard);</span>
+<span class="fc" id="L99">	}</span>
+
+	private void setupUI() {
+<span class="fc" id="L102">		mainMenuButton = createButton(&quot;Main Menu&quot;);</span>
+<span class="fc" id="L103">		backButton = createButton(&quot;Back&quot;);</span>
+<span class="fc" id="L104">		mainMenuButton.addToStage(stage);</span>
+<span class="fc" id="L105">		backButton.addToStage(stage);</span>
+<span class="fc" id="L106">		addListeners();</span>
+<span class="fc" id="L107">	}</span>
+
+	private void positionButtons() {
+<span class="fc" id="L110">		float w = stage.getViewport().getWorldWidth();</span>
+<span class="fc" id="L111">		float h = stage.getViewport().getWorldHeight();</span>
+
+<span class="fc" id="L113">		mainMenuButton.setSize(280, 70);</span>
+<span class="fc" id="L114">		backButton.setSize(280, 70);</span>
+<span class="fc" id="L115">		mainMenuButton.setPosition((w - mainMenuButton.getWidth()) / 2f, 80f);</span>
+<span class="fc" id="L116">		backButton.setPosition((w - backButton.getWidth()) / 2f, 80f + (mainMenuButton.getHeight() + 16f));</span>
+<span class="fc" id="L117">	}</span>
+
+
+    /**
+     * getters for main menu and back button's delegate, available for testing purposes.
+     * @return the character 1 &amp; 2 button delegates associated with the screen.
+     */
+    public ButtonDelegate getAchievementsMainMenuButton() {
+<span class="fc" id="L125">        return mainMenuButton;</span>
+    }
+    public TextButtonDelegate getAchievementsBackButton() {
+<span class="fc" id="L128">        return backButton;</span>
+    }
+
+
+	private void addListeners() {
+<span class="fc" id="L133">		Color normalColor = new Color(0.0f, 0.95f, 0.95f, 1f);</span>
+<span class="fc" id="L134">		Color clickColor = new Color(0.4f, 1f, 1f, 1f);</span>
+
+<span class="fc" id="L136">		mainMenuButton.addListener(new ClickListener() {</span>
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+<span class="fc" id="L139">				mainMenuButton.setColor(clickColor);</span>
+<span class="fc" id="L140">				dispose();</span>
+<span class="fc" id="L141">				game.resetGame();</span>
+<span class="fc" id="L142">			}</span>
+			@Override
+			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+<span class="fc" id="L145">				mainMenuButton.setColor(clickColor);</span>
+<span class="fc" id="L146">			}</span>
+			@Override
+			public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+<span class="fc" id="L149">				mainMenuButton.setColor(normalColor);</span>
+<span class="fc" id="L150">			}</span>
+		});
+
+<span class="fc" id="L153">		backButton.addListener(new ClickListener() {</span>
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+<span class="fc" id="L156">				backButton.setColor(clickColor);</span>
+<span class="fc" id="L157">				dispose();</span>
+<span class="fc" id="L158">				game.setScreen(new WinScreen(game));</span>
+<span class="fc" id="L159">			}</span>
+			@Override
+			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+<span class="fc" id="L162">				backButton.setColor(clickColor);</span>
+<span class="fc" id="L163">			}</span>
+			@Override
+			public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+<span class="fc" id="L166">				backButton.setColor(normalColor);</span>
+<span class="fc" id="L167">			}</span>
+		});
+<span class="fc" id="L169">	}</span>
+
+    /**
+     * Determines whether the achievement with the given name has been obtained.
+     * If this achievement does not exist then this defaults to false.
+     * @param name is the name of the achievement to be checked.
+     * @return true if the achievement with the given name exists and has been
+     *  obtained, and false otherwise.
+     */
+    public boolean achievementFound(String name) {
+<span class="fc" id="L179">        int index = names.indexOf(name);</span>
+<span class="pc bpc" id="L180" title="2 of 4 branches missed.">        if (index &lt; 0 || index &gt; unlocked.size()) return false;</span>
+<span class="fc" id="L181">        return unlocked.get(index);</span>
+    }
+
+	@Override
+	public void render(float delta) {
+<span class="nc" id="L186">        super.render(delta);</span>
+<span class="nc" id="L187">		ScreenUtils.clear(Color.BLACK);</span>
+
+<span class="nc bnc" id="L189" title="All 2 branches missed.">		if (stage != null) stage.act(delta);</span>
+
+<span class="nc bnc" id="L191" title="All 2 branches missed.">		if (stage != null) {</span>
+<span class="nc" id="L192">			graphics.updateBatchProjectionMatrix(stage.getCameraCombinedProjection());</span>
+		} else {
+<span class="nc" id="L194">			graphics.updateBatchProjectionMatrix(game.viewport.getCamera().combined);</span>
+		}
+
+<span class="nc" id="L197">		graphics.beginBatch();</span>
+<span class="nc bnc" id="L198" title="All 2 branches missed.">		float w = (stage != null) ? stage.getViewport().getWorldWidth() : game.viewport.getWorldWidth();</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">		float h = (stage != null) ? stage.getViewport().getWorldHeight() : game.viewport.getWorldHeight();</span>
+
+<span class="nc bnc" id="L201" title="All 2 branches missed.">		if (graphics.menuFont != null) {</span>
+<span class="nc" id="L202">			graphics.menuFont.setColor(Color.WHITE);</span>
+<span class="nc" id="L203">			layout.setText(graphics.menuFont, TITLE_TEXT);</span>
+<span class="nc" id="L204">			graphics.drawText(graphics.menuFont, TITLE_TEXT, (w - layout.width) / 2f, h * 0.9f);</span>
+
+<span class="nc" id="L206">			float prevScale = graphics.gameFont.getData().scaleX;</span>
+<span class="nc" id="L207">			graphics.gameFont.getData().setScale(0.45f);</span>
+<span class="nc" id="L208">			graphics.gameFont.setColor(Color.WHITE);</span>
+
+<span class="nc" id="L210">			float y = h * 0.75f;</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">			for (int i = 0; i &lt; names.size(); i++) {</span>
+<span class="nc bnc" id="L212" title="All 2 branches missed.">				String mark = unlocked.get(i) ? &quot;[X] &quot; : &quot;[ ] &quot;;</span>
+<span class="nc bnc" id="L213" title="All 2 branches missed.">				Color c = unlocked.get(i) ? Color.GOLD : Color.LIGHT_GRAY;</span>
+<span class="nc" id="L214">				graphics.gameFont.setColor(c);</span>
+<span class="nc" id="L215">				String line = mark + names.get(i);</span>
+<span class="nc" id="L216">				layout.setText(graphics.gameFont, line);</span>
+<span class="nc" id="L217">				graphics.drawText(graphics.gameFont, line, (w - layout.width) / 2f, y);</span>
+<span class="nc" id="L218">				y -= 26f;</span>
+			}
+
+<span class="nc" id="L221">			graphics.gameFont.getData().setScale(prevScale);</span>
+<span class="nc" id="L222">			graphics.gameFont.setColor(Color.WHITE);</span>
+		}
+
+<span class="nc" id="L225">		graphics.endBatch();</span>
+
+<span class="nc bnc" id="L227" title="All 2 branches missed.">		if (stage != null) stage.draw();</span>
+
+<span class="nc bnc" id="L229" title="All 2 branches missed.">		if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {</span>
+<span class="nc" id="L230">			Gdx.app.postRunnable(() -&gt; game.setScreen(new CharacterSelectScreen(game)));</span>
+		}
+<span class="nc" id="L232">	}</span>
+
+	@Override
+	public void resize(int width, int height) {
+<span class="pc bpc" id="L236" title="1 of 2 branches missed.">		if (stage != null) stage.getViewport().update(width, height, true);</span>
+<span class="fc" id="L237">		positionButtons();</span>
+<span class="fc" id="L238">	}</span>
+
+	@Override
+<span class="nc" id="L241">	public void pause() { }</span>
+
+	@Override
+<span class="nc" id="L244">	public void resume() { }</span>
+
+	@Override
+	public void hide() {
+<span class="pc bpc" id="L248" title="3 of 4 branches missed.">		if (stage != null &amp;&amp; stage.isInputProcessor()) {</span>
+<span class="nc" id="L249">			Gdx.input.setInputProcessor(null);</span>
+		}
+
+<span class="pc bpc" id="L252" title="1 of 2 branches missed.">		if (previousInputProcessor != null) {</span>
+<span class="fc" id="L253">			Gdx.input.setInputProcessor(previousInputProcessor);</span>
+<span class="fc" id="L254">			previousInputProcessor = null;</span>
+		}
+<span class="fc" id="L256">	}</span>
+
+	@Override
+	public void dispose() {
+<span class="fc bfc" id="L260" title="All 2 branches covered.">		if (stage != null) {</span>
+<span class="fc" id="L261">			stage.dispose();</span>
+<span class="fc" id="L262">			stage = null;</span>
+		}
+<span class="fc" id="L264">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

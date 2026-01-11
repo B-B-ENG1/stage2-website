@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WormManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Managers</a> &gt; <span class="el_source">WormManager.java</span></div><h1>WormManager.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Managers;
+
+import java.util.ArrayList;
+import java.util.Random;
+
+import io.github.team6ENG.EscapeUni.Entities.Worm;
+import io.github.team6ENG.EscapeUni.Screens.GameScreen;
+
+/**
+ * Places worms around the map using the same block-based algorithm
+ * as PuddleManager and adds them to the provided ItemManager.
+ */
+public class WormManager {
+<span class="fc" id="L14">    private ArrayList&lt;Worm&gt; worms = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L15">    private ArrayList&lt;int[]&gt; validBlockPositions = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L16">    Random random = new Random();</span>
+    GraphicsManager graphics;
+    private final int blockSize;
+
+<span class="fc" id="L20">    public WormManager(GraphicsManager graphics, int blockSize) {</span>
+<span class="fc" id="L21">        this.blockSize = blockSize;</span>
+<span class="pc bpc" id="L22" title="1 of 2 branches missed.">        if (blockSize &lt;= 0) {</span>
+<span class="nc" id="L23">            throw new IllegalArgumentException(&quot;Block size must be a positive integer&quot;);</span>
+        }
+<span class="fc" id="L25">        this.graphics = graphics;</span>
+<span class="fc" id="L26">        validBlockPositions = BlockPositionCache.getValidBlockPositions(blockSize);</span>
+<span class="fc" id="L27">    }</span>
+
+    public void addWorms(int wormNumber) {
+<span class="pc bpc" id="L30" title="1 of 2 branches missed.">        if (wormNumber &lt;= 0) {</span>
+<span class="nc" id="L31">            throw new IllegalArgumentException(&quot;Worm number must be a positive integer&quot;);</span>
+        }
+<span class="pc bpc" id="L33" title="1 of 2 branches missed.">        if (wormNumber &gt; validBlockPositions.size()) {</span>
+<span class="nc" id="L34">            throw new IllegalArgumentException(&quot;This many worms cannot be drawn.&quot;);</span>
+        }
+
+        // Place worms at random block positions
+<span class="pc bpc" id="L38" title="1 of 4 branches missed.">        for (int i = 0; i &lt; wormNumber &amp;&amp; !validBlockPositions.isEmpty(); i++) {</span>
+<span class="fc" id="L39">            int randomIndex = random.nextInt(validBlockPositions.size());</span>
+<span class="fc" id="L40">            int[] position = validBlockPositions.get(randomIndex);</span>
+<span class="fc" id="L41">            validBlockPositions.remove(randomIndex);</span>
+<span class="fc" id="L42">            int wormX = position[0];</span>
+<span class="fc" id="L43">            int wormY = position[1];</span>
+
+<span class="fc" id="L45">            int tileDimensions = GameScreen.defaultTileDimensions;</span>
+<span class="fc" id="L46">            float posX = (wormX + blockSize / 2.0f) * tileDimensions - tileDimensions / 2.0f;</span>
+<span class="fc" id="L47">            float posY = (wormY + blockSize / 2.0f) * tileDimensions - tileDimensions / 2.0f;</span>
+
+<span class="fc" id="L49">            worms.add(new Worm(graphics, posX, posY));</span>
+        }
+<span class="fc" id="L51">    }</span>
+
+
+
+    public ArrayList&lt;Worm&gt; getWorms() {
+<span class="fc" id="L56">        return worms;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

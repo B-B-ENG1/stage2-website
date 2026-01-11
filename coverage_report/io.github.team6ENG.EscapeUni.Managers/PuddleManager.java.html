@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PuddleManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Managers</a> &gt; <span class="el_source">PuddleManager.java</span></div><h1>PuddleManager.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Managers;
+
+import java.util.ArrayList;
+import java.util.Random;
+
+import io.github.team6ENG.EscapeUni.Entities.Puddle;
+import io.github.team6ENG.EscapeUni.Screens.GameScreen;
+
+/**
+ * Manages the placement of puddles and stores all puddles in one place.
+ */
+public class PuddleManager {
+
+<span class="fc" id="L14">    private ArrayList&lt;int[]&gt; validBlockPositions = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L15">    private ArrayList&lt;Puddle&gt; puddles = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L16">    Random random = new Random();</span>
+    GraphicsManager graphics;
+    private final int blockSize;
+
+    /**
+     * Creates a new puddle manager.
+     * @param graphics is the graphics manager to be used for drawing the puddles.
+     * @param blockSize is the size of blocks in which puddles may be placed.
+     */
+<span class="fc" id="L25">    public PuddleManager(GraphicsManager graphics, int blockSize) {</span>
+<span class="fc" id="L26">        this.blockSize = blockSize;</span>
+<span class="pc bpc" id="L27" title="1 of 2 branches missed.">        if (blockSize &lt;= 0) {</span>
+<span class="nc" id="L28">            throw new IllegalArgumentException(&quot;Block size must be a positive integer&quot;);</span>
+        }
+<span class="fc" id="L30">        this.graphics = graphics;</span>
+<span class="fc" id="L31">        validBlockPositions = BlockPositionCache.getValidBlockPositions(blockSize);</span>
+<span class="fc" id="L32">    }</span>
+
+    public void addPuddles(int puddleNumber) {
+<span class="pc bpc" id="L35" title="1 of 2 branches missed.">        if (puddleNumber &lt;= 0) {</span>
+<span class="nc" id="L36">            throw new IllegalArgumentException(&quot;Puddle number must be a positive integer&quot;);</span>
+        }
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">        if (puddleNumber &gt; validBlockPositions.size()) {</span>
+<span class="nc" id="L39">            throw new IllegalArgumentException(&quot;This many puddles cannot be drawn.&quot;);</span>
+        }
+        // Place puddles at random block positions
+
+<span class="pc bpc" id="L43" title="1 of 4 branches missed.">        for (int i = 0; i &lt; puddleNumber &amp;&amp; !validBlockPositions.isEmpty(); i++) {</span>
+<span class="fc" id="L44">            int randomIndex = random.nextInt(validBlockPositions.size());</span>
+<span class="fc" id="L45">            int[] position = validBlockPositions.get(randomIndex);</span>
+<span class="fc" id="L46">            validBlockPositions.remove(randomIndex);</span>
+<span class="fc" id="L47">            int puddleX = position[0];</span>
+<span class="fc" id="L48">            int puddleY = position[1];</span>
+
+            // Place puddle at the top-left of the block
+<span class="fc" id="L51">            int tileDimensions = GameScreen.defaultTileDimensions;</span>
+<span class="fc" id="L52">            puddles.add(new Puddle(graphics,</span>
+                puddleX * tileDimensions,
+                puddleY * tileDimensions)
+            );
+        }
+<span class="fc" id="L57">    }</span>
+
+    public ArrayList&lt;Puddle&gt; getPuddles() {
+<span class="fc" id="L60">        return puddles;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

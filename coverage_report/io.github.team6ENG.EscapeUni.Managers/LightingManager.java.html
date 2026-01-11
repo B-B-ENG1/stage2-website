@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LightingManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Managers</a> &gt; <span class="el_source">LightingManager.java</span></div><h1>LightingManager.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Managers;
+
+import java.util.HashMap;
+
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.FrameBufferDelegate;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.TextureDelegate;
+
+/**
+ * Stores light sources and renders a dark overlay with
+ * light sources (circles) to simulate 2D lighting effects.
+ *
+ */
+public class LightingManager {
+<span class="fc" id="L17">    private HashMap&lt;String, LightSource&gt; lights = new HashMap&lt;String, LightSource&gt;();</span>
+    private GraphicsManager graphics;
+    private FrameBufferDelegate frameBuffer;
+    private TextureDelegate lightTexture;
+    private FrameBufferDelegate featherFrameBuffer;
+    private TextureDelegate featherTexture;
+<span class="fc" id="L23">    private boolean gogglesOn = false;</span>
+
+    public void setGogglesOn(boolean on) {
+<span class="nc" id="L26">        this.gogglesOn = on;</span>
+<span class="nc" id="L27">    }</span>
+
+<span class="fc" id="L29">    public LightingManager(GraphicsManager graphics, int mapWidth, int mapHeight) {</span>
+<span class="fc" id="L30">        this.graphics = graphics;</span>
+<span class="fc" id="L31">        frameBuffer = graphics.createFrameBufferDelegate(Pixmap.Format.RGBA8888,</span>
+            mapWidth, mapHeight, false);
+<span class="fc" id="L33">        lightTexture = graphics.createTextureDelegate(mapWidth, mapHeight,</span>
+            Pixmap.Format.RGBA8888);
+        // Separate buffer for feathers so they don't overwrite the night effect
+<span class="fc" id="L36">        featherFrameBuffer = graphics.createFrameBufferDelegate(Pixmap.Format.RGBA8888,</span>
+            mapWidth, mapHeight, false);
+<span class="fc" id="L38">        featherTexture = graphics.createTextureDelegate(mapWidth, mapHeight,</span>
+            Pixmap.Format.RGBA8888);
+<span class="fc" id="L40">    }</span>
+
+    /**
+     * Represents a single light source
+     */
+    static class LightSource{
+        float circleX;
+        float circleY;
+        Color colour;
+        int radius;
+        boolean isVisible;
+        boolean alwaysOn;
+        int priority;
+
+        /**
+         * Initialises single light source
+         * @param circleX
+         * @param circleY
+         * @param colour
+         * @param radius
+         */
+<span class="fc" id="L61">        protected LightSource(float circleX, float circleY, Color colour, int radius){</span>
+<span class="fc" id="L62">            this.circleX = circleX;</span>
+<span class="fc" id="L63">            this.circleY = circleY;</span>
+<span class="fc" id="L64">            this.colour = colour;</span>
+<span class="fc" id="L65">            this.radius = radius;</span>
+<span class="fc" id="L66">            isVisible = true;</span>
+<span class="fc" id="L67">            alwaysOn = false;</span>
+<span class="fc" id="L68">            priority = 0;</span>
+<span class="fc" id="L69">        }</span>
+    }
+
+    /**
+     * create new light source and add to list of lights
+     * @param lightName
+     * @param circleX
+     * @param circleY
+     * @param colour
+     * @param radius
+     */
+    public void addLightSource(String lightName, float circleX, float circleY, Color colour, int radius){
+<span class="fc" id="L81">        lights.put(lightName, new LightSource(circleX, circleY, colour, radius));</span>
+<span class="fc" id="L82">    }</span>
+
+    /**
+     * Remove a light source from lights
+     * @param lightName
+     */
+    public void removeLightSource(String lightName){
+<span class="nc" id="L89">        lights.remove(lightName);</span>
+<span class="nc" id="L90">    }</span>
+
+    /**
+     * Reset list of lights
+     */
+    public void clearLightSources(){
+<span class="nc" id="L96">        lights.clear();</span>
+<span class="nc" id="L97">    }</span>
+
+    /**
+     * Reposition light source
+     */
+    public void updateLightSource(String lightName, float circleX, float circleY){
+<span class="fc" id="L103">        lights.get(lightName).circleX = circleX;</span>
+<span class="fc" id="L104">        lights.get(lightName).circleY = circleY;</span>
+
+<span class="fc" id="L106">    }</span>
+
+    /**
+     * Adjust radius of a light source
+     * @param lightName
+     * @param radius
+     */
+    public void adjustRadius(String lightName, int radius){
+<span class="nc" id="L114">        lights.get(lightName).radius = radius;</span>
+<span class="nc" id="L115">    }</span>
+
+    /**
+     * Set visibility of light source
+     * @param lightName
+     * @param isVisible
+     */
+    public void isVisible(String lightName, boolean isVisible){
+<span class="fc" id="L123">        lights.get(lightName).isVisible = isVisible;</span>
+<span class="fc" id="L124">    }</span>
+
+
+    /**
+     * Determines whether there exists a visible light with the given name.
+     * If the light does not exist or is not visible then false is returned.
+     * @param lightName is the name of the light to be checked for.
+     * @return true if and only if there exists a visible light with the given
+     *  name.
+     */
+    public boolean isVisible(String lightName) {
+<span class="fc" id="L135">        LightSource lightSource = lights.get(lightName);</span>
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">        if (lightSource == null) return false;</span>
+<span class="fc" id="L137">        return lightSource.isVisible;</span>
+    }
+
+    /**
+     * Mark a light as always-on: lighting system will render it even when
+     * the world global dark flag is not set (GameScreen checks this).
+     */
+    public void setAlwaysOn(String lightName, boolean alwaysOn) {
+<span class="nc bnc" id="L145" title="All 2 branches missed.">        if (lights.containsKey(lightName)) {</span>
+<span class="nc" id="L146">            lights.get(lightName).alwaysOn = alwaysOn;</span>
+        }
+<span class="nc" id="L148">    }</span>
+
+    /**
+     * Set priority for a light source.
+     * This is for the feather patches
+     * @param lightName the name of the feature light
+     * @param priority the priority level &gt;0 is on top of the night effect
+     */
+    public void setPriority(String lightName, int priority) {
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">        if (lights.containsKey(lightName)) {</span>
+<span class="fc" id="L158">            lights.get(lightName).priority = priority;</span>
+        }
+<span class="fc" id="L160">    }</span>
+
+    /**
+     * Returns true if any light is both visible and marked always-on.
+     */
+    public boolean hasActiveAlwaysOnLights() {
+<span class="nc bnc" id="L166" title="All 2 branches missed.">        for (LightSource ls : lights.values()) {</span>
+<span class="nc bnc" id="L167" title="All 6 branches missed.">            if (ls != null &amp;&amp; ls.isVisible &amp;&amp; ls.alwaysOn) return true;</span>
+<span class="nc" id="L168">        }</span>
+<span class="nc" id="L169">        return false;</span>
+    }
+
+    /**
+     * Renders the lighting system:
+     * 1. Draws a dark overlay
+     * 2. Adds transparent circles
+     *
+     * @param camera The camera
+     * @param mapWidth Dimensions of world map for drawing darkness
+     * @param mapHeight Dimensions of world map for drawing darkness
+     *
+     * @return Texture representing the darkness and lights
+     */
+
+    public TextureDelegate render(OrthographicCamera camera, int mapWidth, int mapHeight) {
+<span class="nc" id="L185">        frameBuffer.begin();</span>
+
+<span class="nc" id="L187">        Pixmap pixmap = new Pixmap(mapWidth,mapHeight, Pixmap.Format.RGBA8888);</span>
+
+        // Fill entire pixmap with semi-transparent black or green for goggles
+<span class="nc bnc" id="L190" title="All 2 branches missed.">        if (gogglesOn) {</span>
+<span class="nc" id="L191">            pixmap.setColor(0.2f,1,0.1f,0.4f);</span>
+        } else {
+<span class="nc" id="L193">            pixmap.setColor(0f, 0f, 0f, 0.9f);</span>
+        }
+<span class="nc" id="L195">        pixmap.fill();</span>
+
+<span class="nc" id="L197">        pixmap.setBlending(Pixmap.Blending.None);</span>
+
+        // Draw all night effect and torch event lights
+<span class="nc bnc" id="L200" title="All 2 branches missed.">        for(String l : lights.keySet()) {</span>
+<span class="nc" id="L201">            LightSource light = lights.get(l);</span>
+<span class="nc bnc" id="L202" title="All 4 branches missed.">            if(light.isVisible &amp;&amp; light.priority &lt;= 0) {</span>
+<span class="nc" id="L203">                pixmap.setColor(light.colour);</span>
+<span class="nc" id="L204">                pixmap.fillCircle((int) (light.circleX), mapHeight - (int) (light.circleY), light.radius);</span>
+            }
+<span class="nc" id="L206">        }</span>
+
+<span class="nc" id="L208">        lightTexture.draw(pixmap, 0, 0);</span>
+
+
+<span class="nc" id="L211">        pixmap.dispose();</span>
+<span class="nc" id="L212">        frameBuffer.end();</span>
+
+<span class="nc" id="L214">        return lightTexture;</span>
+
+    }
+
+    /**
+     * Renders the feather effect
+     * Use this to draw feathers on top of the game without triggering the night effect.
+     *
+     * @param camera The camera
+     * @param mapWidth Dimensions of world map
+     * @param mapHeight Dimensions of world map
+     * @return the feather texture lights
+     */
+    public TextureDelegate renderFeathersOnly(OrthographicCamera camera, int mapWidth, int mapHeight) {
+<span class="fc" id="L228">        boolean hasFeathers = false;</span>
+<span class="fc bfc" id="L229" title="All 2 branches covered.">        for (LightSource light : lights.values()) {</span>
+<span class="pc bpc" id="L230" title="1 of 4 branches missed.">            if (light.isVisible &amp;&amp; light.priority &gt; 0) {</span>
+<span class="nc" id="L231">                hasFeathers = true;</span>
+<span class="nc" id="L232">                break;</span>
+            }
+<span class="fc" id="L234">        }</span>
+<span class="pc bpc" id="L235" title="1 of 2 branches missed.">        if (!hasFeathers) return null;</span>
+
+<span class="nc" id="L237">        featherFrameBuffer.begin();</span>
+<span class="nc" id="L238">        Pixmap pixmap = new Pixmap(mapWidth, mapHeight, Pixmap.Format.RGBA8888);</span>
+
+        // Start with fully transparent background
+<span class="nc" id="L241">        pixmap.setColor(0f, 0f, 0f, 0f);</span>
+<span class="nc" id="L242">        pixmap.fill();</span>
+<span class="nc" id="L243">        pixmap.setBlending(Pixmap.Blending.None);</span>
+
+        // Draw only high priority feather lights
+<span class="nc bnc" id="L246" title="All 2 branches missed.">        for (String l : lights.keySet()) {</span>
+<span class="nc" id="L247">            LightSource light = lights.get(l);</span>
+<span class="nc bnc" id="L248" title="All 4 branches missed.">            if (light.isVisible &amp;&amp; light.priority &gt; 0) {</span>
+<span class="nc" id="L249">                int cx = (int) light.circleX;</span>
+<span class="nc" id="L250">                int cy = mapHeight - (int) light.circleY;</span>
+<span class="nc" id="L251">                int r = light.radius;</span>
+
+                // Central quil
+<span class="nc" id="L254">                pixmap.setColor(1f, 1f, 1f, 0.7f);</span>
+<span class="nc bnc" id="L255" title="All 2 branches missed.">                for (int i = -r; i &lt;= r; i++) {</span>
+<span class="nc" id="L256">                    int quillX = cx + i / 8; // slight curve</span>
+<span class="nc" id="L257">                    int quillY = cy + i;</span>
+<span class="nc" id="L258">                    pixmap.fillCircle(quillX, quillY, 3);</span>
+                }
+
+                // Barbs
+<span class="nc" id="L262">                pixmap.setColor(1f, 1f, 1f, 0.5f);</span>
+<span class="nc bnc" id="L263" title="All 2 branches missed.">                for (int i = -r + 15; i &lt; r - 15; i += 15) {</span>
+<span class="nc" id="L264">                    int quillX = cx + i / 8;</span>
+<span class="nc" id="L265">                    int quillY = cy + i;</span>
+                    // Left barbs
+<span class="nc" id="L267">                    int barbLen = (int)(r * 0.5f * (1f - Math.abs(i) / (float)r));</span>
+<span class="nc bnc" id="L268" title="All 2 branches missed.">                    for (int b = 0; b &lt; barbLen; b += 2) {</span>
+<span class="nc" id="L269">                        int bx = quillX - b;</span>
+<span class="nc" id="L270">                        int by = quillY - b / 3;</span>
+<span class="nc" id="L271">                        pixmap.fillCircle(bx, by, 3);</span>
+                    }
+                    // Right barbs
+<span class="nc bnc" id="L274" title="All 2 branches missed.">                    for (int b = 0; b &lt; barbLen; b += 2) {</span>
+<span class="nc" id="L275">                        int bx = quillX + b;</span>
+<span class="nc" id="L276">                        int by = quillY - b / 3;</span>
+<span class="nc" id="L277">                        pixmap.fillCircle(bx, by, 3);</span>
+                    }
+                }
+            }
+<span class="nc" id="L281">        }</span>
+
+<span class="nc" id="L283">        featherTexture.draw(pixmap, 0, 0);</span>
+<span class="nc" id="L284">        pixmap.dispose();</span>
+<span class="nc" id="L285">        featherFrameBuffer.end();</span>
+
+<span class="nc" id="L287">        return featherTexture;</span>
+    }
+
+    public void dispose(){
+
+<span class="nc" id="L292">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

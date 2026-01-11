@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ButtonDelegate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Screens.Delegates</a> &gt; <span class="el_source">ButtonDelegate.java</span></div><h1>ButtonDelegate.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Screens.Delegates;
+
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Cell;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+
+public class ButtonDelegate {
+
+    protected Button button;
+
+<span class="nc" id="L15">    public ButtonDelegate(Button button) {</span>
+<span class="nc" id="L16">        this.button = button;</span>
+<span class="nc" id="L17">    }</span>
+
+<span class="fc" id="L19">    protected ButtonDelegate() {}</span>
+
+    public void pad(float pad) {
+<span class="nc" id="L22">        button.pad(pad);</span>
+<span class="nc" id="L23">    }</span>
+
+    public void setSize(float width, float height) {
+<span class="nc" id="L26">        button.setSize(width, height);</span>
+<span class="nc" id="L27">    }</span>
+
+    public float getWidth() {
+<span class="nc" id="L30">        return button.getWidth();</span>
+    }
+
+    public float getHeight() {
+<span class="nc" id="L34">        return button.getHeight();</span>
+    }
+
+    public void setPosition(float x, float y) {
+<span class="nc" id="L38">        button.setPosition(x, y);</span>
+<span class="nc" id="L39">    }</span>
+
+    public void setColor(Color color) {
+<span class="nc" id="L42">        button.setColor(color);</span>
+<span class="nc" id="L43">    }</span>
+
+    /**
+     * Adds the contained button to the stage.
+     * @param stage is the delegate for the stage to be added to.
+     */
+    public void addToStage(StageDelegate stage) {
+<span class="nc" id="L50">        stage.addActor(button);</span>
+<span class="nc" id="L51">    }</span>
+
+    public Cell addToTable(Table table) {
+<span class="nc" id="L54">        return table.add(button);</span>
+    }
+
+    public void addListener(ClickListener listener) {
+<span class="nc" id="L58">        button.addListener(listener);</span>
+<span class="nc" id="L59">    }</span>
+
+    public void click(float x, float y) {
+        // For testing purposes.
+<span class="nc" id="L63">        InputEvent down = new InputEvent();</span>
+<span class="nc" id="L64">        down.setType(InputEvent.Type.touchDown);</span>
+<span class="nc" id="L65">        button.getClickListener().clicked(down, x, y);</span>
+<span class="nc" id="L66">        InputEvent up = new InputEvent();</span>
+<span class="nc" id="L67">        up.setType(InputEvent.Type.touchUp);</span>
+<span class="nc" id="L68">        button.getClickListener().clicked(up, x, y);</span>
+
+<span class="nc" id="L70">    }</span>
+
+    public void enter(float x, float y) {
+        // For testing purposes.
+<span class="nc" id="L74">        InputEvent event = new InputEvent();</span>
+<span class="nc" id="L75">        event.setType(InputEvent.Type.enter);</span>
+<span class="nc" id="L76">        button.getClickListener().enter(event, x, y, 1, new Actor());</span>
+<span class="nc" id="L77">    }</span>
+
+    public void exit(float x, float y) {
+        // For testing purposes.
+<span class="nc" id="L81">        InputEvent event = new InputEvent();</span>
+<span class="nc" id="L82">        event.setType(InputEvent.Type.exit);</span>
+<span class="nc" id="L83">        button.getClickListener().enter(event, x, y, 1, new Actor());</span>
+<span class="nc" id="L84">    }</span>
+
+    public Color getColor() {
+<span class="nc" id="L87">        return button.getColor();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

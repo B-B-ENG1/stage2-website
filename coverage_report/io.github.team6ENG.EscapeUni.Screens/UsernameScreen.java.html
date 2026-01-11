@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UsernameScreen.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Screens</a> &gt; <span class="el_source">UsernameScreen.java</span></div><h1>UsernameScreen.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Screens;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.TimeUtils;
+
+import io.github.team6ENG.EscapeUni.Main;
+import io.github.team6ENG.EscapeUni.Managers.GraphicsManager;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.ButtonDelegate;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.TextButtonDelegate;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.StageDelegate;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.TextBoxDelegate;
+
+/**
+ * first screen to display when game loads
+ */
+public class UsernameScreen implements Screen {
+
+    private final Main game;
+    private final GraphicsManager graphics;
+
+    // stage and resources created in show() and disposed in dispose()
+    private StageDelegate stage;
+<span class="fc" id="L28">    private final GlyphLayout layout = new GlyphLayout();</span>
+
+    public String username;
+    private TextButtonDelegate confirmButton;
+    private TextBoxDelegate textBox;
+
+    private com.badlogic.gdx.InputProcessor previousInputProcessor; // used to restore on hide()
+
+    private static final String TITLE_TEXT = &quot;Escape University Of York&quot;;
+
+    /**
+     * Initialise menu screen
+     * @param game current instance of Main
+     */
+<span class="fc" id="L42">    public UsernameScreen(final Main game) {</span>
+<span class="fc" id="L43">        this.game = game;</span>
+<span class="fc" id="L44">        graphics = game.graphicsManager;</span>
+        // DO NOT initialize stage/input here — do it in show()
+<span class="fc" id="L46">    }</span>
+
+    /**
+     * Gets the text box in which the username can be typed.
+     * @return the delegate of the text box.
+     */
+    public TextBoxDelegate getTextBox() {
+<span class="fc" id="L53">        return textBox;</span>
+    }
+
+    /**
+     * Gets the text button which can be pressed to confirm the username.
+     * @return the delegate of the text button.
+     */
+    public TextButtonDelegate getConfirmButton() {
+<span class="fc" id="L61">        return confirmButton;</span>
+    }
+
+    @Override
+    public void show() {
+        // create stage with a fixed virtual size (you used 800x450)
+<span class="fc" id="L67">        stage = graphics.createFixedStageDelegate(game.viewport);</span>
+
+        // remember previous input processor so we can restore it later
+<span class="fc" id="L70">        previousInputProcessor = Gdx.input.getInputProcessor();</span>
+<span class="fc" id="L71">        stage.setInputProcessor();</span>
+
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">        if (game.elapsedTimeChecker.timerExists(&quot;Main Menu to Username&quot;)) {</span>
+<span class="nc" id="L74">            float elapsed = game.elapsedTimeChecker.endTimer(&quot;Main Menu to Username&quot;);</span>
+<span class="nc" id="L75">            System.out.println(&quot;Time taken to get from main menu screen to &quot; +</span>
+                &quot;username screen: &quot; + elapsed + &quot; ms&quot;);
+        }
+<span class="fc" id="L78">        game.elapsedTimeChecker.startTimer(&quot;Main Menu to Username&quot;);</span>
+
+        // build UI
+<span class="fc" id="L81">        setupUI();</span>
+<span class="fc" id="L82">    }</span>
+    /**
+     *Add required UI elements to stage
+     */
+    private void setupUI() {
+<span class="fc" id="L87">        textBox = graphics.createTextBox(&quot;Enter Username:&quot;,</span>
+            320,
+            100,
+            new Color(0.0f, 0.95f, 0.95f, 1f));
+<span class="fc" id="L91">        username = textBox.getText();</span>
+<span class="fc" id="L92">        textBox.addToStage(stage);</span>
+
+<span class="fc" id="L94">        confirmButton = graphics.createTextButtonDelegate(&quot;Confirm&quot;);</span>
+<span class="fc" id="L95">        confirmButton.addToStage(stage);</span>
+<span class="fc" id="L96">        confirmButton.setPosition((stage.getViewport().getWorldWidth() - confirmButton.getWidth()) / 2f, stage.getViewport().getWorldHeight()/2f - 140);</span>
+<span class="fc" id="L97">        confirmButton.addListener(new com.badlogic.gdx.scenes.scene2d.utils.ClickListener(){</span>
+            @Override
+            public void clicked(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y) {
+<span class="fc" id="L100">                game.elapsedTimeChecker.startTimer(&quot;Username to Character&quot;);</span>
+<span class="fc" id="L101">                String entered = textBox.getText();</span>
+<span class="pc bpc" id="L102" title="2 of 4 branches missed.">                if (entered == null || entered.trim().isEmpty()) {</span>
+<span class="nc" id="L103">                    entered = &quot;Player&quot;;</span>
+                }
+<span class="fc" id="L105">                game.username = entered.trim();</span>
+                // proceed to character select
+<span class="fc" id="L107">                Gdx.app.postRunnable(() -&gt; game.setScreen(new CharacterSelectScreen(game)));</span>
+<span class="fc" id="L108">            }</span>
+        });
+
+<span class="fc" id="L111">        positionBox();</span>
+<span class="fc" id="L112">    }</span>
+
+    /**
+     * Place buttons on screen
+     */
+    private void positionBox() {
+<span class="fc" id="L118">        float w = stage.getViewport().getWorldWidth();</span>
+<span class="fc" id="L119">        float h = stage.getViewport().getWorldHeight();</span>
+
+<span class="fc" id="L121">        textBox.setPosition((w - textBox.getWidth()) / 2f, h / 2f );</span>
+<span class="fc" id="L122">    }</span>
+
+    @Override
+    public void render(float delta) {
+<span class="nc" id="L126">        ScreenUtils.clear(Color.BLACK);</span>
+
+        // update stage
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (stage != null) {</span>
+<span class="nc" id="L130">            stage.act(delta);</span>
+        }
+
+        // Draw background + title using game's batch (aligned to stage camera)
+<span class="nc bnc" id="L134" title="All 2 branches missed.">        if (stage != null) {</span>
+<span class="nc" id="L135">            graphics.updateBatchProjectionMatrix(stage.getCameraCombinedProjection());</span>
+        } else {
+<span class="nc" id="L137">            graphics.updateBatchProjectionMatrix(game.viewport.getCamera().combined);</span>
+        }
+
+<span class="nc" id="L140">        graphics.beginBatch();</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        float w = (stage != null) ? stage.getViewport().getWorldWidth() : game.viewport.getWorldWidth();</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">        float h = (stage != null) ? stage.getViewport().getWorldHeight() : game.viewport.getWorldHeight();</span>
+
+<span class="nc" id="L144">        float brightness = 0.85f + 0.15f * (float) Math.sin(TimeUtils.millis() / 500f);</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">        if (graphics.menuFont != null) {</span>
+<span class="nc" id="L146">            graphics.menuFont.setColor(brightness, brightness, brightness, 1f);</span>
+<span class="nc" id="L147">            layout.setText(graphics.menuFont, TITLE_TEXT);</span>
+<span class="nc" id="L148">            graphics.drawText(graphics.menuFont, TITLE_TEXT,  (w - layout.width) / 2f, h * 0.82f);</span>
+<span class="nc" id="L149">            graphics.menuFont.setColor(Color.WHITE);</span>
+        }
+
+<span class="nc" id="L152">        graphics.endBatch();</span>
+
+<span class="nc bnc" id="L154" title="All 2 branches missed.">        if (stage != null) stage.draw();</span>
+
+        // allow quick keyboard start (space)
+<span class="nc bnc" id="L157" title="All 2 branches missed.">        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {</span>
+<span class="nc" id="L158">            Gdx.app.postRunnable(() -&gt; game.setScreen(new CharacterSelectScreen(game)));</span>
+        }
+<span class="nc" id="L160">    }</span>
+
+    @Override
+    public void resize(int width, int height) {
+<span class="nc bnc" id="L164" title="All 2 branches missed.">        if (stage != null) stage.getViewport().update(width, height, true);</span>
+<span class="nc" id="L165">        positionBox();</span>
+<span class="nc" id="L166">    }</span>
+
+    @Override
+<span class="nc" id="L169">    public void pause() { }</span>
+
+    @Override
+<span class="nc" id="L172">    public void resume() { }</span>
+
+    @Override
+    public void hide() {
+<span class="nc bnc" id="L176" title="All 2 branches missed.">        if (Gdx.input.getInputProcessor() == stage) {</span>
+<span class="nc" id="L177">            Gdx.input.setInputProcessor(null);</span>
+        }
+
+<span class="nc bnc" id="L180" title="All 2 branches missed.">        if (previousInputProcessor != null) {</span>
+<span class="nc" id="L181">            Gdx.input.setInputProcessor(previousInputProcessor);</span>
+<span class="nc" id="L182">            previousInputProcessor = null;</span>
+        }
+<span class="nc" id="L184">    }</span>
+
+    @Override
+    public void dispose() {
+        // Dispose only things we created here
+<span class="nc bnc" id="L189" title="All 2 branches missed.">        if (stage != null) {</span>
+<span class="nc" id="L190">            stage.dispose();</span>
+<span class="nc" id="L191">            stage = null;</span>
+        }
+
+
+        // DO NOT dispose game.menuFont or game.buttonSkin or game.batch here
+<span class="nc" id="L196">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractScreen.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Screens</a> &gt; <span class="el_source">AbstractScreen.java</span></div><h1>AbstractScreen.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Screens;
+
+import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import io.github.team6ENG.EscapeUni.Main;
+import io.github.team6ENG.EscapeUni.Managers.GraphicsManager;
+import io.github.team6ENG.EscapeUni.Managers.ItemManager;
+import io.github.team6ENG.EscapeUni.Managers.LightingManager;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.TextButtonDelegate;
+import io.github.team6ENG.EscapeUni.World;
+
+/**
+ * A screen with capacity to write trackers for events and score.
+ */
+public abstract class AbstractScreen implements Screen {
+
+    protected BitmapFont smallFont;
+    protected BitmapFont font;
+    protected BitmapFont bigFont;
+    protected Main game;
+    protected GraphicsManager graphics;
+    protected LightingManager lighting;
+    protected ItemManager items;
+    protected World world;
+<span class="fc" id="L27">    protected int tileDimensions = 8;</span>
+
+<span class="fc" id="L29">    public AbstractScreen(Main game) {</span>
+<span class="fc" id="L30">        this.game = game;</span>
+<span class="fc" id="L31">        world = game.getWorld();</span>
+<span class="fc" id="L32">        graphics = game.graphicsManager;</span>
+<span class="fc" id="L33">        lighting = game.lightingManager;</span>
+<span class="fc" id="L34">        items = game.itemManager;</span>
+
+<span class="fc" id="L36">    }</span>
+
+    /**
+     * Draws the tracker for how many of each type of event have been
+     * encountered. This is done at position {@code worldHeight - 20}.
+     */
+    public void drawEventTracker(BitmapFont f) {
+<span class="fc" id="L43">        float y = world.getWorldHeight() - 20f;</span>
+<span class="fc" id="L44">        float lineSpacing = 15f;</span>
+
+        // Requirements: Events tracker and game time.
+<span class="fc" id="L47">        graphics.drawText(f, (&quot;Negative Events: &quot; + world.getFoundNegativeEvents() +&quot;/&quot; + World.totalNegativeEvents), Color.WHITE, 20, y);</span>
+<span class="fc" id="L48">        y -= lineSpacing;</span>
+<span class="fc" id="L49">        graphics.drawText(f, (&quot;Positive Events: &quot;+ world.getFoundPositiveEvents() +&quot;/&quot;+ World.totalPositiveEvents), Color.WHITE, 20, y);</span>
+<span class="fc" id="L50">        y -= lineSpacing;</span>
+<span class="fc" id="L51">        graphics.drawText(f, (&quot;Hidden Events:   &quot;+ world.getFoundHiddenEvents() +&quot;/&quot;+ World.totalHiddenEvents), Color.WHITE, 20, y);</span>
+<span class="fc" id="L52">        y -= lineSpacing;</span>
+<span class="fc" id="L53">    }</span>
+
+    public void drawTimerAndScore(BitmapFont f) {
+        //Display time with 2 digits for seconds
+<span class="fc" id="L57">        int timer = (int)world.getTimer();</span>
+<span class="fc" id="L58">        graphics.drawText(f,</span>
+            (timer/60 + &quot;:&quot;
+<span class="fc bfc" id="L60" title="All 2 branches covered.">                +(timer % 60 &lt;10?&quot;0&quot; :&quot;&quot; )</span>
+                +timer % 60),
+<span class="fc" id="L62">            Color.WHITE, world.getWorldWidth() - 80f,</span>
+<span class="fc" id="L63">            world.getWorldHeight() - 20f);</span>
+<span class="fc" id="L64">        GlyphLayout layout = new GlyphLayout(graphics.menuFont, (&quot;Score: &quot; + (int)world.getScore()));</span>
+<span class="fc" id="L65">        graphics.drawText(f, (&quot;Score: &quot; +(int)world.getScore()), Color.WHITE,</span>
+<span class="fc" id="L66">            (world.getWorldWidth() - layout.width)/2,</span>
+<span class="fc" id="L67">            world.getWorldHeight()-20f);</span>
+<span class="fc" id="L68">    }</span>
+
+    /**
+     * Set up each button
+     * @param text buttons display text
+     * @return new button with required parameters
+     */
+    protected TextButtonDelegate createButton(String text) {
+        // If skin is null, fallback to a simple TextButton may fail; ensure game.buttonSkin exists in assets
+        //ButtonDelegate button = graphics.createButtonDelegate(text);
+<span class="fc" id="L78">        TextButtonDelegate button = graphics.createTextButtonDelegate(text);</span>
+<span class="fc" id="L79">        button.setFontScale(1.6f);</span>
+<span class="fc" id="L80">        button.pad(25f);</span>
+<span class="fc" id="L81">        button.setSize(320, 100);</span>
+<span class="fc" id="L82">        button.setColor(new Color(0.0f, 0.95f, 0.95f, 1f));</span>
+<span class="fc" id="L83">        return button;</span>
+    }
+
+    @Override
+    public void render(float delta) {
+<span class="fc" id="L88">        game.fpsTracker.newFrameOccurred(delta);</span>
+<span class="fc" id="L89">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

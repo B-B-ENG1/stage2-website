@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Worm.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Entities</a> &gt; <span class="el_source">Worm.java</span></div><h1>Worm.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Entities;
+
+import io.github.team6ENG.EscapeUni.Managers.AssetManager;
+import io.github.team6ENG.EscapeUni.Managers.GraphicsManager;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.ImageDelegate;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.TextureDelegate;
+
+public class Worm {
+
+    public final float x,y;
+    public final GraphicsManager graphics;
+    private TextureDelegate tex;
+    private ImageDelegate image;
+<span class="fc" id="L14">    private boolean collected = false;</span>
+<span class="fc" id="L15">    private float scale = 0.05f;</span>
+<span class="fc" id="L16">    private boolean targeted = false;</span>
+
+<span class="fc" id="L18">    public Worm(GraphicsManager graphicsManager, float posX, float posY) {</span>
+<span class="fc" id="L19">        x = posX;</span>
+<span class="fc" id="L20">        y = posY;</span>
+<span class="fc" id="L21">        graphics = graphicsManager;</span>
+<span class="fc" id="L22">        tex = graphics.createTextureDelegate(AssetManager.wormAsset);</span>
+<span class="fc" id="L23">        image = tex.createImage();</span>
+<span class="fc" id="L24">        image.setScale(scale);</span>
+        // position using texture dimensions scaled to match collision calculations
+<span class="fc" id="L26">        float halfWidth = tex.getWidth() * scale / 2f;</span>
+<span class="fc" id="L27">        float halfHeight = tex.getHeight() * scale / 2f;</span>
+<span class="fc" id="L28">        image.setPosition(x - halfWidth, y - halfHeight);</span>
+<span class="fc" id="L29">    }</span>
+
+    public ImageDelegate getImage() {
+<span class="fc" id="L32">        return image;</span>
+    }
+
+    public boolean isCollected() {
+<span class="fc" id="L36">        return collected;</span>
+    }
+
+    public void collect() {
+<span class="fc" id="L40">        collected = true;</span>
+        try {
+<span class="nc bnc" id="L42" title="All 2 branches missed.">            if (image != null) image.dispose();</span>
+<span class="pc" id="L43">        } catch (Exception ignored) {}</span>
+<span class="fc" id="L44">    }</span>
+
+    /**
+     * Mark that the worm is being eaten.
+     */
+    public void target() {
+<span class="fc" id="L50">        targeted = true;</span>
+<span class="fc" id="L51">    }</span>
+
+    /**
+     * @return true if the worm is being eaten and false otherwise.
+     */
+    public boolean isTargeted() {
+<span class="fc" id="L57">        return targeted;</span>
+    }
+
+    /**
+     * Checks whether the given position on the map collides with this worm.
+     *
+     * @param colX is the x position of the colliding object.
+     * @param colY is the y position of the colliding object.
+     * @return true if there is a collision and false otherwise.
+     */
+    public boolean checkCollision(float colX, float colY) {
+<span class="fc" id="L68">        float halfWidth = tex.getWidth() * scale / 2f;</span>
+<span class="fc" id="L69">        float halfHeight = tex.getHeight() * scale / 2f;</span>
+<span class="pc bpc" id="L70" title="1 of 8 branches missed.">        return colX &gt;= x - halfWidth &amp;&amp; colX &lt;= x + halfWidth &amp;&amp;</span>
+               colY &gt;= y - halfHeight &amp;&amp; colY &lt;= y + halfHeight;
+    }
+
+    public void removeWormIfColliding(float x, float y) {
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (checkCollision(x, y)) {</span>
+<span class="nc" id="L76">            image.dispose();</span>
+        }
+<span class="nc" id="L78">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

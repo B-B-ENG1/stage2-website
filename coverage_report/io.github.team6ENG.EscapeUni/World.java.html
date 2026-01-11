@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>World.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni</a> &gt; <span class="el_source">World.java</span></div><h1>World.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni;
+
+import java.util.ArrayList;
+
+import io.github.team6ENG.EscapeUni.Entities.Puddle;
+import io.github.team6ENG.EscapeUni.Entities.Worm;
+import io.github.team6ENG.EscapeUni.Managers.AssetManager;
+import io.github.team6ENG.EscapeUni.Managers.PuddleManager;
+import io.github.team6ENG.EscapeUni.Managers.WormManager;
+
+/**
+ * A centre for common game logic and information to be accessed.
+ * In future, we can add further data/methods to this if desired.
+ */
+public class World {
+    // Events
+    public static final int totalNegativeEvents = 5;
+    public static final int totalPositiveEvents = 4;
+    public static final int totalHiddenEvents = 3;
+<span class="fc" id="L20">    private int foundNegativeEvents = 0;</span>
+<span class="fc" id="L21">    private int foundPositiveEvents = 0;</span>
+<span class="fc" id="L22">    private int foundHiddenEvents = 0;</span>
+
+<span class="fc" id="L24">    private boolean puddleEvent = false;</span>
+<span class="fc" id="L25">    private boolean wormEvent = false;</span>
+<span class="fc" id="L26">    private boolean rainEvent = false;</span>
+<span class="fc" id="L27">    private boolean pondEvent = false;</span>
+<span class="fc" id="L28">    private boolean piazzaEvent = false;</span>
+<span class="fc" id="L29">    private boolean darkEvent = false;</span>
+<span class="fc" id="L30">    private boolean drinkEvent = false;</span>
+<span class="fc" id="L31">    private boolean isRaining = false;</span>
+<span class="fc" id="L32">    private boolean isDark = false;</span>
+    /**
+     * A worm that has been requested to be picked up/eaten by the Goose.
+     * If this is null then there is no pickup request.
+     */
+    private Worm wormPickup;
+
+    // Timer and Score
+    public final static float initialTimer = 300;
+    public final static float initialScore = 300;
+<span class="fc" id="L42">    private float gameTimer = initialTimer;</span>
+<span class="fc" id="L43">    private float score = initialScore;</span>
+
+    // Character
+    private AssetManager.CharacterChoice chara;
+
+    // World Sizing: This is updated during resizing by Main. These are the
+    // widths that come before rescaling.
+<span class="fc" id="L50">    private float worldWidth = 100;</span>
+<span class="fc" id="L51">    private float worldHeight = 100;</span>
+
+    // Managers
+    private PuddleManager puddleManager;
+    private WormManager wormManager;
+
+<span class="fc" id="L57">    public World() {</span>
+<span class="fc" id="L58">        chara = AssetManager.CharacterChoice.FEMALE;</span>
+<span class="fc" id="L59">    }</span>
+
+    /**
+     * Adds a given puddle manager to the world. This manager is not necessary
+     * for the world object to function: it's just an added connection if
+     * needed.
+     * @param puddleManager is the manager added.
+     */
+    public void addPuddleManager(PuddleManager puddleManager) {
+<span class="fc" id="L68">        this.puddleManager = puddleManager;</span>
+<span class="fc" id="L69">    }</span>
+
+    /**
+     * Adds a given worm manager to the world. This manager is not necessary
+     * for the world object to function: it's just an added connection if
+     * needed.
+     * @param wormManager is the manager added.
+     */
+    public void addWormManager(WormManager wormManager) {
+<span class="fc" id="L78">        this.wormManager = wormManager;</span>
+<span class="fc" id="L79">    }</span>
+
+
+    /**
+     * Returns the puddles given by the puddle manager in this world.
+     * If there is no such manager, then an empty list is given.
+     * @return the list of puddles.
+     */
+    public ArrayList&lt;Puddle&gt; getPuddles() {
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        if (puddleManager == null) return new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L89">        return puddleManager.getPuddles();</span>
+    }
+
+    /**
+     * Returns the worms given by the worm manager in this world.
+     * If there is no such manager, then an empty list is given.
+     * @return the list of worms.
+     */
+    public ArrayList&lt;Worm&gt; getWorms() {
+<span class="fc bfc" id="L98" title="All 2 branches covered.">        if (wormManager == null) return new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L99">        return wormManager.getWorms();</span>
+    }
+
+    /**
+     * Sets the choice of character to the given character.
+     * @param chara is the character to be selected.
+     */
+    public void setCharacter(AssetManager.CharacterChoice chara) {
+<span class="fc" id="L107">        this.chara = chara;</span>
+<span class="fc" id="L108">    }</span>
+
+    public String getCharacterAsset() {
+<span class="fc" id="L111">        return chara.getCharacterAsset();</span>
+    }
+
+    public String getIDCardAsset() {
+<span class="fc" id="L115">        return chara.getIDCardAsset();</span>
+    }
+
+    /**
+     * Determines whether the world is dark right now.
+     * @return true if it is dark and false otherwise.
+     */
+    public boolean isDark() {
+<span class="fc" id="L123">        return isDark;</span>
+    }
+
+    /**
+     * Sets the state of the world to either be dark or not.
+     * @param isDark is true if the world is to be set to dark and false
+     *               otherwise.
+     */
+    public void toggleDark(boolean isDark) {
+<span class="nc bnc" id="L132" title="All 4 branches missed.">        if (isDark &amp;&amp; !this.isDark) {</span>
+<span class="nc" id="L133">            darkEvent();</span>
+        }
+<span class="nc" id="L135">        this.isDark = isDark;</span>
+<span class="nc" id="L136">    }</span>
+
+    /**
+     * Determines whether it is currently raining in this world.
+     * @return true if it is raining and false otherwise.
+     */
+<span class="fc" id="L142">    public boolean isRaining() {return isRaining;}</span>
+
+    /**
+     * Makes it stop raining.
+     */
+<span class="fc" id="L147">    public void stopRain() {isRaining = false;}</span>
+
+    /**
+     * Checks whether the given component distances give a total Euclidean
+     * distance within the square root of the ceiling.
+     * @param dx is the distance between points along the x-axis.
+     * @param dy is the distance between points along the y-axis.
+     * @param sqCeil is the square of the ceiling on the acceptable distance
+     *               between two points.
+     * @return true if the Euclidean distance between the points specified by
+     *  the given component distances is below the square root of
+     *  {@code sqCeil} (non-inclusive).
+     */
+    public static boolean withinDistance(float dx, float dy, float sqCeil) {
+<span class="fc bfc" id="L161" title="All 2 branches covered.">        if (sqCeil &lt; 0) {</span>
+<span class="fc" id="L162">            throw new IllegalArgumentException(&quot;The square ceiling should be&quot;</span>
+            + &quot; non-negative.&quot;);
+        }
+<span class="fc bfc" id="L165" title="All 2 branches covered.">        return dx * dx + dy * dy &lt; sqCeil;</span>
+    }
+
+    /**
+     * Sets the timer and score back to their initial values and sets the
+     * number of events found to zero.
+     */
+    public void reset() {
+<span class="fc" id="L173">        gameTimer = initialTimer;</span>
+<span class="fc" id="L174">        score = initialScore;</span>
+<span class="fc" id="L175">        foundNegativeEvents = 0;</span>
+<span class="fc" id="L176">        foundPositiveEvents = 0;</span>
+<span class="fc" id="L177">        foundHiddenEvents = 0;</span>
+<span class="fc" id="L178">        puddleEvent = false;</span>
+<span class="fc" id="L179">        wormEvent = false;</span>
+<span class="fc" id="L180">        rainEvent = false;</span>
+<span class="fc" id="L181">        pondEvent = false;</span>
+<span class="fc" id="L182">        drinkEvent = false;</span>
+<span class="fc" id="L183">        piazzaEvent = false;</span>
+<span class="fc" id="L184">        darkEvent = false;</span>
+<span class="fc" id="L185">        isRaining = false;</span>
+<span class="fc" id="L186">        isDark = false;</span>
+<span class="fc" id="L187">    }</span>
+
+    /**
+     * A getter for the timer.
+     * @return the value of the timer.
+     */
+    public float getTimer() {
+<span class="fc" id="L194">        return gameTimer;</span>
+    }
+
+    /**
+     * A setter for the timer.
+     * @param delta is the time to reduce the timer by.
+     * @throws IllegalArgumentException if delta is negative.
+     */
+    public void decrementTimer(float delta) {
+<span class="fc bfc" id="L203" title="All 2 branches covered.">        if (delta &lt; 0) {</span>
+<span class="fc" id="L204">            throw new IllegalArgumentException(&quot;Time delta must be non-negative.&quot;);</span>
+        }
+<span class="fc" id="L206">        gameTimer = Math.max(0, gameTimer - delta);</span>
+<span class="fc" id="L207">    }</span>
+
+    /**
+     * A setter for the score via an incrementation.
+     * @param scoreDelta is the value to be added to the score. This can be
+     *                   positive or negative.
+     */
+    public void incrementScore(float scoreDelta) {
+<span class="fc" id="L215">        score = Math.max(score + scoreDelta, 0);</span>
+<span class="fc" id="L216">    }</span>
+
+    /**
+     * A getter for the score.
+     * @return the current score.
+     */
+    public float getScore() {
+<span class="fc" id="L223">        return score;</span>
+    }
+
+    /**
+     * Increments the number of found hidden events by 1.
+     */
+    public void hiddenEventFound() {
+<span class="fc" id="L230">        foundHiddenEvents = Math.min(</span>
+            foundHiddenEvents + 1,
+            totalHiddenEvents
+        );
+<span class="fc" id="L234">    }</span>
+
+    /**
+     * Increments the number of found negative events by 1.
+     */
+    public void negativeEventFound() {
+<span class="fc" id="L240">        foundNegativeEvents = Math.min(</span>
+            foundNegativeEvents + 1,
+            totalNegativeEvents
+        );
+<span class="fc" id="L244">    }</span>
+
+    /**
+     * Increments the number of found positive events by 1.
+     */
+    public void positiveEventFound() {
+<span class="fc" id="L250">        foundPositiveEvents = Math.min(</span>
+            foundPositiveEvents + 1,
+            totalPositiveEvents
+        );
+<span class="fc" id="L254">    }</span>
+
+    /**
+     * A getter for the number of negative events found.
+     * @return the attribute {@code foundNegativeEvents}
+     */
+    public int getFoundNegativeEvents() {
+<span class="fc" id="L261">        return foundNegativeEvents;</span>
+    }
+
+    /**
+     * Marks the occurrence of a puddle event. This will do nothing if a puddle
+     * event has already happened. Otherwise, it will increase the event counter
+     * by 1.
+     */
+    public void puddleEvent() {
+<span class="pc bpc" id="L270" title="1 of 2 branches missed.">        if (!puddleEvent) {</span>
+<span class="fc" id="L271">            puddleEvent = true;</span>
+<span class="fc" id="L272">            negativeEventFound();</span>
+        }
+<span class="fc" id="L274">    }</span>
+
+    /**
+     * Marks the occurrence of a worm event. This will do nothing if a worm
+     * event has already happened.
+     */
+    public void wormEvent() {
+<span class="pc bpc" id="L281" title="1 of 2 branches missed.">        if (!wormEvent) {</span>
+<span class="fc" id="L282">            wormEvent = true;</span>
+<span class="fc" id="L283">            negativeEventFound();</span>
+        }
+<span class="fc" id="L285">    }</span>
+
+    /**
+     * Request the given worm to be picked up.
+     * @param worm is the worm to be picked up.
+     */
+    public void requestWormPickup(Worm worm) {
+<span class="fc" id="L292">        wormPickup = worm;</span>
+<span class="fc" id="L293">    }</span>
+
+    /**
+     * Consumes the pickup request for the worm, if it exists, and returns the
+     * worm that was requested. If there was no such request then this is set
+     * to null.
+     * @return the worm that was requested for pickup by the Goose.
+     */
+    public Worm consumeWormPickupRequest() {
+<span class="fc" id="L302">        Worm worm = wormPickup;</span>
+<span class="fc" id="L303">        wormPickup = null;</span>
+<span class="fc" id="L304">        return worm;</span>
+    }
+
+    /**
+     * Marks the occurrence of a pond event.
+     */
+    public void pondEvent() {
+<span class="nc bnc" id="L311" title="All 2 branches missed.">        if (!pondEvent) {</span>
+<span class="nc" id="L312">            pondEvent = true;</span>
+<span class="nc" id="L313">            hiddenEventFound();</span>
+        }
+<span class="nc" id="L315">    }</span>
+
+    /**
+     * Marks the occurrence of an energy drink event.
+     */
+    public void drinkEvent() {
+<span class="pc bpc" id="L321" title="1 of 2 branches missed.">        if (!drinkEvent) {</span>
+<span class="fc" id="L322">            drinkEvent = true;</span>
+<span class="fc" id="L323">            positiveEventFound();</span>
+        }
+<span class="fc" id="L325">    }</span>
+
+    /**
+     * Marks the occurrence of entering the Piazza building.
+     */
+    public void piazzaEvent() {
+<span class="nc bnc" id="L331" title="All 2 branches missed.">        if (!piazzaEvent) {</span>
+<span class="nc" id="L332">            piazzaEvent = true;</span>
+<span class="nc" id="L333">            hiddenEventFound();</span>
+        }
+<span class="nc" id="L335">    }</span>
+
+    /**
+     * Marks the occurrence of the world becoming dark.
+     */
+    public void darkEvent() {
+<span class="nc bnc" id="L341" title="All 2 branches missed.">        if (!darkEvent) {</span>
+<span class="nc" id="L342">            darkEvent = true;</span>
+<span class="nc" id="L343">            negativeEventFound();</span>
+        }
+<span class="nc" id="L345">    }</span>
+
+    /**
+     * Marks the occurrence of a rain event. This will do nothing if a rain
+     * event has already happened. Otherwise, it will increase the event counter
+     * by 1.
+     */
+    public void rainEvent() {
+<span class="fc" id="L353">        isRaining = true;</span>
+<span class="pc bpc" id="L354" title="1 of 2 branches missed.">        if (!rainEvent) {</span>
+<span class="fc" id="L355">            rainEvent = true;</span>
+<span class="fc" id="L356">            negativeEventFound();</span>
+        }
+<span class="fc" id="L358">    }</span>
+
+    /**
+     * Determines whether it has rained.
+     * @return true if rain has started at any point and false otherwise.
+     */
+    public boolean hasRainOccurred() {
+<span class="fc" id="L365">        return rainEvent;</span>
+    }
+
+    /**
+     * A getter for the number of positive events found.
+     * @return the attribute {@code foundPositiveEvents}
+     */
+    public int getFoundPositiveEvents() {
+<span class="fc" id="L373">        return foundPositiveEvents;</span>
+    }
+
+    /**
+     * A getter for the number of hidden events found.
+     * @return the attribute {@code foundHiddenEvents}
+     */
+    public int getFoundHiddenEvents() {
+<span class="fc" id="L381">        return foundHiddenEvents;</span>
+    }
+
+    /**
+     * Gets the current world width, scaled by the given tileDimensions.
+     * @param tileDimensions
+     * @return the value of {@code worldWidth} scaled by {@code tileDimensions}.
+     */
+    public float getWorldWidth(int tileDimensions) {
+<span class="fc" id="L390">        return worldWidth *  tileDimensions;</span>
+    }
+
+    /**
+     * Gets the current, unscaled world width.
+     * @return the current value of {@code worldWidth}.
+     */
+    public float getWorldWidth() {
+<span class="fc" id="L398">        return worldWidth;</span>
+    }
+
+    /**
+     * Gets the current world height, scaled by the given tileDimensions.
+     * @param tileDimensions
+     * @return the current value of {@code worldHeight} scaled by {@code tileDimensions}.
+     */
+    public float getWorldHeight(int tileDimensions) {
+<span class="fc" id="L407">        return worldHeight * tileDimensions;</span>
+    }
+
+    /**
+     * Gets the current, unscaled world height.
+     * @return the current value of {@code worldHeight}.
+     */
+    public float getWorldHeight() {
+<span class="fc" id="L415">        return worldHeight;</span>
+    }
+
+    /**
+     * A setter for {@code worldWidth}. This will need to be scaled by dimensions
+     * when they are known.
+     * @param worldViewportWidth is the viewport's world height.
+     * @throws IllegalArgumentException if the given height is negative.
+     */
+    public void setWorldWidth(float worldViewportWidth) {
+<span class="nc bnc" id="L425" title="All 2 branches missed.">        if (worldViewportWidth &lt; 0) {</span>
+<span class="nc" id="L426">            throw new IllegalArgumentException(</span>
+                &quot;The world width should be non-negative.&quot;);
+        }
+<span class="nc" id="L429">        worldWidth = worldViewportWidth;</span>
+<span class="nc" id="L430">    }</span>
+
+    /**
+     * A setter for {@code worldHeight}. This will need to be scaled by dimensions
+     * when they are known.
+     * @param worldViewportHeight is the viewport's world height.
+     * @throws IllegalArgumentException if the given height is negative.
+     */
+    public void setWorldHeight(float worldViewportHeight) {
+<span class="nc bnc" id="L439" title="All 2 branches missed.">        if (worldViewportHeight &lt; 0) {</span>
+<span class="nc" id="L440">            throw new IllegalArgumentException(</span>
+                &quot;The world height should be non-negative.&quot;);
+        }
+<span class="nc" id="L443">        worldHeight = worldViewportHeight;</span>
+<span class="nc" id="L444">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

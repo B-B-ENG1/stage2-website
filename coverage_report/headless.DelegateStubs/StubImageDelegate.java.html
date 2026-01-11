@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StubImageDelegate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">headless.DelegateStubs</a> &gt; <span class="el_source">StubImageDelegate.java</span></div><h1>StubImageDelegate.java</h1><pre class="source lang-java linenums">package headless.DelegateStubs;
+
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.ImageDelegate;
+
+public class StubImageDelegate extends ImageDelegate {
+
+    private float x, y, scaleX, scaleY, rotation, width, height;
+
+<span class="fc" id="L10">    public StubImageDelegate() {}</span>
+
+    @Override
+    public void setPosition(float x, float y) {
+<span class="fc" id="L14">        this.x = x;</span>
+<span class="fc" id="L15">        this.y = y;</span>
+<span class="fc" id="L16">    }</span>
+
+    @Override
+    public void setScale(float scale) {
+<span class="fc" id="L20">        scaleX = scale;</span>
+<span class="fc" id="L21">        scaleY = scale;</span>
+<span class="fc" id="L22">    }</span>
+
+    @Override
+    public void setScale(float scaleX, float scaleY) {
+<span class="fc" id="L26">        this.scaleX = scaleX;</span>
+<span class="fc" id="L27">        this.scaleY = scaleY;</span>
+<span class="fc" id="L28">    }</span>
+
+    @Override
+    public void setRotation(float rotation) {
+<span class="fc" id="L32">        this.rotation = rotation;</span>
+<span class="fc" id="L33">    }</span>
+
+    @Override
+<span class="nc" id="L36">    public void draw(SpriteBatch batch, float parentAlpha) {}</span>
+
+    @Override
+    public float getHeight() {
+<span class="fc" id="L40">        return height;</span>
+    }
+
+    @Override
+    public float getWidth() {
+<span class="fc" id="L45">        return width;</span>
+    }
+
+    @Override
+    public void setWidth(float width) {
+<span class="fc" id="L50">        this.width = width;</span>
+<span class="fc" id="L51">    }</span>
+
+    @Override
+    public void setHeight(float height) {
+<span class="fc" id="L55">        this.height = height;</span>
+<span class="fc" id="L56">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

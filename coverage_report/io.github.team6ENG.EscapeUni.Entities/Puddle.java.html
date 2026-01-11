@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Puddle.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Entities</a> &gt; <span class="el_source">Puddle.java</span></div><h1>Puddle.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Entities;
+
+import io.github.team6ENG.EscapeUni.Managers.AssetManager;
+import io.github.team6ENG.EscapeUni.Managers.GraphicsManager;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.ImageDelegate;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.TextureDelegate;
+
+public class Puddle {
+
+    public final float x,y;
+    public final GraphicsManager graphics;
+    private TextureDelegate tex;
+    private ImageDelegate image;
+    private float originalWidth;
+    private float originalHeight;
+
+<span class="fc" id="L17">    public Puddle(GraphicsManager graphicsManager, float posX, float posY) {</span>
+<span class="fc" id="L18">        x = posX;</span>
+<span class="fc" id="L19">        y = posY;</span>
+<span class="fc" id="L20">        graphics = graphicsManager;</span>
+<span class="fc" id="L21">        tex = graphics.createTextureDelegate(AssetManager.puddleAsset);</span>
+<span class="fc" id="L22">        image = tex.createImage();</span>
+
+        // This fixes the collisions being off cause of scaling
+<span class="fc" id="L25">        originalWidth = image.getWidth();</span>
+<span class="fc" id="L26">        originalHeight = image.getHeight();</span>
+<span class="fc" id="L27">        image.setScale(1.4f);</span>
+<span class="fc" id="L28">        image.setPosition(x, y);</span>
+<span class="fc" id="L29">    }</span>
+
+    public ImageDelegate getImage() {
+<span class="fc" id="L32">        return image;</span>
+    }
+
+    /**
+     * Checks whether the given position on the map collides with this puddle, that is,
+     * whether it lies within the hitbox of this puddle.
+     * @param colX is the x position of the colliding object.
+     * @param colY is the y position of the colliding object.
+     * @return true if there is a collision and false otherwise.
+     */
+    public boolean checkCollision(float colX, float colY) {
+        // Use original dimensions scaled by 1.4 so the collsion is percise
+<span class="fc" id="L44">        float scaledWidth = originalWidth * 1.4f;</span>
+<span class="fc" id="L45">        float scaledHeight = originalHeight * 1.4f;</span>
+<span class="fc" id="L46">        float right = x + scaledWidth;</span>
+<span class="fc" id="L47">        float bottom = y + scaledHeight;</span>
+<span class="fc bfc" id="L48" title="All 8 branches covered.">        return colX &gt;= x &amp;&amp; colX &lt;= right &amp;&amp;</span>
+               colY &gt;= y &amp;&amp; colY &lt;= bottom;
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

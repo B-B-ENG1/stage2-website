@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Bus.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Entities</a> &gt; <span class="el_source">Bus.java</span></div><h1>Bus.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Entities;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
+import io.github.team6ENG.EscapeUni.Managers.AssetManager;
+import io.github.team6ENG.EscapeUni.Managers.AudioManager;
+import io.github.team6ENG.EscapeUni.Managers.GraphicsManager;
+import io.github.team6ENG.EscapeUni.Managers.ItemManager;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.TextureDelegate;
+import io.github.team6ENG.EscapeUni.World;
+
+/**
+ * A container for all information about the bus.
+ */
+public class Bus {
+    private final GraphicsManager graphics;
+    private final AudioManager audio;
+    private final ItemManager items;
+    private final TextureDelegate texture;
+    private final Player plr;
+    private float x, y;
+<span class="fc" id="L23">    private boolean leaving = false;</span>
+    public static final float width = 100;
+    public static final float height = 60;
+
+    public Bus(float x, float y, Player plr, GraphicsManager graphics,
+<span class="fc" id="L28">               AudioManager audioManager, ItemManager items) {</span>
+<span class="fc" id="L29">        this.plr = plr;</span>
+<span class="fc" id="L30">        this.graphics = graphics;</span>
+<span class="fc" id="L31">        this.audio = audioManager;</span>
+<span class="fc" id="L32">        this.items = items;</span>
+<span class="fc" id="L33">        this.texture = graphics.createTextureDelegate(AssetManager.busAsset);</span>
+<span class="fc" id="L34">        this.x = x;</span>
+<span class="fc" id="L35">        this.y = y;</span>
+<span class="fc" id="L36">    }</span>
+
+    /**
+     * If the bus is leaving, then update the camera to follow the bus.
+     * Otherwise, do nothing.
+     * @param camera is the camera to follow the bus.
+     */
+    public void leavingCamera(Camera camera) {
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">        if (leaving) {</span>
+<span class="nc" id="L45">            camera.position.x = x;</span>
+<span class="nc" id="L46">            camera.position.y = y + 20;</span>
+        }
+<span class="fc" id="L48">    }</span>
+
+    public void leave() {
+<span class="fc" id="L51">        leaving = true;</span>
+<span class="fc" id="L52">        audio.stopFootsteps();</span>
+<span class="fc" id="L53">        audio.setGameVolume(0);</span>
+<span class="fc" id="L54">        audio.setMusicVolume(0);</span>
+<span class="fc" id="L55">        audio.stopMusic();</span>
+
+<span class="fc" id="L57">    }</span>
+
+    /**
+     * Determines whether the bus is in the state of leaving.
+     * @return true if the bus is leaving and false otherwise.
+     */
+    public boolean isLeaving() {
+<span class="fc" id="L64">        return leaving;</span>
+    }
+
+    /**
+     * If the bus is leaving, then the bus is moved backwards along with
+     * the player. In this case, if the bus' x position is before 950,
+     * then true is returned (to signal the game needing to end). Otherwise,
+     * false is returned. In the case where the bus is not leaving, if the player
+     * has their phone and are close enough, they may leave.
+     * @param delta
+     * @return
+     */
+    public boolean update(float delta) {
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        if (leaving) {</span>
+<span class="fc" id="L78">            plr.torch.toggleNoNoise();</span>
+<span class="fc" id="L79">            x -= 80 * delta;</span>
+<span class="fc" id="L80">            plr.sprite.setPosition(x, y);</span>
+<span class="fc" id="L81">            Gdx.gl.glClearColor(0, 0, 0, Math.min(1, (x - 1500) / 300f));</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">            return x &lt; 950;</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        }else if (plr.has(items.getPhone())){</span>
+<span class="nc" id="L84">            plr.hasEnteredLangwith();</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">            if (playerWithinSquareDistance(2500)) {</span>
+<span class="nc" id="L86">                leave();</span>
+<span class="nc" id="L87">                items.getTorch().playerHas = false;</span>
+<span class="nc" id="L88">                plr.torch.toggleNoNoise(true);</span>
+                //player.sprite.setAlpha(0f);
+<span class="nc" id="L90">                graphics.gameFont.setColor(Color.BLUE);</span>
+<span class="nc" id="L91">                graphics.gameFont.getData().setScale(2f);</span>
+            }
+        }
+<span class="fc" id="L94">        return false;</span>
+    }
+
+    /**
+     * Determines whether the player is within a given square radius of the bus.
+     * @param squareDistance is the square of the upper bound on the acceptable
+     *                       distance.
+     * @return true if the player is within the distance and false otherwise.
+     */
+    private boolean playerWithinSquareDistance(float squareDistance) {
+<span class="nc" id="L104">        float dx = plr.sprite.getX() - x;</span>
+<span class="nc" id="L105">        float dy = plr.sprite.getY() - y;</span>
+<span class="nc" id="L106">        return World.withinDistance(dx, dy, squareDistance);</span>
+    }
+
+    /**
+     * Draws the bus on the screen.
+     */
+    public void draw() {
+<span class="fc" id="L113">        graphics.drawTexture(texture, x, y, width, height);</span>
+<span class="fc" id="L114">    }</span>
+
+    public void dispose() {
+<span class="nc" id="L117">        texture.dispose();</span>
+<span class="nc" id="L118">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

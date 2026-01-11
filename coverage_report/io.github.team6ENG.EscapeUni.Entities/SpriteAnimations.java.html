@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SpriteAnimations.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Entities</a> &gt; <span class="el_source">SpriteAnimations.java</span></div><h1>SpriteAnimations.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Entities;
+
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import io.github.team6ENG.EscapeUni.Managers.GraphicsManager;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.TextureDelegate;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.TextureRegionDelegate;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+/**
+ * Cuts sprite sheets up into animations
+ */
+public class SpriteAnimations  {
+
+<span class="fc" id="L18">    public HashMap&lt;String, Animation&lt;TextureRegionDelegate&gt;&gt; animations =</span>
+        new HashMap&lt;String, Animation&lt;TextureRegionDelegate&gt;&gt;();
+<span class="fc" id="L20">    private HashMap&lt;String, Integer[]&gt; animationInfo = new HashMap&lt;String, Integer[]&gt;();</span>
+    /**
+     * A personal asset manager for this particular sprite. This manager
+     * has the capacity to dispose the textures for the sprite at once.
+     */
+    protected GraphicsManager graphics;
+    private final int COLUMNS;
+    private final int ROWS;
+    private final TextureDelegate sheet;
+    protected List&lt;TextureDelegate&gt; textures;
+
+    protected TiledMapTileLayer wallsLayer;
+<span class="fc" id="L32">    protected int tileDimensions = 8;</span>
+
+    /**
+     * Loads sprite sheet
+     * @param file path of sprite sheet
+     * @param SheetCols Number of columns in sheet
+     * @param SheetRows Number of rows in sheet
+     */
+<span class="fc" id="L40">    public SpriteAnimations(GraphicsManager graphics, String file, int SheetCols, int SheetRows) {</span>
+<span class="fc" id="L41">        this.graphics = graphics;</span>
+<span class="fc" id="L42">        COLUMNS = SheetCols;</span>
+<span class="fc" id="L43">        ROWS = SheetRows;</span>
+<span class="fc" id="L44">        sheet = graphics.createTextureDelegate(file);</span>
+<span class="fc" id="L45">        textures = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L46">        textures.add(sheet);</span>
+<span class="fc" id="L47">    }</span>
+
+    /**
+     * Stores map info for later boundary detection
+     * @param walls tilemap of game walls
+     */
+    public void loadSprite(TiledMapTileLayer walls, int d) {
+<span class="fc" id="L54">        wallsLayer = walls;</span>
+<span class="fc" id="L55">        tileDimensions = d;</span>
+<span class="fc" id="L56">    }</span>
+
+    /**
+     * Cuts the sprite sheet up
+     * Stores resulting animations into animations dictionary
+     * @param animInfo dictionary of sprite sheet layout:
+     *                 key - Name of animation
+     *                 Value - Array representing row of animation on sprite sheet and index of start and end frames
+     * @param animationSpeed number of seconds each animation frame should last
+     */
+    protected void generateAnimation( HashMap&lt;String, Integer[]&gt; animInfo, float animationSpeed){
+        //animationInfo [0] = Row of animation, [1] = start frame [2] = end frame
+<span class="fc" id="L68">        animationInfo = animInfo;</span>
+
+<span class="fc" id="L70">        TextureRegionDelegate[][] tmp = sheet.split(</span>
+<span class="fc" id="L71">            (int)sheet.getWidth() / COLUMNS,</span>
+<span class="fc" id="L72">            (int)sheet.getHeight() / ROWS);</span>
+
+        TextureRegionDelegate[] frames;
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        for (String key : animationInfo.keySet())</span>
+        {
+<span class="fc" id="L77">            frames = new TextureRegionDelegate[animationInfo.get(key)[2]- animationInfo.get(key)[1]];</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">            for (int i = animationInfo.get(key)[1]; i &lt; animationInfo.get(key)[2]; i++ ){</span>
+<span class="fc" id="L79">                frames[i - animationInfo.get(key)[1]] = tmp[animationInfo.get(key)[0]][i];</span>
+            }
+<span class="fc" id="L81">            animations.put(key, new Animation&lt;TextureRegionDelegate&gt;(animationSpeed, frames));</span>
+
+<span class="fc" id="L83">        }</span>
+<span class="fc" id="L84">    }</span>
+
+    /**
+     * Disposes of all textures stored and clears the list of textures.
+     */
+    public void dispose() {
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        for (TextureDelegate t : textures) {</span>
+<span class="nc" id="L91">            t.dispose();</span>
+<span class="nc" id="L92">        }</span>
+<span class="nc" id="L93">        textures.clear();</span>
+<span class="nc" id="L94">    }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

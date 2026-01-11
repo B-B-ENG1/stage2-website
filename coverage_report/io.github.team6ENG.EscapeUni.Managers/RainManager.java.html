@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RainManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Managers</a> &gt; <span class="el_source">RainManager.java</span></div><h1>RainManager.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Managers;
+
+import com.badlogic.gdx.graphics.g2d.Animation;
+import io.github.team6ENG.EscapeUni.Entities.Puddle;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.ImageDelegate;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.TextureDelegate;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.TextureRegionDelegate;
+import io.github.team6ENG.EscapeUni.World;
+
+import java.util.Random;
+
+/**
+ * Manages the behaviour of rain in the game. Note that the value for whether
+ * rain is happening or not is stored in the World object, and this manager
+ * merely controls it. In fact, the world object can force rain to stop at
+ * any time if it told to.
+ */
+public class RainManager {
+
+    private Animation&lt;ImageDelegate&gt; animation;
+    private ImageDelegate tint;
+    protected final World world;
+    private final GraphicsManager graphics;
+    protected final AudioManager audio;
+    protected final PuddleManager puddleManager;
+    public static final float rainDuration = 80f;
+<span class="fc" id="L27">    private float rainTime = 0;</span>
+<span class="fc" id="L28">    private final Random random = new Random();</span>
+    /**
+     * The reciprocal of the probability of rain occurring per second. That is,
+     * the average number of seconds it will take for rain to happen.
+     */
+    private static final int secondsPerRain = 60;
+    /**
+     * The reciprocal of the probability of a puddle being created during
+     * rain every second. That is, every secondsPerPuddle seconds,
+     * on average there is a puddle created somewhere.
+     */
+    private static final int secondsPerPuddle = 10;
+
+
+    public RainManager(World world, GraphicsManager graphics, AudioManager audio,
+<span class="fc" id="L43">                       PuddleManager puddleManager) {</span>
+<span class="fc" id="L44">        this.world = world;</span>
+<span class="fc" id="L45">        this.graphics = graphics;</span>
+<span class="fc" id="L46">        this.audio = audio;</span>
+<span class="fc" id="L47">        this.puddleManager = puddleManager;</span>
+<span class="fc" id="L48">        initialiseAnimation();</span>
+<span class="fc" id="L49">        tint = graphics.createTextureDelegate(AssetManager.rainTintAsset).createImage();</span>
+<span class="fc" id="L50">    }</span>
+
+    private void initialiseAnimation() {
+<span class="fc" id="L53">        ImageDelegate[] keyFrames = new ImageDelegate[AssetManager.rainAssets.length];</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        for (int i = 0; i &lt; keyFrames.length; i++) {</span>
+<span class="fc" id="L55">            keyFrames[i] = graphics.createTextureDelegate(AssetManager.rainAssets[i]).createImage();</span>
+        }
+<span class="fc" id="L57">        animation = new Animation&lt;&gt;(0.1f, keyFrames);</span>
+<span class="fc" id="L58">    }</span>
+
+    /**
+     * If it has not rained yet, randomly decides whether it should start
+     * raining this frame. Otherwise, if it is still raining, draws the rain,
+     * potentially adds more puddles, and reduces the remaining rain time.
+     * @param delta is the time since the previous frame.
+     */
+    public void update(float delta) {
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (!world.hasRainOccurred()) {</span>
+
+<span class="fc" id="L69">            tryRain(delta);</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        }else if (world.isRaining()) {</span>
+<span class="fc" id="L71">            draw();</span>
+<span class="fc" id="L72">            placePuddle(delta);</span>
+<span class="fc" id="L73">            rainTime += delta;</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">            if (rainTime &gt;= rainDuration) {</span>
+<span class="fc" id="L75">                audio.stopRain();</span>
+<span class="fc" id="L76">                world.stopRain();</span>
+<span class="fc" id="L77">                rainTime = rainDuration;</span>
+            }
+        }
+<span class="fc" id="L80">    }</span>
+
+    /**
+     * Tells the puddle manager (with a random chance) to place a puddle,
+     * as required by {@code update}.
+     * @param delta is the time since the previous frame.
+     */
+    protected void placePuddle(float delta) {
+        // Seconds per puddle = delta / expectedPuddles
+        // so, expectedPuddles = delta / secondsPerPuddle.
+        // The bound is the reciprocal of the expectation.
+<span class="fc" id="L91">        int probabilityBound = (int)(secondsPerPuddle / delta + 1);</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        if (random.nextInt(probabilityBound) == 0) {</span>
+<span class="fc" id="L93">            puddleManager.addPuddles(1);</span>
+        }
+<span class="fc" id="L95">    }</span>
+
+    /**
+     * At random, decides whether to start raining or not as required by
+     * {@code update}.
+     * @param delta is the time since the previous frame.
+     */
+    protected void tryRain(float delta) {
+        // Seconds per rain = delta / expectedRain
+        // so, expectedRain = delta / secondsPerRain.
+        // The bound is the reciprocal of the expectation.
+<span class="fc" id="L106">        int probabilityBound = (int)(secondsPerRain / delta + 1);</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">        if (random.nextInt(probabilityBound) == 0) {</span>
+<span class="fc" id="L108">            world.rainEvent();</span>
+<span class="fc" id="L109">            audio.playRain();</span>
+        }
+<span class="fc" id="L111">    }</span>
+
+    /**
+     * Draws a rain image on the screen. The map is 1600x1600, and
+     * each rain texture is 200x200. So, we draw 8 * 8 = 64 rain textures
+     * to form a grid of rain around the map.
+     */
+    private void draw() {
+<span class="fc" id="L119">        ImageDelegate currentImage = animation.getKeyFrame(rainTime, true);</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">        for (int x = 0; x &lt; 8; x++ ){</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">            for (int y = 0; y &lt; 8; y++ ){</span>
+<span class="fc" id="L122">                currentImage.setPosition(x * 200, y * 200);</span>
+<span class="fc" id="L123">                graphics.drawImage(currentImage, 0.45f);</span>
+            }
+        }
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">        if (!world.isDark()) graphics.drawImage(tint, 0.25f);</span>
+<span class="fc" id="L127">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

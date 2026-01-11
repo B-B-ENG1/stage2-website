@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TextBoxDelegate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Screens.Delegates</a> &gt; <span class="el_source">TextBoxDelegate.java</span></div><h1>TextBoxDelegate.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Screens.Delegates;
+
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+
+public class TextBoxDelegate {
+
+    private TextField textBox;
+
+<span class="nc" id="L11">    public TextBoxDelegate(TextField textBox) {</span>
+<span class="nc" id="L12">        this.textBox = textBox;</span>
+<span class="nc" id="L13">    }</span>
+
+<span class="fc" id="L15">    protected TextBoxDelegate() {}</span>
+
+    public void addToStage(StageDelegate stage) {
+<span class="nc" id="L18">        stage.addActor(textBox);</span>
+<span class="nc" id="L19">    }</span>
+
+    public String getText() {
+<span class="nc" id="L22">        return textBox.getText();</span>
+    }
+
+    public void setText(String text) {
+<span class="nc" id="L26">        textBox.setText(text);</span>
+<span class="nc" id="L27">    }</span>
+
+    public void setPosition(float x, float y) {
+<span class="nc" id="L30">        textBox.setPosition(x, y);</span>
+<span class="nc" id="L31">    }</span>
+
+    public float getWidth() {
+<span class="nc" id="L34">        return textBox.getWidth();</span>
+    }
+
+    public void addListener(ClickListener listener) {
+<span class="nc" id="L38">        textBox.addListener(listener);</span>
+<span class="nc" id="L39">    }</span>
+
+    public void addListener(ChangeListener listener) {
+<span class="nc" id="L42">        textBox.addListener(listener);</span>
+<span class="nc" id="L43">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

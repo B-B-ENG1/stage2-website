@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SpriteDelegate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Screens.Delegates</a> &gt; <span class="el_source">SpriteDelegate.java</span></div><h1>SpriteDelegate.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Screens.Delegates;
+
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+
+public class SpriteDelegate {
+
+    private Sprite sprite;
+
+<span class="fc" id="L10">    public SpriteDelegate() {}</span>
+
+<span class="nc" id="L12">    public SpriteDelegate(Sprite sprite) {</span>
+<span class="nc" id="L13">        this.sprite = sprite;</span>
+<span class="nc" id="L14">    }</span>
+
+    public void draw(SpriteBatch batch) {
+<span class="nc" id="L17">        sprite.draw(batch);</span>
+<span class="nc" id="L18">    }</span>
+
+    public float getX() {
+<span class="nc" id="L21">        return sprite.getX();</span>
+    }
+
+    public float getY() {
+<span class="nc" id="L25">        return sprite.getY();</span>
+    }
+
+    public float getWidth() {
+<span class="nc" id="L29">        return sprite.getWidth();</span>
+    }
+
+    public float getHeight() {
+<span class="nc" id="L33">        return sprite.getHeight();</span>
+    }
+
+    public void setScale(float scale) {
+<span class="nc" id="L37">        sprite.setScale(scale);</span>
+<span class="nc" id="L38">    }</span>
+
+    public void setScale(float scaleX, float scaleY) {
+<span class="nc" id="L41">        sprite.setScale(scaleX, scaleY);</span>
+<span class="nc" id="L42">    }</span>
+
+    public void translateX(float deltaX) {
+<span class="nc" id="L45">        sprite.translateX(deltaX);</span>
+<span class="nc" id="L46">    }</span>
+
+    public void setX(float x) {
+<span class="nc" id="L49">        sprite.setX(x);</span>
+<span class="nc" id="L50">    }</span>
+
+    public void translateY(float deltaY) {
+<span class="nc" id="L53">        sprite.translateY(deltaY);</span>
+<span class="nc" id="L54">    }</span>
+
+    public void setY(float y) {
+<span class="nc" id="L57">        sprite.setY(y);</span>
+<span class="nc" id="L58">    }</span>
+
+    public void setBounds(float x, float y, int width, int height) {
+<span class="nc" id="L61">        sprite.setBounds(x, y, width, height);</span>
+<span class="nc" id="L62">    }</span>
+
+    /**
+     * Sets the region of the sprite to the given texture. This
+     * involves telling the texture region delegate to assign to the sprite's
+     * texture.
+     * @param texture is the texture region delegate.
+     */
+    public void setRegion(TextureRegionDelegate texture) {
+<span class="nc" id="L71">        texture.setSpriteRegion(sprite);</span>
+<span class="nc" id="L72">    }</span>
+
+    public void setPosition(float x, float y) {
+<span class="nc" id="L75">        sprite.setPosition(x, y);</span>
+<span class="nc" id="L76">    }</span>
+
+    public boolean nullTexture() {
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        return sprite == null;</span>
+    }
+
+    public void setColor(float r, float g, float b, float a) {
+<span class="nc" id="L83">        sprite.setColor(r, g, b, a);</span>
+<span class="nc" id="L84">    }</span>
+
+    public void dispose() {
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (!nullTexture()) {</span>
+<span class="nc" id="L88">            sprite.getTexture().dispose();</span>
+        }
+<span class="nc" id="L90">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

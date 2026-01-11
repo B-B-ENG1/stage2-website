@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Player.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">headless</a> &gt; <a href="index.source.html" class="el_package">io.github.team6ENG.EscapeUni.Entities</a> &gt; <span class="el_source">Player.java</span></div><h1>Player.java</h1><pre class="source lang-java linenums">package io.github.team6ENG.EscapeUni.Entities;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import io.github.team6ENG.EscapeUni.Managers.AudioManager;
+import io.github.team6ENG.EscapeUni.Managers.GraphicsManager;
+import io.github.team6ENG.EscapeUni.Managers.ItemManager;
+import io.github.team6ENG.EscapeUni.Managers.TileManager;
+import io.github.team6ENG.EscapeUni.Performance.ElapsedTimeChecker;
+import io.github.team6ENG.EscapeUni.Performance.FPSTracker;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.SpriteDelegate;
+import io.github.team6ENG.EscapeUni.Screens.Delegates.TextureRegionDelegate;
+import io.github.team6ENG.EscapeUni.World;
+
+import java.util.HashMap;
+
+/**
+ * Represents and controls the main player character
+ */
+public class Player extends SpriteAnimations {
+<span class="fc" id="L23">    private HashMap&lt;String, Integer[]&gt; animationInfo = new HashMap&lt;String, Integer[]&gt;();</span>
+    public TextureRegionDelegate currentPlayerFrame;
+<span class="fc" id="L25">    public float speed = 1.25f;</span>
+    public static final float puddleSlowDuration = 2;
+<span class="fc" id="L27">    private float puddleSlowedTime = 0;</span>
+    private World world;
+
+    public SpriteDelegate sprite;
+    public Torch torch;
+
+<span class="fc" id="L33">    private boolean isFacingUp = false;</span>
+<span class="fc" id="L34">    private boolean isFacingLeft = false;</span>
+    private boolean isMoving;
+    private boolean isMovingHorizontally;
+    private boolean inWater;
+<span class="fc" id="L38">    private boolean hasEnteredLangwith = false;</span>
+    private AudioManager audioManager;
+    private ItemManager items;
+<span class="fc" id="L41">    public boolean isFootsteps = false;</span>
+    private ElapsedTimeChecker timer;
+
+<span class="fc" id="L44">    public boolean ignoreCollisions = false;</span>
+
+<span class="fc" id="L46">    public enum AnimationEnum {</span>
+<span class="fc" id="L47">        IDLE,</span>
+<span class="fc" id="L48">        FORWARDS,</span>
+<span class="fc" id="L49">        LEFT_FORWARDS,</span>
+<span class="fc" id="L50">        RIGHT_FORWARDS,</span>
+<span class="fc" id="L51">        BACKWARDS,</span>
+<span class="fc" id="L52">        LEFT_BACKWARDS,</span>
+<span class="fc" id="L53">        RIGHT_BACKWARDS;</span>
+
+        public TextureRegionDelegate getFrame(HashMap&lt;String, Animation&lt;TextureRegionDelegate&gt;&gt; animations,
+                                              float stateTime, boolean looping) {
+<span class="fc" id="L57">            return animations.get(toString()).getKeyFrame(stateTime, looping);</span>
+        }
+
+        @Override
+        public String toString() {
+<span class="fc bfc" id="L62" title="All 7 branches covered.">            switch(this) {</span>
+                case FORWARDS:
+<span class="fc" id="L64">                    return &quot;walkForwards&quot;;</span>
+                case LEFT_FORWARDS:
+<span class="fc" id="L66">                    return &quot;walkLeftForwards&quot;;</span>
+                case RIGHT_FORWARDS:
+<span class="fc" id="L68">                    return &quot;walkRightForwards&quot;;</span>
+                case BACKWARDS:
+<span class="fc" id="L70">                    return &quot;walkBackwards&quot;;</span>
+                case LEFT_BACKWARDS:
+<span class="fc" id="L72">                    return &quot;walkLeftBackwards&quot;;</span>
+                case RIGHT_BACKWARDS:
+<span class="fc" id="L74">                    return &quot;walkRightBackwards&quot;;</span>
+                default:
+<span class="fc" id="L76">                    return &quot;idle&quot;;</span>
+            }
+        }
+    }
+
+<span class="fc" id="L81">    private AnimationEnum anim = AnimationEnum.IDLE;</span>
+
+    /**
+     * Initialises the player and its animations
+     */
+    public Player(final GraphicsManager graphics, final World world,
+                  AudioManager audioManager, ItemManager items) {
+<span class="fc" id="L88">        super(graphics, world.getCharacterAsset(), 8, 7);</span>
+<span class="fc" id="L89">        this.audioManager = audioManager;</span>
+<span class="fc" id="L90">        this.items = items;</span>
+<span class="fc" id="L91">        this.world = world;</span>
+        // HashMap&lt;String, Integer[]&gt; animationInfo:
+        //      key - Name of animation
+        //      Value - Array representing row of animation on sprite sheet and index of start and end frames
+
+<span class="fc" id="L96">        initializeAnimations();</span>
+<span class="fc" id="L97">        sprite = graphics.createSpriteDelegate(animations.get(&quot;walkLeftForwards&quot;).getKeyFrame(0, true));</span>
+<span class="fc" id="L98">        sprite.setBounds(sprite.getX(), sprite.getY(), 48, 64);</span>
+<span class="fc" id="L99">        torch = items.createTorch();</span>
+<span class="fc" id="L100">        timer = new ElapsedTimeChecker();</span>
+<span class="fc" id="L101">    }</span>
+
+    public AnimationEnum getAnimatingState() {
+<span class="fc" id="L104">        return anim;</span>
+    }
+
+    /**
+     * Creates the data for all animations and puts them into animationInfo.
+     * Then, this animation information is used to generate an animation.
+     */
+    private void initializeAnimations() {
+<span class="fc" id="L112">        animationInfo.put(AnimationEnum.IDLE.toString(), new Integer[]{0,0,8});</span>
+<span class="fc" id="L113">        animationInfo.put(AnimationEnum.FORWARDS.toString(), new Integer[]{1,0,8});</span>
+<span class="fc" id="L114">        animationInfo.put(AnimationEnum.LEFT_FORWARDS.toString(), new Integer[]{2,0,8});</span>
+<span class="fc" id="L115">        animationInfo.put(AnimationEnum.RIGHT_FORWARDS.toString(), new Integer[]{6,0,8});</span>
+<span class="fc" id="L116">        animationInfo.put(AnimationEnum.RIGHT_BACKWARDS.toString(), new Integer[]{5,0,8});</span>
+<span class="fc" id="L117">        animationInfo.put(AnimationEnum.LEFT_BACKWARDS.toString(), new Integer[]{3,0,8});</span>
+<span class="fc" id="L118">        animationInfo.put(AnimationEnum.BACKWARDS.toString(), new Integer[]{4,0,8});</span>
+<span class="fc" id="L119">        generateAnimation(animationInfo, 0.3f);</span>
+<span class="fc" id="L120">    }</span>
+
+    /**
+     * Checks if the given cell would cause a collision with the player.
+     * Specifically, a player collides with a cell if and only if they are
+     * unable to pass through it.
+     * @param cell is the cell to be checked for a collision.
+     * @return true if the player would collide with the cell, and false
+     *  otherwise.
+     */
+    public boolean checkCellCollision(TiledMapTileLayer.Cell cell) {
+<span class="pc bpc" id="L131" title="1 of 4 branches missed.">        if (cell == null || ignoreCollisions == true) return false;</span>
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">        if (cell.getTile().getId() == TileManager.mapWallsId) return true;</span>
+<span class="pc bpc" id="L133" title="3 of 4 branches missed.">        return (cell.getTile().getId() == TileManager.mapLangwithBarriersId)</span>
+            &amp;&amp; !hasEnteredLangwith;
+    }
+
+    /**
+     * If the player's center is within the bounds of any puddle, note that a
+     * puddle event has occurred and tell the player to be slowed. Otherwise,
+     * stop the slowing.
+     */
+    public void checkPuddleCollision() {
+<span class="fc" id="L143">        float playerCenterX = sprite.getX() + sprite.getWidth() / 2;</span>
+<span class="fc" id="L144">        float playerCenterY = sprite.getY() + sprite.getHeight() / 2;</span>
+<span class="fc bfc" id="L145" title="All 2 branches covered.">        for (Puddle puddle : world.getPuddles()) {</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">            if (puddle.checkCollision(playerCenterX, playerCenterY)) {</span>
+<span class="fc" id="L147">                puddleSlowedTime = puddleSlowDuration;</span>
+<span class="fc" id="L148">                world.puddleEvent();</span>
+<span class="fc" id="L149">                return;</span>
+            }
+<span class="fc" id="L151">        }</span>
+<span class="fc" id="L152">        puddleSlowedTime = 0;</span>
+<span class="fc" id="L153">    }</span>
+
+    public void checkWormCollision(float delta) {
+<span class="fc" id="L156">        float playerCenterX = sprite.getX() + sprite.getWidth() / 2;</span>
+<span class="fc" id="L157">        float playerCenterY = sprite.getY() + sprite.getHeight() / 2;</span>
+<span class="fc" id="L158">        java.util.Iterator&lt;Worm&gt; it = world.getWorms().iterator();</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">        while (it.hasNext()) {</span>
+<span class="fc" id="L160">            Worm worm = it.next();</span>
+<span class="fc bfc" id="L161" title="All 4 branches covered.">            if (!worm.isTargeted() &amp;&amp; worm.checkCollision(playerCenterX, playerCenterY)) {</span>
+<span class="fc" id="L162">                world.wormEvent();</span>
+<span class="fc" id="L163">                world.requestWormPickup(worm);</span>
+<span class="fc" id="L164">                return;</span>
+            }
+<span class="fc" id="L166">        }</span>
+<span class="fc" id="L167">    }</span>
+
+    /**
+     * Determines whether the player is currently in a puddle in the sense that
+     * they are affected by said puddle.
+     * @return true if the player is currently colliding with a puddle, and
+     * false otherwise.
+     */
+    public boolean inPuddle() {
+<span class="pc bpc" id="L176" title="1 of 2 branches missed.">        return puddleSlowedTime &gt; 0;</span>
+    }
+
+    private void startInputTimers() {
+<span class="fc bfc" id="L180" title="All 4 branches covered.">        if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {</span>
+<span class="fc" id="L181">            timer.startTimer(&quot;MoveUp&quot;);</span>
+        }
+<span class="fc" id="L183">    }</span>
+
+    /**
+     * Check for keyboard input and move player
+     * @param delta time in seconds since last frame
+     */
+    public void handleInput(float delta, float speedModifier) {
+<span class="fc" id="L190">        startInputTimers();</span>
+<span class="fc" id="L191">        checkPuddleCollision();</span>
+<span class="fc" id="L192">        checkWormCollision(delta);</span>
+
+<span class="fc" id="L194">        float actualSpeed = computeDisplacement(delta, speedModifier);</span>
+<span class="fc bfc" id="L195" title="All 2 branches covered.">        if (inWater) actualSpeed /=2;</span>
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">        if (puddleSlowedTime &gt; 0) actualSpeed *= 0.4f;</span>
+        TiledMapTileLayer.Cell cell;
+<span class="fc" id="L198">        int x = (int)(sprite.getX()+(sprite.getWidth()/2))/tileDimensions;</span>
+<span class="fc" id="L199">        int y = (int)(sprite.getY()+(sprite.getHeight()/2))/tileDimensions;</span>
+<span class="fc" id="L200">        int mapWidth = wallsLayer.getWidth();</span>
+<span class="fc" id="L201">        int mapHeight = wallsLayer.getHeight();</span>
+<span class="fc" id="L202">        isMoving = false;</span>
+<span class="fc" id="L203">        isFacingLeft = false;</span>
+<span class="fc" id="L204">        isFacingUp = false;</span>
+<span class="fc" id="L205">        isMovingHorizontally = false;</span>
+        // move up
+<span class="fc bfc" id="L207" title="All 4 branches covered.">        if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {</span>
+<span class="pc bpc" id="L208" title="1 of 2 branches missed.">            if (y + 1 &lt; mapHeight) {</span>
+<span class="fc" id="L209">                cell = wallsLayer.getCell(x, y + 1);</span>
+<span class="pc bpc" id="L210" title="1 of 2 branches missed.">                if (!checkCellCollision(cell)) {</span>
+<span class="fc" id="L211">                    sprite.translateY(actualSpeed);</span>
+<span class="fc" id="L212">                    isMoving = true;</span>
+<span class="fc" id="L213">                    isFacingUp = true;</span>
+                }
+<span class="fc" id="L215">                checkIfInWater(cell);</span>
+            }
+            // If needed for testing, we can print the input delay here.
+<span class="pc bpc" id="L218" title="1 of 2 branches missed.">            if (timer.timerExists(&quot;MoveUp&quot;)) {</span>
+<span class="fc" id="L219">                timer.endTimer(&quot;MoveUp&quot;);</span>
+            }
+        }
+        // move down
+<span class="fc bfc" id="L223" title="All 4 branches covered.">        if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {</span>
+<span class="pc bpc" id="L224" title="1 of 2 branches missed.">            if (y - 1 &gt;= 0) {</span>
+<span class="fc" id="L225">                cell = wallsLayer.getCell(x, y -1);</span>
+<span class="pc bpc" id="L226" title="1 of 2 branches missed.">                if (!checkCellCollision(cell)) {</span>
+<span class="fc" id="L227">                    sprite.translateY(-actualSpeed);</span>
+<span class="fc" id="L228">                    isMoving = true;</span>
+<span class="fc" id="L229">                    isFacingUp = false;</span>
+                }
+<span class="fc" id="L231">                checkIfInWater(cell);</span>
+            }
+        }
+        // move left
+<span class="fc bfc" id="L235" title="All 4 branches covered.">        if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {</span>
+<span class="pc bpc" id="L236" title="1 of 2 branches missed.">            if (x - 1 &gt;= 0) {</span>
+<span class="fc" id="L237">                cell = wallsLayer.getCell(x -1 , y);</span>
+<span class="pc bpc" id="L238" title="1 of 2 branches missed.">                if (!checkCellCollision(cell)) {</span>
+<span class="fc" id="L239">                    sprite.translateX(-actualSpeed);</span>
+<span class="fc" id="L240">                    isMoving = true;</span>
+<span class="fc" id="L241">                    isFacingLeft = true;</span>
+<span class="fc" id="L242">                    isMovingHorizontally = true;</span>
+                }
+<span class="fc" id="L244">                checkIfInWater(cell);</span>
+            }
+
+        }
+        // move right
+<span class="fc bfc" id="L249" title="All 4 branches covered.">        if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {</span>
+<span class="pc bpc" id="L250" title="1 of 2 branches missed.">            if (x + 1 &lt; mapWidth) {</span>
+<span class="fc" id="L251">                cell = wallsLayer.getCell(x + 1, y);</span>
+<span class="pc bpc" id="L252" title="1 of 2 branches missed.">                if (!checkCellCollision(cell)) {</span>
+<span class="fc" id="L253">                    sprite.translateX(actualSpeed);</span>
+<span class="fc" id="L254">                    isMoving = true;</span>
+<span class="fc" id="L255">                    isFacingLeft = false;</span>
+<span class="fc" id="L256">                    isMovingHorizontally = true;</span>
+                }
+<span class="fc" id="L258">                checkIfInWater(cell);</span>
+            }
+        }
+        // check boundary
+<span class="fc" id="L262">        keepPlayerInBounds();</span>
+<span class="fc bfc" id="L263" title="All 4 branches covered.">        if(isMoving &amp;&amp; !isFootsteps){</span>
+<span class="fc" id="L264">            isFootsteps = true;</span>
+<span class="fc" id="L265">            audioManager.loopFootsteps();</span>
+        }
+<span class="fc bfc" id="L267" title="All 2 branches covered.">        else if (!isMoving){</span>
+<span class="fc" id="L268">            isFootsteps = false;</span>
+<span class="fc" id="L269">            audioManager.stopFootsteps();</span>
+        }
+
+<span class="pc bpc" id="L272" title="3 of 4 branches missed.">        if (Gdx.input.justTouched() &amp;&amp; has(items.getTorch())) {</span>
+<span class="nc" id="L273">            torch.toggle();</span>
+        }
+<span class="fc" id="L275">    }</span>
+
+
+    /**
+     * Determines whether the player has a particular item.
+     * @param item is the item to be checked.
+     * @return true if the player has the item and false otherwise.
+     */
+    public boolean has(Collectable item) {
+<span class="pc bpc" id="L284" title="1 of 2 branches missed.">        if (item == null) return false;</span>
+<span class="fc" id="L285">        return item.playerHas;</span>
+    }
+
+    public float getX() {
+<span class="fc" id="L289">        return sprite.getX();</span>
+    }
+
+    public float getY() {
+<span class="fc" id="L293">        return sprite.getY();</span>
+    }
+
+    /**
+     * Calculates the displacement along a given axis associated with the
+     * current speed, a given speed modifier and a given change in time.
+     * @param delta is the change in time over which the displacement occurs.
+     * @param speedModifier is a multiplier for the speed.
+     * @return the displacement calculated.
+     */
+    public float computeDisplacement(float delta, float speedModifier) {
+<span class="fc" id="L304">        return speed * speedModifier * 60f * delta;</span>
+    }
+
+    private void checkIfInWater(TiledMapTileLayer.Cell cell){
+<span class="pc bpc" id="L308" title="1 of 4 branches missed.">        if (cell != null &amp;&amp; cell.getTile().getId() == TileManager.mapWaterId) {</span>
+<span class="fc" id="L309">            inWater = true;</span>
+        }
+        else{
+<span class="fc" id="L312">            inWater = false;</span>
+        }
+<span class="fc" id="L314">    }</span>
+    /**
+     * Ensure player can't leave the map
+     */
+    private void keepPlayerInBounds() {
+
+<span class="fc" id="L320">        float worldWidth = world.getWorldWidth(tileDimensions);</span>
+<span class="fc" id="L321">        float worldHeight = world.getWorldHeight(tileDimensions);</span>
+
+<span class="fc bfc" id="L323" title="All 2 branches covered.">        if (sprite.getX() &lt; 0) sprite.setX(0);</span>
+
+<span class="fc bfc" id="L325" title="All 2 branches covered.">        if (sprite.getY() &lt; 0) sprite.setY(0);</span>
+
+<span class="fc bfc" id="L327" title="All 2 branches covered.">        if (sprite.getX() &gt; worldWidth - sprite.getWidth())</span>
+<span class="fc" id="L328">            sprite.setX(worldWidth - sprite.getWidth());</span>
+
+<span class="fc bfc" id="L330" title="All 2 branches covered.">        if (sprite.getY() &gt; worldHeight - sprite.getHeight())</span>
+<span class="fc" id="L331">            sprite.setY(worldHeight - sprite.getHeight());</span>
+<span class="fc" id="L332">    }</span>
+
+    /**
+     * Update player animation and torch position
+     * @param stateTime time in seconds since last frame
+     */
+    public void updatePlayer(float stateTime){
+<span class="fc bfc" id="L339" title="All 2 branches covered.">        if (isMoving){</span>
+<span class="fc bfc" id="L340" title="All 2 branches covered.">            if (isFacingUp){</span>
+<span class="pc bpc" id="L341" title="1 of 2 branches missed.">                if (isMovingHorizontally) {</span>
+<span class="nc bnc" id="L342" title="All 2 branches missed.">                    if (isFacingLeft) {</span>
+<span class="nc" id="L343">                        anim = AnimationEnum.LEFT_BACKWARDS;</span>
+<span class="nc" id="L344">                        torch.positionLeftBackwards(sprite.getX(), sprite.getY());</span>
+                    } else {
+<span class="nc" id="L346">                        anim = AnimationEnum.RIGHT_BACKWARDS;</span>
+<span class="nc" id="L347">                        torch.positionRightBackwards(sprite.getX(), sprite.getY());</span>
+                    }
+                }
+                else{
+<span class="fc" id="L351">                    anim = AnimationEnum.BACKWARDS;</span>
+<span class="fc" id="L352">                    torch.positionBackwards(sprite.getX(), sprite.getY());</span>
+                }
+            }
+            else{
+<span class="fc bfc" id="L356" title="All 2 branches covered.">                if(isMovingHorizontally) {</span>
+<span class="fc bfc" id="L357" title="All 2 branches covered.">                    if (isFacingLeft) {</span>
+<span class="fc" id="L358">                        anim = AnimationEnum.LEFT_FORWARDS;</span>
+<span class="fc" id="L359">                        torch.positionLeftForwards(sprite.getX(), sprite.getY());</span>
+                    } else {
+<span class="fc" id="L361">                        anim = AnimationEnum.RIGHT_FORWARDS;</span>
+<span class="fc" id="L362">                        torch.positionRightForwards(sprite.getX(), sprite.getY());</span>
+                    }
+                }
+                else{
+<span class="fc" id="L366">                    anim = AnimationEnum.FORWARDS;</span>
+<span class="fc" id="L367">                    torch.positionForwards(sprite.getX(), sprite.getY());</span>
+                }
+
+            }
+
+        }
+        else{
+<span class="fc" id="L374">            anim = AnimationEnum.IDLE;</span>
+<span class="fc" id="L375">            torch.positionIdle(sprite.getX(), sprite.getY());</span>
+        }
+<span class="fc" id="L377">        currentPlayerFrame = anim.getFrame(animations, stateTime, true);</span>
+<span class="fc" id="L378">        sprite.setRegion(currentPlayerFrame);</span>
+
+<span class="fc" id="L380">    }</span>
+
+    /**
+     * A getter for the {@code isMoving} attribute.
+     * @return true if and only if the player is moving.
+     */
+    public boolean isMoving() {
+<span class="fc" id="L387">        return isMoving;</span>
+    }
+
+    /**
+     * A getter for the {@code inWater} attribute.
+     * @return true if and only if the player is in water.
+     */
+    public boolean isInWater() {
+<span class="fc" id="L395">        return inWater;</span>
+    }
+
+    /**
+     * Marks the fact that the player has entered Langwith.
+     */
+    public void hasEnteredLangwith() {
+<span class="nc" id="L402">        hasEnteredLangwith = true;</span>
+<span class="nc" id="L403">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
